@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="60" height="16" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame">
+<path id="Vector" d="M0 12L10 3V12H0Z" fill="white"/>
+<path id="Vector_2" d="M16 5C20.6667 0.333334 25.3333 0.333334 30 5L23 13L16 5Z" fill="white"/>
+<path id="Vector_3" d="M38 3H53C54.1046 3 55 3.89543 55 5V11C55 12.1046 54.1046 13 53 13H38C36.8954 13 36 12.1046 36 11V5C36 3.89543 36.8954 3 38 3Z" stroke-width="1.5" stroke="white"/>
+<path id="Vector_4" d="M50 5H39C38.4477 5 38 5.44772 38 6V10C38 10.5523 38.4477 11 39 11H50C50.5523 11 51 10.5523 51 10V6C51 5.44772 50.5523 5 50 5Z" fill="white"/>
+<g id="Vector_5">
+<path d="M57 6V10Z" fill="white"/>
+<path d="M57 6V10" stroke-width="2" stroke="white"/>
+</g>
+</g>
+</svg>

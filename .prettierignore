@@ -1,0 +1,9 @@
+node_modules
+dist
+storybook-static
+coverage
+package-lock.json
+packages/design-tokens/tokens.css
+apps/mobile/android
+.qa
+apps/mobile/src/assets/figma/**/*.svg

@@ -1,0 +1,352 @@
+/* Generado desde tokens.json. Editar la fuente y ejecutar npm run tokens:build. */
+:root {
+  --hf-color-base-plum-950: #211A30;
+  --hf-color-base-plum-900: #2B213C;
+  --hf-color-base-plum-800: #3B2B53;
+  --hf-color-base-plum-700: #48345F;
+  --hf-color-base-plum-600: #51445F;
+  --hf-color-base-neutral-border: #A699BD;
+  --hf-color-base-neutral-muted: #BCAFD0;
+  --hf-color-base-neutral-disabled: #CBBED9;
+  --hf-color-base-neutral-secondary: #DED2F0;
+  --hf-color-base-white: #FFFFFF;
+  --hf-color-base-lavender-100: #E6D8FA;
+  --hf-color-base-lavender-400: #BE97F4;
+  --hf-color-base-lavender-500: #AA82DE;
+  --hf-color-base-periwinkle-400: #939BFF;
+  --hf-color-base-periwinkle-500: #7D86EC;
+  --hf-color-base-yellow-400: #FFC35E;
+  --hf-color-base-yellow-500: #E6AA43;
+  --hf-color-base-pink-400: #F55DC1;
+  --hf-color-base-pink-500: #D83CA5;
+  --hf-color-base-success-foreground: #9DDCB4;
+  --hf-color-base-success-surface: #243D32;
+  --hf-color-base-warning-surface: #463D29;
+  --hf-color-base-error-foreground: #FFB4BE;
+  --hf-color-base-error-surface: #4A2936;
+  --hf-color-base-info-surface: #2E3152;
+  --hf-color-base-illustration-outline: #100B18;
+  --hf-color-base-illustration-leaf: #6AC47B;
+  --hf-color-base-illustration-soil: #9A7049;
+  --hf-color-background-canvas: var(--hf-color-base-plum-950);
+  --hf-color-surface-default: var(--hf-color-base-plum-900);
+  --hf-color-surface-plant: var(--hf-color-base-plum-800);
+  --hf-color-surface-raised: var(--hf-color-base-plum-700);
+  --hf-color-text-primary: var(--hf-color-base-white);
+  --hf-color-text-secondary: var(--hf-color-base-neutral-secondary);
+  --hf-color-text-muted: var(--hf-color-base-neutral-muted);
+  --hf-color-text-on-accent: var(--hf-color-base-plum-950);
+  --hf-color-text-link: var(--hf-color-base-lavender-400);
+  --hf-color-icon-default: var(--hf-color-base-neutral-secondary);
+  --hf-color-icon-on-accent: var(--hf-color-base-plum-950);
+  --hf-color-border-control: var(--hf-color-base-neutral-border);
+  --hf-color-border-selected: var(--hf-color-base-lavender-400);
+  --hf-color-focus-ring: var(--hf-color-base-lavender-400);
+  --hf-color-focus-gap: var(--hf-color-base-plum-950);
+  --hf-color-action-primary: var(--hf-color-base-lavender-400);
+  --hf-color-action-primary-pressed: var(--hf-color-base-lavender-500);
+  --hf-color-habit-water: var(--hf-color-base-periwinkle-400);
+  --hf-color-habit-water-pressed: var(--hf-color-base-periwinkle-500);
+  --hf-color-habit-sunscreen: var(--hf-color-base-yellow-400);
+  --hf-color-habit-sunscreen-pressed: var(--hf-color-base-yellow-500);
+  --hf-color-accent-streak: var(--hf-color-base-pink-400);
+  --hf-color-selection-surface: var(--hf-color-base-lavender-400);
+  --hf-color-selection-subtle: var(--hf-color-base-plum-800);
+  --hf-color-navigation-surface: var(--hf-color-base-lavender-100);
+  --hf-color-navigation-foreground: var(--hf-color-base-plum-950);
+  --hf-color-navigation-active-surface: var(--hf-color-base-plum-950);
+  --hf-color-navigation-active-foreground: var(--hf-color-base-white);
+  --hf-color-disabled-surface: var(--hf-color-base-plum-600);
+  --hf-color-disabled-foreground: var(--hf-color-base-neutral-disabled);
+  --hf-color-feedback-success: var(--hf-color-base-success-foreground);
+  --hf-color-feedback-success-surface: var(--hf-color-base-success-surface);
+  --hf-color-feedback-warning: var(--hf-color-base-yellow-400);
+  --hf-color-feedback-warning-surface: var(--hf-color-base-warning-surface);
+  --hf-color-feedback-error: var(--hf-color-base-error-foreground);
+  --hf-color-feedback-error-surface: var(--hf-color-base-error-surface);
+  --hf-color-feedback-info: var(--hf-color-base-periwinkle-400);
+  --hf-color-feedback-info-surface: var(--hf-color-base-info-surface);
+  --hf-color-action-destructive: var(--hf-color-base-error-foreground);
+  --hf-color-action-destructive-pressed: var(--hf-color-base-pink-400);
+  --hf-color-component-button-primary-background: var(--hf-color-action-primary);
+  --hf-color-component-button-primary-foreground: var(--hf-color-text-on-accent);
+  --hf-color-component-button-primary-pressed: var(--hf-color-action-primary-pressed);
+  --hf-color-component-habit-water-summary-background: var(--hf-color-habit-water);
+  --hf-color-component-habit-water-action-background: var(--hf-color-action-primary);
+  --hf-color-component-habit-water-action-pressed: var(--hf-color-action-primary-pressed);
+  --hf-color-component-habit-sunscreen-summary-background: var(--hf-color-habit-sunscreen);
+  --hf-color-component-habit-sunscreen-action-background: var(--hf-color-habit-sunscreen);
+  --hf-color-component-habit-sunscreen-action-pressed: var(--hf-color-habit-sunscreen-pressed);
+  --hf-color-component-habit-accent-foreground: var(--hf-color-text-on-accent);
+  --hf-color-component-weekly-current-background: var(--hf-color-selection-surface);
+  --hf-color-component-weekly-current-foreground: var(--hf-color-text-on-accent);
+  --hf-color-component-weekly-complete-background: var(--hf-color-selection-subtle);
+  --hf-color-component-weekly-complete-foreground: var(--hf-color-border-selected);
+  --hf-color-component-weekly-future-background: var(--hf-color-background-canvas);
+  --hf-color-component-weekly-outline: var(--hf-color-border-control);
+  --hf-color-component-progress-track: var(--hf-color-surface-raised);
+  --hf-color-component-progress-water-fill: var(--hf-color-habit-water);
+  --hf-color-component-progress-sunscreen-fill: var(--hf-color-habit-sunscreen);
+  --hf-color-component-streak-background: var(--hf-color-accent-streak);
+  --hf-color-component-streak-foreground: var(--hf-color-text-on-accent);
+  --hf-color-component-input-background: var(--hf-color-surface-default);
+  --hf-color-component-input-foreground: var(--hf-color-text-primary);
+  --hf-color-component-input-placeholder: var(--hf-color-text-muted);
+  --hf-color-component-input-border: var(--hf-color-border-control);
+  --hf-color-component-input-error-border: var(--hf-color-feedback-error);
+  --hf-color-component-switch-on-background: var(--hf-color-action-primary);
+  --hf-color-component-switch-on-thumb: var(--hf-color-text-on-accent);
+  --hf-color-component-switch-off-background: var(--hf-color-disabled-surface);
+  --hf-color-component-switch-off-thumb: var(--hf-color-text-secondary);
+  --hf-overlay-scrim: rgb(16 11 24 / 0.64);
+  --hf-radius-base-none: 0px;
+  --hf-radius-base-xs: 4px;
+  --hf-radius-base-sm: 8px;
+  --hf-radius-base-md: 12px;
+  --hf-radius-base-lg: 16px;
+  --hf-radius-base-xl: 24px;
+  --hf-radius-base-2xl: 32px;
+  --hf-radius-base-device: 48px;
+  --hf-radius-base-full: 999px;
+  --hf-radius-component-button: var(--hf-radius-base-lg);
+  --hf-radius-component-input: var(--hf-radius-base-md);
+  --hf-radius-component-card: var(--hf-radius-base-xl);
+  --hf-radius-component-panel: var(--hf-radius-base-2xl);
+  --hf-radius-component-badge: var(--hf-radius-base-full);
+  --hf-radius-component-navigation: var(--hf-radius-base-full);
+  --hf-radius-component-selector: var(--hf-radius-base-sm);
+  --hf-radius-component-switch: var(--hf-radius-base-full);
+  --hf-radius-component-screen: var(--hf-radius-base-2xl);
+  --hf-radius-component-device-frame: var(--hf-radius-base-device);
+  --hf-typography-base-family-sans: "Plus Jakarta Sans";
+  --hf-typography-base-weight-regular: 400;
+  --hf-typography-base-weight-medium: 500;
+  --hf-typography-base-weight-semibold: 600;
+  --hf-typography-base-weight-bold: 700;
+  --hf-typography-base-size-32: 32px;
+  --hf-typography-base-size-28: 28px;
+  --hf-typography-base-size-24: 24px;
+  --hf-typography-base-size-20: 20px;
+  --hf-typography-base-size-18: 18px;
+  --hf-typography-base-size-16: 16px;
+  --hf-typography-base-size-14: 14px;
+  --hf-typography-base-size-12: 12px;
+  --hf-typography-base-size-17: 17px;
+  --hf-typography-base-line-height-40: 40px;
+  --hf-typography-base-line-height-36: 36px;
+  --hf-typography-base-line-height-32: 32px;
+  --hf-typography-base-line-height-28: 28px;
+  --hf-typography-base-line-height-26: 26px;
+  --hf-typography-base-line-height-24: 24px;
+  --hf-typography-base-line-height-20: 20px;
+  --hf-typography-base-line-height-16: 16px;
+  --hf-typography-base-line-height-22: 22px;
+  --hf-typography-base-tracking-default: 0px;
+  --hf-typography-base-tracking-heading: -0.4px;
+  --hf-typography-role-display-size: var(--hf-typography-base-size-32);
+  --hf-typography-role-display-line-height: var(--hf-typography-base-line-height-40);
+  --hf-typography-role-display-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-heading-xl-size: var(--hf-typography-base-size-28);
+  --hf-typography-role-heading-xl-line-height: var(--hf-typography-base-line-height-36);
+  --hf-typography-role-heading-xl-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-heading-lg-size: var(--hf-typography-base-size-24);
+  --hf-typography-role-heading-lg-line-height: var(--hf-typography-base-line-height-32);
+  --hf-typography-role-heading-lg-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-heading-md-size: var(--hf-typography-base-size-20);
+  --hf-typography-role-heading-md-line-height: var(--hf-typography-base-line-height-28);
+  --hf-typography-role-heading-md-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-body-lg-size: var(--hf-typography-base-size-18);
+  --hf-typography-role-body-lg-line-height: var(--hf-typography-base-line-height-26);
+  --hf-typography-role-body-lg-weight: var(--hf-typography-base-weight-regular);
+  --hf-typography-role-body-md-size: var(--hf-typography-base-size-16);
+  --hf-typography-role-body-md-line-height: var(--hf-typography-base-line-height-24);
+  --hf-typography-role-body-md-weight: var(--hf-typography-base-weight-regular);
+  --hf-typography-role-body-sm-size: var(--hf-typography-base-size-14);
+  --hf-typography-role-body-sm-line-height: var(--hf-typography-base-line-height-20);
+  --hf-typography-role-body-sm-weight: var(--hf-typography-base-weight-regular);
+  --hf-typography-role-label-md-size: var(--hf-typography-base-size-14);
+  --hf-typography-role-label-md-line-height: var(--hf-typography-base-line-height-20);
+  --hf-typography-role-label-md-weight: var(--hf-typography-base-weight-semibold);
+  --hf-typography-role-label-sm-size: var(--hf-typography-base-size-12);
+  --hf-typography-role-label-sm-line-height: var(--hf-typography-base-line-height-16);
+  --hf-typography-role-label-sm-weight: var(--hf-typography-base-weight-medium);
+  --hf-typography-role-button-size: var(--hf-typography-base-size-16);
+  --hf-typography-role-button-line-height: var(--hf-typography-base-line-height-22);
+  --hf-typography-role-button-weight: var(--hf-typography-base-weight-semibold);
+  --hf-typography-role-data-md-size: var(--hf-typography-base-size-17);
+  --hf-typography-role-data-md-line-height: var(--hf-typography-base-line-height-24);
+  --hf-typography-role-data-md-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-data-lg-size: var(--hf-typography-base-size-20);
+  --hf-typography-role-data-lg-line-height: var(--hf-typography-base-line-height-28);
+  --hf-typography-role-data-lg-weight: var(--hf-typography-base-weight-bold);
+  --hf-typography-role-caption-size: var(--hf-typography-base-size-12);
+  --hf-typography-role-caption-line-height: var(--hf-typography-base-line-height-16);
+  --hf-typography-role-caption-weight: var(--hf-typography-base-weight-regular);
+  --hf-typography-role-navigation-size: var(--hf-typography-base-size-12);
+  --hf-typography-role-navigation-line-height: var(--hf-typography-base-line-height-16);
+  --hf-typography-role-navigation-weight: var(--hf-typography-base-weight-medium);
+  --hf-spacing-base-0: 0px;
+  --hf-spacing-base-2: 2px;
+  --hf-spacing-base-4: 4px;
+  --hf-spacing-base-8: 8px;
+  --hf-spacing-base-12: 12px;
+  --hf-spacing-base-16: 16px;
+  --hf-spacing-base-20: 20px;
+  --hf-spacing-base-24: 24px;
+  --hf-spacing-base-32: 32px;
+  --hf-spacing-base-40: 40px;
+  --hf-spacing-base-48: 48px;
+  --hf-spacing-base-64: 64px;
+  --hf-spacing-semantic-screen-inline: var(--hf-spacing-base-16);
+  --hf-spacing-semantic-screen-inline-wide: var(--hf-spacing-base-24);
+  --hf-spacing-semantic-section-gap: var(--hf-spacing-base-32);
+  --hf-spacing-semantic-content-gap: var(--hf-spacing-base-24);
+  --hf-spacing-semantic-card-inset: var(--hf-spacing-base-16);
+  --hf-spacing-semantic-card-inset-large: var(--hf-spacing-base-24);
+  --hf-spacing-semantic-field-gap: var(--hf-spacing-base-16);
+  --hf-spacing-semantic-label-gap: var(--hf-spacing-base-8);
+  --hf-spacing-semantic-control-gap: var(--hf-spacing-base-12);
+  --hf-spacing-semantic-related-gap: var(--hf-spacing-base-8);
+  --hf-spacing-semantic-icon-gap: var(--hf-spacing-base-8);
+  --hf-spacing-semantic-stack-tight: var(--hf-spacing-base-4);
+  --hf-spacing-semantic-footer-inset: var(--hf-spacing-base-16);
+  --hf-spacing-semantic-navigation-clearance: var(--hf-spacing-base-24);
+  --hf-spacing-semantic-inline-group-gap: var(--hf-spacing-base-12);
+  --hf-layout-touch-target-min: 48px;
+  --hf-layout-touch-gap-min: 8px;
+  --hf-layout-icon-default: 24px;
+  --hf-layout-button-height-min: 52px;
+  --hf-layout-field-height-min: 56px;
+  --hf-layout-appbar-height-min: 56px;
+  --hf-layout-navigation-height-min: 72px;
+  --hf-layout-content-max: 600px;
+  --hf-layout-grid-columns: 4;
+  --hf-layout-grid-gutter: 12px;
+  --hf-layout-grid-margin: 16px;
+  --hf-layout-viewport-reference: 402px;
+  --hf-wireframe-canvas: #FAFAFA;
+  --hf-wireframe-sheet: #EFEFEF;
+  --hf-wireframe-card: #FFFFFF;
+  --hf-wireframe-subtle: #E1E1E1;
+  --hf-wireframe-border: #B6B6B6;
+  --hf-wireframe-text: #242424;
+  --hf-wireframe-muted: #595959;
+  --hf-wireframe-action: #252525;
+  --hf-wireframe-on-action: #FFFFFF;
+  --hf-wireframe-icon: #353535;
+  --hf-shadow-low: 0px 2px 8px 0px rgb(16 11 24 / 0.16);
+  --hf-shadow-floating: 0px 6px 18px 0px rgb(16 11 24 / 0.24);
+  --hf-shadow-overlay: 0px 12px 32px 0px rgb(16 11 24 / 0.32);
+}
+
+.hf-type-display {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-display-size);
+  line-height: var(--hf-typography-role-display-line-height);
+  font-weight: var(--hf-typography-role-display-weight);
+  letter-spacing: var(--hf-typography-base-tracking-heading);
+}
+
+.hf-type-heading-xl {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-heading-xl-size);
+  line-height: var(--hf-typography-role-heading-xl-line-height);
+  font-weight: var(--hf-typography-role-heading-xl-weight);
+  letter-spacing: var(--hf-typography-base-tracking-heading);
+}
+
+.hf-type-heading-lg {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-heading-lg-size);
+  line-height: var(--hf-typography-role-heading-lg-line-height);
+  font-weight: var(--hf-typography-role-heading-lg-weight);
+  letter-spacing: var(--hf-typography-base-tracking-heading);
+}
+
+.hf-type-heading-md {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-heading-md-size);
+  line-height: var(--hf-typography-role-heading-md-line-height);
+  font-weight: var(--hf-typography-role-heading-md-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-body-lg {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-body-lg-size);
+  line-height: var(--hf-typography-role-body-lg-line-height);
+  font-weight: var(--hf-typography-role-body-lg-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-body-md {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-body-md-size);
+  line-height: var(--hf-typography-role-body-md-line-height);
+  font-weight: var(--hf-typography-role-body-md-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-body-sm {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-body-sm-size);
+  line-height: var(--hf-typography-role-body-sm-line-height);
+  font-weight: var(--hf-typography-role-body-sm-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-label-md {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-label-md-size);
+  line-height: var(--hf-typography-role-label-md-line-height);
+  font-weight: var(--hf-typography-role-label-md-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-label-sm {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-label-sm-size);
+  line-height: var(--hf-typography-role-label-sm-line-height);
+  font-weight: var(--hf-typography-role-label-sm-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-button {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-button-size);
+  line-height: var(--hf-typography-role-button-line-height);
+  font-weight: var(--hf-typography-role-button-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-data-md {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-data-md-size);
+  line-height: var(--hf-typography-role-data-md-line-height);
+  font-weight: var(--hf-typography-role-data-md-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-data-lg {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-data-lg-size);
+  line-height: var(--hf-typography-role-data-lg-line-height);
+  font-weight: var(--hf-typography-role-data-lg-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-caption {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-caption-size);
+  line-height: var(--hf-typography-role-caption-line-height);
+  font-weight: var(--hf-typography-role-caption-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}
+
+.hf-type-navigation {
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: var(--hf-typography-role-navigation-size);
+  line-height: var(--hf-typography-role-navigation-line-height);
+  font-weight: var(--hf-typography-role-navigation-weight);
+  letter-spacing: var(--hf-typography-base-tracking-default);
+}

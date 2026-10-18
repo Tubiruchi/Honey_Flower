@@ -1,0 +1,109 @@
+:root {
+  color-scheme: dark;
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  color: var(--hf-color-text-primary);
+  background: var(--hf-color-background-canvas);
+  --ion-font-family: var(--hf-typography-base-family-sans), sans-serif;
+  --ion-background-color: var(--hf-color-background-canvas);
+  --ion-text-color: var(--hf-color-text-primary);
+  --ion-toolbar-background: var(--hf-color-background-canvas);
+  --ion-toolbar-color: var(--hf-color-text-primary);
+  --ion-color-primary: var(--hf-color-action-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+p {
+  line-height: 1.5;
+}
+button,
+input,
+a,
+[tabindex] {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--hf-color-focus-ring);
+  outline-offset: 4px;
+}
+a {
+  color: var(--hf-color-text-link);
+}
+.hf-muted {
+  color: var(--hf-color-text-muted);
+  font-size: 0.875rem;
+}
+.hf-error {
+  color: var(--hf-color-feedback-error);
+}
+.hf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hf-spacing-base-12);
+  flex-wrap: wrap;
+}
+.hf-stack {
+  display: grid;
+  gap: var(--hf-spacing-semantic-content-gap);
+}
+.hf-card {
+  display: grid;
+  gap: var(--hf-spacing-base-12);
+  padding: var(--hf-spacing-semantic-card-inset);
+  background: var(--hf-color-surface-default);
+  border-radius: var(--hf-radius-component-card);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.hf-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--hf-spacing-base-4) var(--hf-spacing-base-12);
+  border: 1px solid var(--hf-color-border-control);
+  border-radius: var(--hf-radius-base-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.hf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

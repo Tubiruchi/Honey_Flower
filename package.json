@@ -1,0 +1,46 @@
+{
+  "name": "honeyflower",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/mobile",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24.13.0 <25",
+    "npm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @honeyflower/mobile",
+    "build": "npm run build --workspace @honeyflower/mobile",
+    "preview": "npm run preview --workspace @honeyflower/mobile",
+    "storybook": "npm run storybook --workspace @honeyflower/mobile",
+    "build-storybook": "npm run build-storybook --workspace @honeyflower/mobile",
+    "test": "npm run test:onboarding && npm run test-storybook",
+    "test:onboarding": "node --test apps/mobile/tests/onboarding-model.test.mjs",
+    "test-storybook": "npm run test-storybook --workspace @honeyflower/mobile",
+    "test:watch": "npm run test:watch --workspace @honeyflower/mobile",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tokens:build": "node scripts/build-tokens.mjs",
+    "tokens:check": "node scripts/build-tokens.mjs --check",
+    "check": "npm run tokens:check && npm run lint && npm run typecheck && npm run format:check",
+    "android:add": "npm run android:add --workspace @honeyflower/mobile",
+    "android:sync": "npm run build && npm run android:sync --workspace @honeyflower/mobile",
+    "android:open": "npm run android:open --workspace @honeyflower/mobile"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.5",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.2"
+  }
+}

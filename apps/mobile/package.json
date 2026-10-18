@@ -1,0 +1,46 @@
+{
+  "name": "@honeyflower/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "storybook": "storybook dev -p 6006 --host 127.0.0.1 --no-open --disable-telemetry",
+    "build-storybook": "storybook build --disable-telemetry",
+    "test-storybook": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.4.3",
+    "@capacitor/core": "8.4.3",
+    "@fontsource/plus-jakarta-sans": "5.3.0",
+    "@honeyflower/contracts": "0.1.0",
+    "@honeyflower/design-tokens": "0.1.0",
+    "@ionic/react": "9.0.8",
+    "lucide-react": "1.59.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router-dom": "7.18.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.4.3",
+    "@storybook/addon-a11y": "10.6.2",
+    "@storybook/addon-docs": "10.6.2",
+    "@storybook/addon-vitest": "10.6.2",
+    "@storybook/react-vite": "10.6.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitest/browser-playwright": "4.1.12",
+    "playwright": "1.64.1",
+    "storybook": "10.6.2",
+    "vite": "8.3.4",
+    "vitest": "4.1.12"
+  }
+}

@@ -1,0 +1,77 @@
+import { onboardingAssets as assets } from '../../assets/figma/onboarding';
+
+export const onboardingScreens = {
+  bienvenida: {
+    nodeId: '86:683',
+    title: 'Tu constancia tiene una nueva compañera',
+    description:
+      'Registra tu consumo de agua y el uso de protector solar para cuidar una planta virtual durante siete días.',
+    action: 'Conocer cómo funciona',
+    plant: assets.welcome.imgFrame1,
+    status: assets.welcome.imgFrame,
+  },
+  habitos: {
+    nodeId: '86:788',
+    title: 'Pequeños hábitos, cuidado diario',
+    description: 'Dos hábitos de autocuidado y una compañera para acompañar tu constancia.',
+    action: 'Personalizar mis hábitos',
+    plant: assets.habits.imgFrame1,
+    status: assets.habits.imgFrame,
+    back: assets.habits.imgHfIconBack,
+  },
+  nombre: {
+    nodeId: '86:892',
+    title: '¿Cómo quieres que te llame tu planta?',
+    description: 'Elige el nombre que aparecerá en tu perfil y en los mensajes de tu compañera.',
+    action: 'Continuar',
+    plant: assets.name.imgFrame1,
+    status: assets.name.imgFrame,
+    back: assets.name.imgHfIconBack,
+  },
+  agua: {
+    nodeId: '86:998',
+    title: '¿Cuál será tu meta de agua?',
+    description: 'Elige la cantidad que quieres registrar durante cada día de planta.',
+    action: 'Guardar meta',
+    plant: assets.water.imgFrame1,
+    status: assets.water.imgFrame,
+    back: assets.water.imgHfIconBack,
+  },
+  protector: {
+    nodeId: '86:1101',
+    title: 'Organiza tus aplicaciones de protector',
+    description:
+      'Tu meta incluye una aplicación inicial y las reaplicaciones que elijas registrar.',
+    action: 'Continuar',
+    plant: assets.sunscreen.imgFrame1,
+    status: assets.sunscreen.imgFrame,
+    back: assets.sunscreen.imgHfIconBack,
+  },
+  horarios: {
+    nodeId: '86:1204',
+    title: '¿Cuándo quieres recibir recordatorios?',
+    description: 'Elige los horarios que mejor encajen con tu rutina.',
+    action: 'Definir horas de calma',
+    plant: assets.schedule.imgFrame2,
+    status: assets.schedule.imgFrame1,
+    back: assets.schedule.imgHfIconBack,
+  },
+  avisos: {
+    nodeId: '86:1360',
+    title: 'Tu planta también respeta tus tiempos',
+    description: 'Decide cuándo puede avisarte y qué tan expresiva quieres que sea.',
+    action: 'Revisar mis preferencias',
+    plant: assets.preferences.imgFrame1,
+    status: assets.preferences.imgFrame,
+    back: assets.preferences.imgHfIconBack,
+  },
+  resumen: {
+    nodeId: '86:1550',
+    title: 'Todo listo para empezar',
+    description: 'Revisa tus preferencias antes de crear tu cuenta.',
+    action: 'Crear cuenta y empezar',
+    plant: assets.summary.imgFrame1,
+    status: assets.summary.imgFrame,
+    back: assets.summary.imgHfIconBack,
+  },
+} as const;
