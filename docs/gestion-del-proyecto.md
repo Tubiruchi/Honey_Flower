@@ -37,6 +37,21 @@ La gestión no sustituye el trabajo técnico de los integrantes. Las contribucio
 
 La primera entrega se reportó como completada en Figma. El repositorio también contiene avances de implementación; por ello, el estado de las tareas debe contrastarse con su evidencia antes de cerrarlas.
 
+## Uso de ClickUp para el plan de trabajo
+
+ClickUp es el tablero operativo del equipo. El plan distribuye el periodo en siete fases y desglosa el trabajo en tareas asignadas a los roles de Gestión del Proyecto, UX/UI + Frontend, Frontend, Tester / QA y Backend.
+
+Cada tarea debe mostrar:
+
+- Fase y rol mediante etiquetas.
+- Responsable, fecha y estimación de referencia.
+- Resultado esperado y criterio de aceptación.
+- Subtareas cuando ayuden a repartir entregables concretos.
+- Dependencias cuando una entrega realmente necesite otra antes de comenzar o validarse.
+- Estado actualizado y enlace o evidencia al completar el trabajo.
+
+El tablero se revisa semanalmente para reflejar cambios reales, resolver bloqueos y mantener coherencia con el repositorio. Las tareas no se cierran solo por tener una fecha vencida: se cierran cuando existe evidencia verificable. El enlace de acceso al espacio de ClickUp se comparte dentro del equipo y no se publica en este repositorio.
+
 ## Comunicación y registro de acuerdos
 
 Como mecanismo de coordinación se propone usar el canal General del equipo y los comentarios de las tareas para dudas, decisiones y bloqueos. Se propone una revisión breve semanal y un cierre al final de cada fase; el equipo debe confirmar esta frecuencia.
