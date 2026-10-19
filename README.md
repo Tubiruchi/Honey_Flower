@@ -9,6 +9,22 @@ Storybook: componentes reales, tokens compartidos y pruebas reproducibles.
 
 Consulta el [plan de gestión del proyecto](docs/gestion-del-proyecto.md) para ver las fases, responsabilidades y el mecanismo de coordinación. La frecuencia de reuniones indicada allí es una propuesta pendiente de confirmación del equipo.
 
+## Plan de trabajo y ClickUp
+
+El equipo organiza el trabajo en ClickUp con tareas por fase y rol, responsables, fechas, estimaciones de referencia, criterios de aceptación y subtareas. Las dependencias muestran el orden entre entregables; los estados se actualizan con base en evidencia. El tablero detallado se comparte dentro del equipo.
+
+| Fase | Fechas | Enfoque |
+|---|---|---|
+| 1 | 19–23 oct | Diseño Figma y primera entrega de avances |
+| 2 | 26–30 oct | Revisión del prototipo y alcance inmediato |
+| 3 | 2–6 nov | Flujos principales y estados |
+| 4 | 9–13 nov | Jardín, progreso y revisión intermedia |
+| 5 | 16–20 nov | Integraciones o simulaciones delimitadas |
+| 6 | 23–27 nov | Integración del recorrido y correcciones |
+| 7 | 30 nov–4 dic | Preparación, validación, demo y cierre |
+
+La dedicación planeada es de aproximadamente dos horas por persona a la semana. Las estimaciones no son horas registradas. El tablero y sus fechas deben reflejar el avance comprobable del repositorio.
+
 ## Empezar
 
 Requisitos: Node **24.13.0** (ver `.nvmrc`) y npm **11**. Ejecutar dentro de `Honey_Flower`:
