@@ -1,3 +1,5 @@
+import { WeeklyDay } from './WeeklyDay';
+
 export interface PlantDay {
   day: number;
   state: 'complete' | 'partial' | 'missed' | 'current' | 'future';
@@ -7,14 +9,6 @@ export interface WeeklyGridProps {
   days: readonly PlantDay[];
 }
 
-const labels: Record<PlantDay['state'], string> = {
-  complete: 'Completo',
-  partial: 'Parcial',
-  missed: 'Sin registros',
-  current: 'Actual',
-  future: 'Próximo',
-};
-
 export function WeeklyGrid({ days }: WeeklyGridProps) {
   return (
     <section className="hf-card" aria-label="Semana de tu planta">
@@ -22,13 +16,8 @@ export function WeeklyGrid({ days }: WeeklyGridProps) {
       <p className="hf-muted">Cada día de planta dura 24 horas desde la activación.</p>
       <ol className="hf-week">
         {days.map(({ day, state }) => (
-          <li
-            key={day}
-            className={`hf-week__day hf-week__day--${state}`}
-            aria-current={state === 'current' ? 'step' : undefined}
-          >
-            <strong>D{day}</strong>
-            <span>{labels[state]}</span>
+          <li key={day} aria-current={state === 'current' ? 'step' : undefined}>
+            <WeeklyDay day={day} state={state} />
           </li>
         ))}
       </ol>

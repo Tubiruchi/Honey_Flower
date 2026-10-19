@@ -1,5 +1,5 @@
-import { Flower2 } from 'lucide-react';
 import { Button } from './Button';
+import { PlantCharacter } from './PlantCharacter';
 
 export interface GardenPlantProps {
   name: string;
@@ -12,7 +12,11 @@ export interface GardenPlantProps {
 export function GardenPlant({ name, species, cycleLabel, result, onOpen }: GardenPlantProps) {
   return (
     <article className="hf-garden-plant hf-card" aria-label={name}>
-      <Flower2 size={48} aria-hidden="true" />
+      <PlantCharacter
+        species={species.toLocaleLowerCase('es').includes('cactus') ? 'cactus' : 'sprout'}
+        view="face"
+        decorative
+      />
       <h2 className="hf-type-heading-md">{name}</h2>
       <p>
         {species} · {cycleLabel}

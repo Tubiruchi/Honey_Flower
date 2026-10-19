@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Icon } from './Icon';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -23,16 +23,21 @@ export function Input({
   const [visible, setVisible] = useState(false);
   const message = error || help;
   return (
-    <div className="hf-field">
+    <div
+      className={`hf-field${props.disabled ? ' hf-field--disabled' : ''}${error ? ' hf-field--error' : ''}`}
+    >
       <label className="hf-type-label-md" htmlFor={inputId}>
         {label}
       </label>
-      <div className={`hf-field__control${leadingIcon ? ' hf-field__control--with-icon' : ''}`}>
-        {leadingIcon && (
-          <span className="hf-field__leading-icon" aria-hidden="true">
-            {leadingIcon}
-          </span>
-        )}
+      <div className="hf-field__control">
+        <span className="hf-field__leading-icon" aria-hidden="true">
+          {leadingIcon ?? (
+            <Icon
+              name={type === 'password' ? 'lock' : type === 'email' ? 'mail' : 'user'}
+              inheritColor
+            />
+          )}
+        </span>
         <input
           {...props}
           id={inputId}
@@ -42,18 +47,14 @@ export function Input({
         />
         {type === 'password' && (
           <button
-            className="hf-icon-button"
+            className="hf-field__visibility"
             type="button"
             disabled={props.disabled}
             aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             aria-pressed={visible}
             onClick={() => setVisible(!visible)}
           >
-            {visible ? (
-              <EyeOff size={20} aria-hidden="true" />
-            ) : (
-              <Eye size={20} aria-hidden="true" />
-            )}
+            <Icon name={visible ? 'eyeoff' : 'eye'} inheritColor />
           </button>
         )}
       </div>

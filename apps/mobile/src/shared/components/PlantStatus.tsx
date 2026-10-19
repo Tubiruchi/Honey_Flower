@@ -1,5 +1,5 @@
-import { Sprout } from 'lucide-react';
 import type { PlantHealth } from '@honeyflower/contracts';
+import { PlantCharacter } from './PlantCharacter';
 
 export interface PlantStatusProps {
   name: string;
@@ -23,12 +23,9 @@ export function PlantStatus({ name, health, day, message, provisional }: PlantSt
         <span className="hf-type-label-sm">Tu compañera de hábitos</span>
         <span className="hf-chip">Día {day} de 7</span>
       </div>
-      <Sprout
-        className={`hf-plant__symbol hf-plant__symbol--${health}`}
-        size={88}
-        strokeWidth={1.5}
-        aria-hidden="true"
-      />
+      <div className="hf-plant__character">
+        <PlantCharacter decorative />
+      </div>
       <h2 className="hf-type-heading-lg">{name}</h2>
       <p className={`hf-health hf-health--${health}`}>{labels[health]}</p>
       <p className="hf-plant__message">«{message}»</p>

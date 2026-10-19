@@ -6,11 +6,13 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 Una base compartida para construir el jardín de hábitos en Ionic React.
 Explora **Fundamentos** para revisar los tokens y **Pantallas** para ver una composición interactiva.
+**Figma / Biblioteca / Vista general** reúne los componentes corregidos frente al diseño original.
 
 ## Qué contiene
 
 - Tema Dark, 234 variables CSS y 14 estilos tipográficos del registro de diseño.
 - Componentes base y los ocho componentes de dominio previstos en la arquitectura.
+- Las 22 familias de Figma, sus cinco piezas independientes y los 26 iconos originales.
 - Variantes de carga, deshabilitado, error, permisos y conexión.
 - Pruebas de interacción y accesibilidad en Chromium con Vitest.
 - Anchos de revisión: 320, 360, 402 y 480; selecciónalos desde la barra de herramientas.
@@ -27,7 +29,8 @@ Explora **Fundamentos** para revisar los tokens y **Pantallas** para ver una com
 
 Los componentes están implementados y se comparten con la app. El onboarding guarda un borrador
 local de preferencias y usa la planta original de Figma; sus historias usan datos de ejemplo
-aislados. Las vistas de demostración siguen en memoria. No hay autenticación, API ni cierre de
-ciclos. Los iconos de planta de las vistas de demostración siguen siendo provisionales.
+aislados. **Pantallas / Prueba local** incorpora Inicio, Análisis y Perfil funcionales. La app
+guarda registros en el dispositivo y calcula sus ciclos; las historias evitan el almacenamiento real.
+No hay autenticación ni API. Las vistas ya usan los personajes originales de Figma.
 Cámara, YOLO, notificaciones, sincronización y permisos nativos requieren integración
 y pruebas reales en Android. Las historias no solicitan permisos ni realizan llamadas de pago.

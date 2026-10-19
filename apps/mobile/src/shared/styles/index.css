@@ -9,5 +9,7 @@
 @import '@honeyflower/design-tokens/css';
 @import './base.css';
 @import './components.css';
+@import './controls.css';
 @import './onboarding-components.css';
+@import './library.css';
 @import './layout.css';

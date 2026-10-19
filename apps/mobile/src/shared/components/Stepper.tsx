@@ -1,5 +1,7 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
+import { Icon } from './Icon';
+import { IconButton } from './IconButton';
 
 export interface StepperProps {
   label: string;
@@ -12,8 +14,8 @@ export interface StepperProps {
   disabled?: boolean;
   error?: string;
   variant?: 'default' | 'water';
-  minusIcon: ReactNode;
-  plusIcon: ReactNode;
+  minusIcon?: ReactNode;
+  plusIcon?: ReactNode;
   onChange: (value: string) => void;
 }
 
@@ -40,20 +42,23 @@ export function Stepper({
       String(Math.min(max, Math.max(min, (Number.isFinite(number) ? number : min) + delta))),
     );
   return (
-    <div className={`hf-stepper hf-stepper--${variant}`}>
+    <div className={`hf-stepper hf-stepper--${variant}${disabled ? ' hf-stepper--disabled' : ''}`}>
       <label id={`${id}-label`} htmlFor={editable ? id : undefined} className="hf-type-label-md">
         {label}
       </label>
       <div className="hf-stepper__controls">
-        <button
-          type="button"
+        <IconButton
           className="hf-stepper__button"
-          aria-label={`Reducir ${label.toLocaleLowerCase('es')}`}
+          label={`Reducir ${label.toLocaleLowerCase('es')}`}
           disabled={disabled || number <= min}
           onClick={() => change(-step)}
         >
-          {minusIcon}
-        </button>
+          {disabled || number <= min ? (
+            <Icon name="minus" inheritColor />
+          ) : (
+            (minusIcon ?? <Icon name="minus" inheritColor />)
+          )}
+        </IconButton>
         <div className="hf-stepper__value">
           {editable ? (
             <input
@@ -83,15 +88,18 @@ export function Stepper({
             {unit}
           </span>
         </div>
-        <button
-          type="button"
+        <IconButton
           className="hf-stepper__button"
-          aria-label={`Aumentar ${label.toLocaleLowerCase('es')}`}
+          label={`Aumentar ${label.toLocaleLowerCase('es')}`}
           disabled={disabled || number >= max}
           onClick={() => change(step)}
         >
-          {plusIcon}
-        </button>
+          {disabled || number >= max ? (
+            <Icon name="plus" inheritColor />
+          ) : (
+            (plusIcon ?? <Icon name="plus" inheritColor />)
+          )}
+        </IconButton>
       </div>
       {error && (
         <p className="hf-error" id={`${id}-error`}>

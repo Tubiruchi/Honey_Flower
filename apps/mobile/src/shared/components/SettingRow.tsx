@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { Switch } from './Switch';
 
 export interface SettingRowProps {
   label: string;
@@ -6,17 +7,9 @@ export interface SettingRowProps {
   checked: boolean;
   disabled?: boolean;
   onChange: (checked: boolean) => void;
-  visuals?: { on: string; off: string };
 }
 
-export function SettingRow({
-  label,
-  description,
-  checked,
-  disabled,
-  onChange,
-  visuals,
-}: SettingRowProps) {
+export function SettingRow({ label, description, checked, disabled, onChange }: SettingRowProps) {
   const id = useId();
   return (
     <div className="hf-setting-row hf-card">
@@ -28,19 +21,13 @@ export function SettingRow({
           {description}
         </p>
       </div>
-      <span className={visuals ? 'hf-switch-visual' : 'hf-switch-container'}>
-        <input
-          id={id}
-          className="hf-switch"
-          type="checkbox"
-          role="switch"
-          aria-describedby={`${id}-help`}
-          checked={checked}
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.checked)}
-        />
-        {visuals && <img src={checked ? visuals.on : visuals.off} alt="" aria-hidden="true" />}
-      </span>
+      <Switch
+        id={id}
+        aria-describedby={`${id}-help`}
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+      />
     </div>
   );
 }

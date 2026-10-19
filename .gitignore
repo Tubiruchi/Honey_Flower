@@ -16,4 +16,5 @@ playwright-report/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
-apps/mobile/android/
+artifacts/
+.android-tools/

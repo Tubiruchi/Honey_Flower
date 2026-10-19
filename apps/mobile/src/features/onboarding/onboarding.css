@@ -56,23 +56,6 @@
 .onb .onb-header > .hf-muted {
   color: var(--hf-color-text-secondary);
 }
-.onb-appbar {
-  display: flex;
-  align-items: center;
-  gap: var(--hf-spacing-base-12);
-  min-height: var(--hf-layout-appbar-height-min);
-}
-.onb-back {
-  display: grid;
-  place-items: center;
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--hf-radius-component-button);
-  background: transparent;
-}
 .onb-hero {
   display: flex;
   align-items: center;
@@ -89,6 +72,9 @@
 }
 .onb-description {
   color: var(--hf-color-text-secondary);
+}
+.onb .hf-feedback--neutral > span {
+  color: var(--hf-color-text-primary);
 }
 .onb-panel {
   flex: 1;
@@ -139,37 +125,18 @@
   background: var(--hf-color-surface-default);
 }
 .onb-action-slot {
-  padding: var(--hf-spacing-base-4);
+  padding: 0;
 }
 .onb-action-slot > .hf-button {
   width: 100%;
-  min-height: 52px;
-  padding: var(--hf-spacing-base-12) var(--hf-spacing-base-16);
-}
-.onb .hf-button--text {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.onb .hf-field input {
-  border-radius: var(--hf-radius-component-input);
-}
-.onb .hf-field > p {
-  font-size: var(--hf-typography-role-caption-size);
-  line-height: var(--hf-typography-role-caption-line-height);
-}
-.onb .hf-setting-row {
-  background: var(--hf-color-surface-default);
-  padding: var(--hf-spacing-base-16);
-  box-shadow: var(--hf-shadow-low);
-}
-.onb .hf-setting-row label {
-  color: var(--hf-color-text-primary);
-}
-.onb .hf-setting-row p {
-  line-height: var(--hf-typography-role-body-sm-line-height);
 }
 .onb .hf-muted {
   color: var(--hf-color-text-muted);
+}
+.onb .hf-type-caption.hf-muted,
+.onb .hf-type-label-sm.hf-muted {
+  font-size: var(--hf-typography-role-caption-size);
+  line-height: var(--hf-typography-role-caption-line-height);
 }
 .onb-schedule-list {
   display: flex;
@@ -184,17 +151,6 @@
 .onb-editable-time > .hf-time-row {
   flex: 1;
   min-width: 0;
-}
-.onb-icon-action {
-  display: grid;
-  place-items: center;
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 1px solid var(--hf-color-border-control);
-  border-radius: var(--hf-radius-component-button);
-  background: transparent;
 }
 .onb-quiet-period {
   display: grid;
@@ -214,6 +170,9 @@
 }
 .onb-tone-preview__message p {
   min-width: 0;
+}
+.onb-sources {
+  padding: var(--hf-spacing-base-4);
 }
 .onb-sources summary {
   display: grid;

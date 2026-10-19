@@ -1,43 +1,3 @@
-.hf-field__control--with-icon {
-  position: relative;
-}
-.hf-field__leading-icon {
-  position: absolute;
-  left: 16px;
-  display: flex;
-  pointer-events: none;
-}
-.hf-field__control--with-icon input {
-  padding-left: 52px;
-}
-.hf-switch-container {
-  display: flex;
-  flex: 0 0 48px;
-}
-.hf-switch-visual {
-  position: relative;
-  display: flex;
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-}
-.hf-switch-visual input {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  opacity: 0;
-}
-.hf-switch-visual img {
-  pointer-events: none;
-}
-.hf-switch-visual:has(input:focus-visible) {
-  outline: 2px solid var(--hf-color-focus-ring);
-  outline-offset: 4px;
-  border-radius: var(--hf-radius-component-switch);
-}
-.hf-switch-visual:has(input:disabled) {
-  opacity: 0.6;
-}
 .hf-info-card {
   position: relative;
   display: flex;
@@ -86,7 +46,7 @@
 .hf-info-card__action {
   position: absolute;
   top: var(--hf-spacing-base-8);
-  right: var(--hf-spacing-base-12);
+  right: var(--hf-spacing-base-8);
 }
 .hf-feedback {
   display: flex;
@@ -111,7 +71,7 @@
 }
 .hf-onboarding-progress {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--hf-progress-steps, 6), minmax(0, 1fr));
   gap: var(--hf-spacing-base-8);
   width: 100%;
 }
@@ -124,6 +84,7 @@
   background: var(--hf-color-action-primary);
 }
 .hf-stepper {
+  background: var(--hf-color-surface-default);
   display: grid;
   gap: var(--hf-spacing-base-12);
   padding: var(--hf-spacing-base-16);
@@ -155,7 +116,9 @@
   border-color: transparent;
 }
 .hf-stepper__button:disabled {
-  opacity: 0.5;
+  background: var(--hf-color-disabled-surface);
+  border-color: var(--hf-color-border-control);
+  color: var(--hf-color-disabled-foreground);
   cursor: not-allowed;
 }
 .hf-stepper__value {
@@ -191,7 +154,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--hf-spacing-base-12);
+  gap: var(--hf-spacing-base-16);
   min-height: 64px;
   padding: var(--hf-spacing-base-8);
 }
@@ -249,20 +212,4 @@
 }
 .hf-time-row input:disabled {
   color: var(--hf-color-disabled-foreground);
-}
-.hf-tone--compact {
-  display: block;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-.hf-tone--compact .hf-tone__options {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--hf-spacing-base-8);
-}
-.hf-tone--compact .hf-tone__option span {
-  border: 0;
-  border-radius: var(--hf-radius-component-selector);
 }

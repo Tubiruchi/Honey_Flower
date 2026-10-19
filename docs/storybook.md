@@ -20,9 +20,26 @@ El lockfile fija el árbol completo. Vitest 4.1.12 usa Playwright para ejecutar 
 - Fixtures deterministas en `src/stories/fixtures`; sin fechas aleatorias, consultas reales ni secretos.
 - Fundamentos y composiciones viven en `src/stories`; nunca crear una segunda versión de la UI.
 
-## Componentes iniciales
+## Biblioteca de Figma
 
-Base: Button, Input y SettingRow.
+La revisión del 18 de octubre de 2026 cubre las 22 familias con variantes y los cinco
+componentes independientes de [Componentes](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=65-676),
+además de los 26 iconos originales. **Figma / Biblioteca / Vista general** reúne una muestra;
+cada familia tiene sus historias, controles y documentación individual.
+
+Base: Button, IconButton, Input, Switch, Segment, ToneSelector, SettingRow, Stepper, TimeRow,
+Feedback, InfoCard, OnboardingProgress, AppBar, NavigationItem, BottomNavigation, ProfileStat
+y SettingsLink. Se conservan los 20 estados de Button y las 15 combinaciones de Input.
+
+Planta y hábitos: Plant, PlantCharacter, CalendarDay, WeeklyDay, HabitSummary y StreakBadge.
+Jardín: GreenhouseScene, GardenBackdrop, GardenCollectionRow y MonthNavigator.
+Las ilustraciones y los recortes de rostros provienen de los recursos originales, guardados
+en `src/assets/figma/components`; los iconos mantienen su silueta al heredar colores semánticos.
+
+Los estados Pressed/Focused tienen referencias estáticas en las historias mediante
+`referenceState`. Sus estilos están solo en `src/stories/figma-states.css`; la aplicación
+usa los estados reales del navegador. Los interruptores usan los seis SVG originales,
+incluyendo los estados deshabilitados, sin reducir la opacidad del control completo.
 
 La entrega de onboarding añade InfoCard, Feedback, OnboardingProgress, Stepper y TimeRow,
 compuestos en ocho pantallas bajo **Onboarding / Recorrido**. Hay pruebas de recorrido completo,
@@ -70,7 +87,7 @@ Revisión manual pendiente del equipo:
 
 - Cambiar entre los anchos 320, 360, 402 y 480 desde la barra de Storybook.
 - Revisar teclado, foco, textos largos, cifras, zoom al 200 % y movimiento reducido.
-- Comparar tokens y geometría con el catálogo Figma; la ilustración de planta aún es provisional.
+- Revisar futuras modificaciones de Figma contra las historias de cada familia.
 - Probar TalkBack, teclado, insets y permisos en Android real al incorporar la plataforma.
 
 `CameraResult` y `SyncStatus` son presentaciones de resultados simulados. Ninguna historia
@@ -79,10 +96,10 @@ captura fotos, ejecuta YOLO, almacena imágenes, programa avisos o demuestra sin
 ## Verificación local · 18 de octubre de 2026
 
 `npm run check`, `npm run build` y `npm run build-storybook` completados.
-Vitest: 13 archivos y 53 historias aprobadas, incluidas nueve interacciones.
-Revisión en Chromium: navegación Inicio/Jardín/Perfil, registro de agua, cambio de tono e
-interruptor; sin errores de navegador ni desbordamiento horizontal en Inicio a 320/360/402/480.
-Las capturas permitieron corregir las clases de tipografía y el orden de los estilos compartidos.
+Vitest cubre renderizado, interacciones y accesibilidad de las historias; `npm test` incluye
+también ocho pruebas del modelo de onboarding. La revisión en Chromium contrasta 15 medidas
+de componentes contra Figma, las ocho pantallas y los recursos originales del onboarding,
+la recuperación del borrador y los anchos 320/360/402/480 sin errores ni desbordamiento.
 
 Vite mantiene una advertencia de tamaño de chunks en ambas compilaciones. La optimización del
 paquete queda pendiente antes de evaluar rendimiento y distribución Android. CI remoto, APK,

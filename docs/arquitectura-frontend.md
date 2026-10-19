@@ -12,8 +12,9 @@ aplicaciones o paquetes ejecutables. No se añaden dependencias de infraestructu
 
 ## Límites
 
-- `app`: montaje de Ionic, estilos globales y rutas Inicio/Jardín/Perfil.
-- `features`: composición y estado de cada vista. Las vistas actuales son demostraciones en memoria.
+- `app`: montaje de Ionic, estilos globales y rutas Inicio/Análisis/Perfil.
+- `features`: composición y estado de cada vista. `features/local` implementa el modelo puro, contexto,
+  persistencia versionada y pantallas de la prueba sin servidor; las historias antiguas conservan sus fixtures.
 - `shared/components`: props tipadas, HTML semántico y callbacks; sin SQL ni plugins nativos.
 - `shared/styles`: única entrada de tema para la app y el catálogo.
 - `shared/data`: futura persistencia local, outbox y cliente HTTP.
@@ -21,14 +22,15 @@ aplicaciones o paquetes ejecutables. No se añaden dependencias de infraestructu
 - `contracts`: vocabulario inicial de presentación. No representa todavía DTO ni validación de API.
 - `domain`: futuras reglas puras compartidas, con pruebas de los límites de RN/RF antes de integrarlas.
 
-El shell de demostración usa IonApp, IonPage, IonHeader, IonContent e IonFooter. React Router 7
-resuelve sus tres rutas. El onboarding ocupa rutas separadas sin pestañas ni encabezado de la demo;
-la primera entrada recupera su borrador local. El flujo termina en un límite de cuenta explícito,
-sin simular autenticación ni activar ciclos. Ver [implementación de onboarding](onboarding.md).
+El shell usa IonApp e IonPage con scroll propio y navegación fija. React Router 7 resuelve Inicio,
+Análisis y Perfil. El onboarding ocupa rutas separadas; **Ya tengo cuenta** inicia o recupera el perfil
+local y abre Inicio. Terminar la configuración también activa un ciclo local, sin simular autenticación.
+Ver [prueba local y APK](prueba-local-apk.md) e [implementación de onboarding](onboarding.md).
 No hay pila nativa de pantallas ni guardas de sesión; revisar el historial/back Android en dispositivo.
 
-La demo calcula únicamente el progreso visible de sus fixtures. El estado de planta se recibe
-como dato, sin cambiarlo al registrar agua. No implementa cierres, supervivencia o políticas offline.
+La prueba local calcula progreso, salud por días cerrados, rachas y cierres semanales con datos
+reales del dispositivo. Las muestras de Storybook usan fixtures aislados. La lógica local no acredita
+sincronización, autoridad de servidor ni resolución de conflictos entre dispositivos.
 
 ## Configuración y reproducibilidad
 
@@ -37,10 +39,10 @@ ESLint, TypeScript estricto, Prettier y `.editorconfig` comparten convenciones. 
 de entorno requeridas. Al añadir integraciones, documentar solo nombres en `.env.example` y
 mantener las credenciales de servidor fuera de Vite.
 
-Capacitor 8.4.3 prepara el destino Android con identificador local `com.honeyflower.app` y `dist`
-como webDir. El proyecto Android se generará cuando comience la integración nativa; las carpetas
-generadas se ignoran temporalmente. Antes del puente Kotlin, revisar esta decisión y versionar
-el código nativo propio. Esta entrega no acredita compilación de APK ni pruebas en dispositivo.
+Capacitor 8.4.3 integra Android con identificador `com.honeyflower.app` y `dist` como webDir.
+Los fuentes Android se versionan; solo se ignoran salidas, recursos web copiados y configuración
+local. `npm run apk:build` genera y verifica una APK de depuración instalable. Se probó la app
+en el WebView de un emulador; la revisión en un teléfono físico sigue pendiente.
 
 ## Calidad y CI
 

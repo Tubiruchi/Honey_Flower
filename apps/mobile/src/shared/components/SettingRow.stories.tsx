@@ -21,9 +21,10 @@ function InteractiveSetting(args: SettingRowProps) {
 const meta = {
   title: 'Base/SettingRow',
   component: SettingRow,
+  parameters: { designWidth: 354 },
   args: {
-    label: 'Recordatorios',
-    description: 'Puedes pausarlos cuando quieras.',
+    label: 'Recibir notificaciones',
+    description: 'Puedes usar la app con los avisos apagados.',
     checked: false,
     onChange: fn(),
   },
@@ -37,7 +38,7 @@ export const Disabled: Story = { args: { disabled: true } };
 export const Toggle: Story = {
   render: (args) => <InteractiveSetting {...args} />,
   play: async ({ canvas, userEvent, args }) => {
-    await userEvent.click(canvas.getByRole('switch', { name: 'Recordatorios' }));
+    await userEvent.click(canvas.getByRole('switch', { name: 'Recibir notificaciones' }));
     await expect(canvas.getByRole('switch')).toBeChecked();
     await expect(args.onChange).toHaveBeenCalledWith(true);
   },

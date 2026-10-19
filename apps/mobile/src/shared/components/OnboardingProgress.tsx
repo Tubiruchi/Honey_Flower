@@ -1,7 +1,10 @@
+import type { CSSProperties } from 'react';
+
 export function OnboardingProgress({ step, total = 6 }: { step: number; total?: number }) {
   return (
     <div
       className="hf-onboarding-progress"
+      style={{ '--hf-progress-steps': total } as CSSProperties}
       role="progressbar"
       aria-label="Personalización"
       aria-valuemin={1}

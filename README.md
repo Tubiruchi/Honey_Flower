@@ -12,19 +12,20 @@ npm ci
 npm run storybook
 ```
 
-Abrir [Storybook](http://localhost:6006). Para la app de demostración:
+Abrir [Storybook](http://localhost:6006). Para la app local:
 
 ```sh
 npm run dev
 ```
 
-Abrir [HoneyFlower](http://localhost:5173). Incluye Inicio, Jardín y Perfil con datos locales de
-ejemplo. Los cambios se pierden al recargar o salir de la vista.
+Abrir [HoneyFlower](http://localhost:5173). Incluye Inicio, Análisis y Perfil con registros,
+edición, estadísticas y preferencias que se conservan en el dispositivo.
 
 La primera entrada ahora abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de
 ocho pantallas implementado desde Figma. Sus preferencias sí se conservan como borrador local,
-sin crear cuenta ni activar un ciclo. La demostración de Inicio/Jardín/Perfil sigue disponible
-en `/inicio`. Detalles y límites: [onboarding](docs/onboarding.md).
+sin crear cuenta. En esta fase **Ya tengo cuenta** lleva directamente a Inicio y activa la prueba
+local. Terminar el onboarding también inicia el modo local; las siguientes aperturas recuperan
+el perfil y los registros. Detalles: [prueba local y APK](docs/prueba-local-apk.md).
 
 ## Estructura
 
@@ -76,29 +77,29 @@ se genera en `apps/mobile/storybook-static`; la app en `apps/mobile/dist`.
 
 ## Android
 
-Capacitor queda configurado. Para generar el proyecto nativo cuando se vaya a trabajar en Android:
+El proyecto Android está preparado y versionado. Para generar la APK de prueba en Windows:
 
 ```sh
-npm run build
-npm run android:add
-npm run android:sync
-npm run android:open
+npm run apk:build
+npm run apk:serve
 ```
 
-Se requiere Android Studio con su SDK/JDK compatible. `android:add` se ejecuta una vez por copia
-de trabajo; la carpeta generada se ignora de momento. El identificador de desarrollo configurado
-es `com.honeyflower.app`. No se ha generado ni probado un APK en esta entrega.
+Se requiere Android Studio, Java 21 y SDK 36. La APK firmada y su SHA-256 se generan en
+`artifacts/android`; el servidor imprime un enlace para descargarla desde el celular en la misma
+red Wi-Fi. El identificador es `com.honeyflower.app`. Ver [compilación y alcance](docs/prueba-local-apk.md).
 
 ## Alcance actual
 
-- 16 componentes compartidos, ocho pantallas de onboarding y variantes en Storybook.
+- 36 componentes compartidos y ocho pantallas de onboarding: las 22 familias de Figma,
+  sus cinco componentes independientes, el catálogo de 26 iconos y ocho composiciones de dominio.
 - 234 tokens con sus 137 alias, 14 estilos tipográficos, tres sombras y Plus Jakarta Sans local.
 - Historias con variantes, estados e interacciones; app de demostración usando los mismos componentes.
+- Tres pantallas funcionales sin servidor, diez pruebas de lógica local y APK Android instalable.
 - Comprobaciones de CI preparadas para GitHub Actions, con catálogo descargable como artefacto.
 
 Autenticación, backend, SQLite, sincronización, YOLO, RAG y notificaciones siguen pendientes.
 Storybook presenta resultados nativos simulados por props; no prueba permisos o sensores.
-Los iconos de planta son provisionales. La revisión de Figma y las pruebas Android se realizan
-por separado: pasar Axe no sustituye TalkBack, teclado real o revisión visual.
+Las ilustraciones originales y sus rostros ya se comparten con la biblioteca de Figma.
+Las pruebas Android se realizan por separado: pasar Axe no sustituye TalkBack, teclado real o revisión visual.
 
 Guías: [Storybook](docs/storybook.md), [onboarding](docs/onboarding.md), [arquitectura frontend](docs/arquitectura-frontend.md).

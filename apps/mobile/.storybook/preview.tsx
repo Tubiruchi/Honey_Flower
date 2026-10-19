@@ -2,6 +2,7 @@ import type { Preview } from '@storybook/react-vite';
 import { honeyflowerTheme } from './theme';
 import '../src/app/setup';
 import '../src/shared/styles/index.css';
+import '../src/stories/figma-states.css';
 
 const preview: Preview = {
   tags: ['autodocs'],
@@ -26,6 +27,7 @@ const preview: Preview = {
         order: [
           'Bienvenida',
           'Fundamentos',
+          'Figma',
           'Base',
           'Hábitos',
           'Planta',
@@ -41,7 +43,15 @@ const preview: Preview = {
   initialGlobals: { backgrounds: { value: 'dark' } },
   decorators: [
     (Story, context) => (
-      <div className={context.parameters.edgeToEdge ? 'hf-story-edge' : 'hf-story-frame'} lang="es">
+      <div
+        className={`${context.parameters.edgeToEdge ? 'hf-story-edge' : 'hf-story-frame'} hf-reference-${context.parameters.referenceState ?? 'normal'}`}
+        lang="es"
+        style={
+          context.parameters.designWidth
+            ? { maxWidth: context.parameters.designWidth + 48 }
+            : undefined
+        }
+      >
         <Story />
       </div>
     ),

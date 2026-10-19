@@ -14,14 +14,15 @@ El nodo enlazado es la guía; las pantallas reales son sus hermanas en la págin
 - P-O07 · Calma y avisos · `86:1360` · `/onboarding/avisos`.
 - P-O08 · Resumen · `86:1550` · `/onboarding/resumen`.
 
-`/` inicia en bienvenida o recupera el paso guardado. El onboarding no muestra las pestañas
+`/` recupera Inicio si hay un perfil local; en caso contrario inicia en bienvenida o recupera el paso guardado. El onboarding no muestra las pestañas
 de la demostración. Atrás usa rutas normales; el botón superior vuelve al paso anterior.
 Desde Resumen se puede editar nombre, ambas metas, horarios y avisos y volver al resumen.
 
-Los mockups 09–10 corresponden a activación **posterior a autenticar**. No se activa una planta
-al terminar este recorrido. «Crear cuenta y empezar» y «Ya tengo cuenta» abren límites explícitos
-de cuenta, con aviso de disponibilidad y acceso voluntario a la demostración. El registro,
-inicio de sesión, recuperación y activación real requieren una entrega posterior.
+Los mockups 09–10 corresponden al flujo futuro posterior a autenticar. Para la fase de prueba
+sin backend, **Ya tengo cuenta** abre Inicio directamente y **Empezar en este dispositivo**
+inicia el ciclo local con las preferencias del resumen. No se crea una cuenta ni una sesión.
+Las historias originales conservan las etiquetas de Figma y los callbacks aislados.
+Ver [prueba local y APK](prueba-local-apk.md).
 
 ## Implementación
 
@@ -29,9 +30,10 @@ inicio de sesión, recuperación y activación real requieren una entrega poster
 `OnboardingRoute` lo conecta con React Router; `OnboardingContent` compone cada pantalla.
 `model.ts` contiene el borrador, su recuperación y las validaciones independientes de React.
 
-Se reutilizan Button, Input, SettingRow y AlertLevel; Input admite icono inicial y SettingRow
-los recursos de interruptor originales. InfoCard, Feedback, OnboardingProgress, Stepper y TimeRow
-son piezas compartidas nuevas. App y Storybook consumen los mismos componentes y tokens.
+Se reutilizan Button, Input, SettingRow, AlertLevel, AppBar, IconButton, InfoCard, Feedback,
+OnboardingProgress, Stepper y TimeRow. SettingRow usa el Switch compartido; AlertLevel usa
+ToneSelector. App y Storybook consumen los mismos componentes y tokens, con bordes, medidas,
+estados deshabilitados y foco revisados contra la biblioteca actual de Figma.
 
 Los SVG originales están en `src/assets/figma/onboarding`, con referencias locales en `index.ts`.
 Se conserva su geometría original: planta de encabezado 112 × 91, planta pequeña 80 × 65,

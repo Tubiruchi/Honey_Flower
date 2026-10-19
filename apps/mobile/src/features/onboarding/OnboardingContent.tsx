@@ -5,6 +5,8 @@ import {
   Button,
   Feedback,
   InfoCard,
+  Icon,
+  IconButton,
   Input,
   SettingRow,
   Stepper,
@@ -18,7 +20,7 @@ export function FigmaAsset({ src }: { src: string }) {
 }
 
 const image = (src: string) => <FigmaAsset src={src} />;
-const shield = image(assets.feedback.shield);
+const shield = <Icon name="shield" inheritColor />;
 const tones = { gentle: 'suave', medium: 'medio', intense: 'intenso' };
 const tonePreview = {
   gentle: '«Una pausa para ti y un poco de agua para seguir.»',
@@ -71,16 +73,14 @@ function HabitSchedules({ draft, onChange }: Pick<ContentProps, 'draft' | 'onCha
                 })
               }
             />
-            <button
-              type="button"
-              className="onb-icon-action"
-              aria-label={`Quitar horario de agua ${index + 1}`}
+            <IconButton
+              label={`Quitar horario de agua ${index + 1}`}
               onClick={() =>
                 onChange({ ...draft, waterTimes: draft.waterTimes.filter((_, i) => i !== index) })
               }
             >
               {image(assets.schedule.imgFrame)}
-            </button>
+            </IconButton>
           </div>
         ))}
         <div className="onb-action-slot">
@@ -132,7 +132,6 @@ function HabitSchedules({ draft, onChange }: Pick<ContentProps, 'draft' | 'onCha
 }
 
 function ReminderPreferences({ draft, onChange }: Pick<ContentProps, 'draft' | 'onChange'>) {
-  const visuals = { on: assets.preferences.imgEstadoOn, off: assets.preferences.imgEstadoOff };
   const updatePeriod = (index: number, key: 'from' | 'to', value: string) =>
     onChange({
       ...draft,
@@ -148,7 +147,6 @@ function ReminderPreferences({ draft, onChange }: Pick<ContentProps, 'draft' | '
         description="Puedes usar la app con los avisos apagados."
         checked={draft.notifications}
         onChange={(notifications) => onChange({ ...draft, notifications })}
-        visuals={visuals}
       />
       <Stepper
         label="Máximo de avisos al día"
@@ -232,7 +230,6 @@ function ReminderPreferences({ draft, onChange }: Pick<ContentProps, 'draft' | '
         checked={draft.reinforcedSound}
         disabled={!draft.notifications}
         onChange={(reinforcedSound) => onChange({ ...draft, reinforcedSound })}
-        visuals={visuals}
       />
       <SettingRow
         label="Linterna con la app abierta"
@@ -240,7 +237,6 @@ function ReminderPreferences({ draft, onChange }: Pick<ContentProps, 'draft' | '
         checked={draft.foregroundFlash}
         disabled={!draft.notifications}
         onChange={(foregroundFlash) => onChange({ ...draft, foregroundFlash })}
-        visuals={visuals}
       />
       <Feedback icon={shield}>
         <p>

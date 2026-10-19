@@ -1,0 +1,65 @@
+/* Storybook reference states, kept outside application styles. Controls retain native states. */
+.hf-reference-focused .hf-button {
+  padding-inline: 6px;
+  background: var(--hf-color-background-canvas);
+  outline: 2px solid var(--hf-color-focus-ring);
+  outline-offset: -2px;
+}
+.hf-reference-pressed .hf-button--primary .hf-button__surface {
+  background: var(--hf-color-component-button-primary-pressed);
+}
+.hf-reference-pressed .hf-button--sunscreen .hf-button__surface {
+  background: var(--hf-color-habit-sunscreen-pressed);
+}
+.hf-reference-pressed .hf-button--secondary .hf-button__surface,
+.hf-reference-pressed .hf-button--text .hf-button__surface {
+  background: var(--hf-color-surface-raised);
+}
+.hf-reference-focused .hf-icon-button {
+  outline: 2px solid var(--hf-color-focus-ring);
+  outline-offset: -2px;
+  border-color: transparent;
+}
+.hf-reference-pressed .hf-icon-button {
+  background: var(--hf-color-surface-raised);
+}
+.hf-reference-focused .hf-field__control {
+  border-color: var(--hf-color-focus-ring);
+  box-shadow: inset 0 0 0 1px var(--hf-color-focus-ring);
+}
+.hf-reference-focused .hf-time-row__control {
+  box-shadow: inset 0 0 0 2px var(--hf-color-focus-ring);
+}
+.hf-reference-focused .hf-switch-control {
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px var(--hf-color-focus-ring);
+}
+.hf-icon-library {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 12px;
+}
+.hf-icon-library > div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.hf-library-overview {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+.hf-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 362px), 362px));
+  align-items: start;
+  gap: 32px;
+}
+.hf-library-sample {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}

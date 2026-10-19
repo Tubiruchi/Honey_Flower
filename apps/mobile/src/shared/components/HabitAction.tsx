@@ -1,6 +1,6 @@
-import { Check, Droplets, Sun } from 'lucide-react';
 import type { HabitKind } from '@honeyflower/contracts';
 import { Button } from './Button';
+import { HabitSummary } from './HabitSummary';
 
 export interface HabitActionProps {
   kind: HabitKind;
@@ -22,15 +22,11 @@ export function HabitAction({
   onRegister,
 }: HabitActionProps) {
   const label = kind === 'water' ? 'Agua' : 'Protector solar';
-  const Icon = completed ? Check : kind === 'water' ? Droplets : Sun;
   return (
     <article className={`hf-habit hf-habit--${kind}`} aria-label={label}>
-      <div className="hf-habit__summary">
-        <Icon size={28} aria-hidden="true" />
-        <span className="hf-type-label-md">{label}</span>
-        <strong className="hf-type-data-lg">{summary}</strong>
+      <HabitSummary kind={kind} value={summary}>
         {completed && <span className="hf-type-label-sm">Meta completada</span>}
-      </div>
+      </HabitSummary>
       <Button
         variant={kind === 'sunscreen' ? 'sunscreen' : 'primary'}
         loading={loading}

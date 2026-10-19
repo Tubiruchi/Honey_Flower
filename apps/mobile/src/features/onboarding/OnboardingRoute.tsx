@@ -3,9 +3,12 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button, InfoCard } from '../../shared/components';
 import { OnboardingFlow } from './OnboardingFlow';
 import { isOnboardingStep, readOnboardingSnapshot } from './model';
+import { LOCAL_STORAGE_KEY, parseLocalState } from '../local/model';
+import { useLocal } from '../local/LocalProvider';
 
 export function onboardingEntryPath(): string {
   try {
+    if (parseLocalState(window.localStorage.getItem(LOCAL_STORAGE_KEY))) return '/inicio';
     return `/onboarding/${readOnboardingSnapshot(window.localStorage)?.step ?? 'bienvenida'}`;
   } catch {
     return '/onboarding/bienvenida';
@@ -13,6 +16,7 @@ export function onboardingEntryPath(): string {
 }
 
 export function OnboardingRoute() {
+  const local = useLocal();
   const { step } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,15 +25,20 @@ export function OnboardingRoute() {
     <IonPage>
       <OnboardingFlow
         step={step}
-        initialDraft={draftFromNavigation(location.state)}
+        initialDraft={draftFromNavigation(location.state) ?? local.state?.preferences}
+        completionLabel="Empezar en este dispositivo"
         persist
         onStepChange={(next) => navigate(`/onboarding/${next}`)}
-        onCreateAccount={(preferences) =>
-          navigate('/cuenta/registro', {
-            state: { draft: { ...preferences, waterGoalMl: String(preferences.waterGoalMl) } },
-          })
-        }
-        onSignIn={() => navigate('/cuenta/acceso')}
+        onCreateAccount={(preferences) => {
+          const draft = { ...preferences, waterGoalMl: String(preferences.waterGoalMl) };
+          if (local.state) local.update(draft);
+          else local.start(draft);
+          navigate('/inicio', { replace: true });
+        }}
+        onSignIn={() => {
+          local.start();
+          navigate('/inicio', { replace: true });
+        }}
       />
     </IonPage>
   );

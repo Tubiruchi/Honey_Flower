@@ -1,0 +1,40 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="338" height="200" viewBox="0 0 338 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="HF / GreenhouseScene">
+<g clip-path="url(#clip0_0_33)">
+<path d="M0 24C0 10.7452 10.7452 0 24 0H314C327.255 0 338 10.7452 338 24V176C338 189.255 327.255 200 314 200H24C10.7452 200 0 189.255 0 176V24Z" fill="#3B2B53"/>
+<path id="Arquitectura / Arco exterior" d="M20 190V102C20 -30 318 -30 318 102V190H20Z" fill="#48345F"/>
+<path id="Ventana / Marco lavanda" d="M37 186V102C37 -17 301 -17 301 102V186H37Z" fill="#AA82DE"/>
+<path id="Ventana / Vidrio periwinkle" d="M44 180V102C44 -8 294 -8 294 102V180H44Z" fill="#939BFF"/>
+<path id="Vidrio / Profundidad lateral izquierda" d="M44 180V102C44 70 62 46 85 32V180H44Z" fill="#7D86EC"/>
+<path id="Vidrio / Reflejo c&#195;&#161;lido alto" opacity="0.5" d="M103 30L123 19H184L103 94V30Z" fill="#FFC35E"/>
+<path id="Vidrio / Reflejo c&#195;&#161;lido lateral" opacity="0.42" d="M248 60L286 92L210 164L193 145L248 60Z" fill="#FFC35E"/>
+<path id="Vidrio / Reflejo suave" opacity="0.42" d="M65 109L80 95L110 122L94 137L65 109Z" fill="#E6D8FA"/>
+<path id="Vidrio / Vegetaci&#195;&#179;n distante izquierda" d="M48 180C49 153 48 144 55 134C57 143 66 151 67 155C64 133 70 116 79 111C77 132 85 144 87 158C89 144 101 132 111 132C104 149 103 161 103 180H48Z" fill="#7D86EC"/>
+<path id="Vidrio / Vegetaci&#195;&#179;n distante derecha" d="M235 180C239 155 235 146 241 130C247 144 251 150 253 160C252 136 265 118 272 112C272 132 267 142 269 152C276 137 286 134 293 136V180H235Z" fill="#7D86EC"/>
+<rect id="Ventana / Montante izquierdo" x="88" y="31" width="5" height="150" fill="#BE97F4"/>
+<rect id="Ventana / Montante central" x="166" y="9" width="6" height="172" fill="#BE97F4"/>
+<rect id="Ventana / Montante derecho" x="247" y="31" width="5" height="150" fill="#BE97F4"/>
+<rect id="Ventana / Travesa&#195;&#177;o" x="44" y="132" width="250" height="5" fill="#AA82DE"/>
+<rect id="Ventana / Canto luminoso" opacity="0.64" x="44" y="179" width="250" height="4" fill="#E6D8FA"/>
+<rect id="Repisa / Canto superior" x="17" y="183" width="304" height="7" fill="#BE97F4"/>
+<rect id="Repisa / Frente ciruela" x="9" y="190" width="320" height="10" fill="#48345F"/>
+<path id="Follaje / Rama izquierda" d="M5 198C18 168 15 134 22 104C27 85 31 72 31 60L34 61C32 96 22 119 23 149C25 172 16 191 12 200L5 198Z" fill="#211A30"/>
+<path id="Follaje / Rosa izquierda alta" opacity="0.9" d="M23 113C2 97 -2 70 13 45C34 68 38 88 23 113Z" fill="#F55DC1"/>
+<path id="Follaje / Rosa izquierda lateral" d="M21 129C17 105 40 85 60 87C55 108 43 121 21 129Z" fill="#D83CA5"/>
+<path id="Follaje / Verde izquierda baja" opacity="0.72" d="M10 193C-9 166 5.96046e-08 147 19 135C35 155 39 174 10 193Z" fill="#6AC47B"/>
+<path id="Follaje / Verde izquierda exterior" opacity="0.5" d="M15 180C27 153 58 149 76 158C62 174 40 183 15 180Z" fill="#6AC47B"/>
+<path id="Follaje / Nervio izquierda" d="M11 195C17 164 21 131 26 83H28C24 131 21 166 13 197L11 195Z" fill="#3B2B53"/>
+<path id="Follaje / Rama derecha" d="M326 200C318 175 314 143 309 112L313 110C321 141 324 172 332 198L326 200Z" fill="#211A30"/>
+<path id="Follaje / Rosa derecha alta" opacity="0.88" d="M313 133C297 112 301 92 319 75C338 98 332 119 313 133Z" fill="#F55DC1"/>
+<path id="Follaje / Rosa derecha lateral" d="M318 159C291 151 282 135 285 115C307 122 322 134 318 159Z" fill="#D83CA5"/>
+<path id="Follaje / Verde derecha baja" opacity="0.7" d="M329 196C307 174 288 169 272 174C280 190 304 198 329 196Z" fill="#6AC47B"/>
+<path id="Follaje / Verde derecha exterior" opacity="0.5" d="M324 186C317 167 329 145 343 139V187L324 186Z" fill="#6AC47B"/>
+<path id="Follaje / Nervio derecha" d="M328 198C321 170 319 146 316 109L318 108C322 145 324 171 330 197L328 198Z" fill="#3B2B53"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_33">
+<path d="M0 24C0 10.7452 10.7452 0 24 0H314C327.255 0 338 10.7452 338 24V176C338 189.255 327.255 200 314 200H24C10.7452 200 0 189.255 0 176V24Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

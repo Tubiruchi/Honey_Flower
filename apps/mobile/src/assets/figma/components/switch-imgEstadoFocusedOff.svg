@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="HF / Switch">
+<path d="M24 1C36.7025 1 47 11.2975 47 24C47 36.7025 36.7025 47 24 47C11.2975 47 1 36.7025 1 24C1 11.2975 11.2975 1 24 1Z" stroke="#BE97F4" stroke-width="2"/>
+<g id="Pista">
+<path d="M2 24C2 16.8203 7.8203 11 15 11H33C40.1797 11 46 16.8203 46 24V24C46 31.1797 40.1797 37 33 37H15C7.8203 37 2 31.1797 2 24V24Z" fill="#51445F"/>
+<mask id="stroke0_0_13" fill="white">
+<path d="M2 24C2 16.8203 7.8203 11 15 11H33C40.1797 11 46 16.8203 46 24V24C46 31.1797 40.1797 37 33 37H15C7.8203 37 2 31.1797 2 24V24Z"/>
+</mask>
+<path d="M15 37H33C40.1797 37 46 31.1797 46 24V24C46 16.8203 40.1797 11 33 11H15C7.8203 11 2 16.8203 2 24V24C2 31.1797 7.8203 37 15 37Z" stroke-width="2" stroke="#A699BD" mask="url(#stroke0_0_13)"/>
+</g>
+<circle id="Pulgar" cx="15" cy="24" r="11" fill="#DED2F0"/>
+</g>
+</svg>

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Button, Feedback, OnboardingProgress } from '../../shared/components';
+import { AppBar, Button, Feedback, OnboardingProgress } from '../../shared/components';
 import { FigmaAsset, OnboardingContent } from './OnboardingContent';
 import {
   createOnboardingDraft,
@@ -27,6 +27,7 @@ export interface OnboardingFlowProps {
   storage?: DraftStorage;
   /** Solo en el catálogo para comparar el mockup; la app obtiene los insets reales. */
   referenceStatusBar?: boolean;
+  completionLabel?: string;
 }
 
 export function OnboardingFlow({
@@ -39,6 +40,7 @@ export function OnboardingFlow({
   persist = false,
   storage,
   referenceStatusBar = false,
+  completionLabel,
 }: OnboardingFlowProps) {
   const [initial] = useState(() => {
     try {
@@ -169,22 +171,13 @@ export function OnboardingFlow({
         <div className="onb-document">
           <header className="onb-header">
             {'back' in screen ? (
-              <div className="onb-appbar">
-                <button
-                  type="button"
-                  className="onb-back"
-                  aria-label="Volver"
-                  onClick={() => {
-                    setReturnToSummary(false);
-                    go(onboardingSteps[onboardingSteps.indexOf(step) - 1]!);
-                  }}
-                >
-                  <FigmaAsset src={screen.back} />
-                </button>
-                <p className="hf-type-data-md">
-                  {progressStep > 0 ? `PASO ${progressStep} DE 6` : 'HONEYFLOWER'}
-                </p>
-              </div>
+              <AppBar
+                title={progressStep > 0 ? `PASO ${progressStep} DE 6` : 'HONEYFLOWER'}
+                onBack={() => {
+                  setReturnToSummary(false);
+                  go(onboardingSteps[onboardingSteps.indexOf(step) - 1]!);
+                }}
+              />
             ) : (
               <p className="hf-type-label-sm hf-muted">HONEYFLOWER</p>
             )}
@@ -228,7 +221,11 @@ export function OnboardingFlow({
       <footer className="onb-actions">
         <div className="onb-action-slot">
           <Button type="submit" form={formId} loading={submitting}>
-            {returnToSummary && step !== 'agua' ? 'Guardar cambios' : screen.action}
+            {returnToSummary && step !== 'agua'
+              ? 'Guardar cambios'
+              : step === 'resumen' && completionLabel
+                ? completionLabel
+                : screen.action}
           </Button>
         </div>
         {step === 'bienvenida' && (
