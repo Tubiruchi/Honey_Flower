@@ -3,6 +3,12 @@
 Base del proyecto Ionic React para el jardín de hábitos. La prioridad de esta entrega es
 Storybook: componentes reales, tokens compartidos y pruebas reproducibles.
 
+## Gestión del proyecto
+
+**Gestor del Proyecto: Pedro Ortegón** (GitHub: [`Tubiruchi`](https://github.com/Tubiruchi)). Coordina el plan por fases, el seguimiento de tareas y fechas, el registro de acuerdos y bloqueos, la revisión de evidencias y la preparación de la entrega. El proyecto se planifica del 19 de octubre al 4 de diciembre de 2026.
+
+Consulta el [plan de gestión del proyecto](docs/gestion-del-proyecto.md) para ver las fases, responsabilidades y el mecanismo de coordinación. La frecuencia de reuniones indicada allí es una propuesta pendiente de confirmación del equipo.
+
 ## Empezar
 
 Requisitos: Node **24.13.0** (ver `.nvmrc`) y npm **11**. Ejecutar dentro de `Honey_Flower`:
