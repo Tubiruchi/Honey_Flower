@@ -1,0 +1,36 @@
+.plant-reminder {
+  position: fixed;
+  inset: max(12px, env(safe-area-inset-top, 0px)) auto auto 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 15000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(calc(100% - 32px), 448px);
+  padding: 12px;
+  border: 1px solid var(--hf-color-border-control);
+  border-radius: 20px;
+  background: var(--hf-color-surface-raised);
+  color: var(--hf-color-text-primary);
+  box-shadow: var(--hf-shadow-floating);
+}
+.plant-reminder > .hf-character {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 72px;
+}
+.plant-reminder__body {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.plant-reminder__body .hf-button {
+  min-height: 44px;
+  padding: 8px 0;
+  justify-content: flex-start;
+}
+.plant-reminder > .hf-icon-button {
+  flex: 0 0 44px;
+  align-self: flex-start;
+}

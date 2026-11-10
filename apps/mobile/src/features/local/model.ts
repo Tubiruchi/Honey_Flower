@@ -278,11 +278,17 @@ export function updatePreferences(state: LocalState, preferences: OnboardingDraf
     ...state,
     preferences,
     goals,
-    sunscreenSchedule: changeSunscreenSchedule(schedule, preferences, day),
+    sunscreenSchedule: changeSunscreenSchedule(
+      schedule,
+      preferences,
+      previous.sunscreen === next.sunscreen ? day - 1 : day,
+      previous.sunscreen === next.sunscreen ? now : undefined,
+    ),
     waterSchedule: changeWaterSchedule(
       state.waterSchedule ?? createWaterSchedule(state.preferences, currentDay(state, now)),
       preferences,
-      day,
+      day - 1,
+      now,
     ),
   };
 }

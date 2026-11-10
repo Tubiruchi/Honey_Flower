@@ -32,7 +32,8 @@ function AnalysisApp({
 }) {
   const [{ state, now, storage }] = useState(() => {
     const fixture = analysisFixture(count, archived ? [1] : []);
-    if (variableGoals) fixture.state.goals.push({ day: count * 7 + 1, water: 1000, sunscreen: 2 });
+    if (variableGoals)
+      fixture.state.goals.push({ day: Math.max(0, count - 1) * 7 + 1, water: 1000, sunscreen: 2 });
     const source = memoryStorage({
       [LOCAL_SNAPSHOT_KEY]: JSON.stringify(createSnapshot(fixture.state)),
     });
@@ -94,6 +95,10 @@ export const Empty: Story = {
     await expect(
       context.canvas.queryByRole('button', { name: 'Ver último ciclo cerrado' }),
     ).not.toBeInTheDocument();
+    await expect(context.canvas.queryByText('Tu jardín está por florecer')).not.toBeInTheDocument();
+    await expect(
+      context.canvas.queryByRole('button', { name: 'Ver planta actual' }),
+    ).not.toBeInTheDocument();
   },
 };
 export const One: Story = { name: 'Una planta', args: { count: 1 }, play: checkCount(1) };
@@ -101,15 +106,22 @@ export const Two: Story = { name: 'Dos plantas', args: { count: 2 }, play: check
 export const Four: Story = { name: 'Cuatro plantas', play: checkCount(4) };
 export const Five: Story = { name: 'Cinco plantas', args: { count: 5 }, play: checkCount(5) };
 export const RealProgress: Story = {
-  name: '88.1 % cerrado · 34.5 % en curso',
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(await canvas.findByRole('button', { name: 'Ver progreso de mi ciclo' }));
-    const panel = within(canvas.getByRole('region', { name: 'Progreso de tu ciclo' }));
+  name: 'Progreso cerrado sin enlaces auxiliares',
+  play: async ({ canvas }) => {
+    const panel = within(await canvas.findByRole('region', { name: 'Progreso de tu ciclo' }));
     await expect(panel.getByText('88.1 %', { exact: true })).toBeVisible();
-    await userEvent.click(panel.getByRole('button', { name: 'Ver ciclo en curso' }));
-    await expect(panel.getByText('34.5 %', { exact: true })).toBeVisible();
-    await expect(panel.getAllByLabelText(/pendiente, día futuro/)).toHaveLength(8);
-    await expect(panel.getAllByLabelText(/en curso · meta/)).toHaveLength(2);
+    await expect(
+      canvas.queryByText('Tu jardín y tu progreso, en este dispositivo.'),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Ver progreso de mi ciclo' }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Ver ciclo en curso' }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText(/Agua y protector aportan el mismo peso/),
+    ).not.toBeInTheDocument();
   },
 };
 export const IndependentSelections: Story = {
@@ -123,15 +135,19 @@ export const IndependentSelections: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Mes anterior' }));
     await expect(canvas.getByText('Agosto de 2026')).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Mes anterior' })).toBeDisabled();
-    await userEvent.click(canvas.getByRole('button', { name: 'Ver progreso de mi ciclo' }));
-    await waitFor(() => expect(canvas.getByLabelText('Progreso del ciclo 1')).toHaveFocus());
-    await userEvent.click(canvas.getByRole('button', { name: 'Ver ciclo en curso' }));
+    await expect(canvas.getByLabelText('Progreso del ciclo 1')).toBeInTheDocument();
     await expect(canvas.getByText('Agosto de 2026')).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Mes siguiente' }));
     await expect(canvas.getByRole('button', { name: 'Mes siguiente' })).toBeDisabled();
     await expect(
-      canvas.getByLabelText('Progreso del ciclo 5').querySelector('.hf-cycle-summary'),
-    ).toHaveTextContent('34.5 %');
+      canvas.getByLabelText('Progreso del ciclo 1').querySelector('.hf-cycle-summary'),
+    ).toHaveTextContent('88.1 %');
+    await userEvent.click(
+      within(canvas.getByRole('group', { name: scene(4) })).getByRole('button', {
+        name: 'Ver progreso de Cactus, ciclo 4',
+      }),
+    );
+    await waitFor(() => expect(canvas.getByLabelText('Progreso del ciclo 4')).toHaveFocus());
   },
 };
 export const Archive: Story = {
@@ -175,9 +191,8 @@ export const ReadRecovery: Story = {
 export const HistoricalGoals: Story = {
   name: 'Metas históricas distintas en una semana',
   args: { variableGoals: true },
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(await canvas.findByRole('button', { name: 'Ver progreso de mi ciclo' }));
-    await userEvent.click(canvas.getByRole('button', { name: 'Ver ciclo en curso' }));
+  play: async ({ canvas }) => {
+    await canvas.findByRole('region', { name: 'Progreso de tu ciclo' });
     await expect(canvas.getByText(/Metas diarias históricas: 2,000 \/ 1,000 mL/)).toBeVisible();
     await expect(canvas.getAllByLabelText(/meta 1000 mL/)).toHaveLength(6);
     await expect(canvas.getAllByLabelText(/meta 2 aplicaciones/)).toHaveLength(6);

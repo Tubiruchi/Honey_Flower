@@ -84,22 +84,6 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.reminder-banner {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10000;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: min(calc(100% - 32px), 448px);
-  padding: 12px;
-  border: 1px solid var(--hf-color-border-control);
-  border-radius: 16px;
-  background: var(--hf-color-surface-default);
-  color: var(--hf-color-text-primary);
-}
 .settings-content:focus-visible {
   outline: 2px solid var(--hf-color-action-primary);
   outline-offset: -4px;

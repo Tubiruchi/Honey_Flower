@@ -1,6 +1,6 @@
 # Guía de conexiones futuras · entrega para integración
 
-Fecha: **9 de noviembre de 2026**. Base: APK local **0.3.2**.
+Fecha: **9 de noviembre de 2026**. Base: APK local **0.3.3**.
 Este documento describe los puntos de conexión existentes y lo pendiente para quien desarrolle
 reconocimiento, servicios y cuentas. No implementa ni fija endpoints, modelos o credenciales.
 La app funciona localmente mientras se completan esas partes.
@@ -98,15 +98,25 @@ limpieza de temporales. Ver [flujo de agua implementado](fase-3-bloque-4-agua.md
   y la sincronización no están activos. Definir DTO, identificadores, autoridad de cada dato,
   resolución de conflictos y migración de la copia local antes de cambiar estas operaciones.
   `packages/contracts` contiene vocabulario de presentación, no contratos de servidor terminados.
-- **Cuenta y sesión:** las rutas `/cuenta/*` son provisionales; «Ya tengo cuenta» inicia/recupera
-  el modo local. La autenticación se implementa después de validar los recorridos actuales.
-  Antes de habilitarla, acordar destino de registros locales, cierre de sesión y privacidad.
+- **Cuenta y sesión:** 0.4.0 implementa acceso, registro y recuperación en `/cuenta/*`, con
+  adaptador Supabase preparado y conexión aún desactivada. «Ya tengo cuenta» abre acceso;
+  «Continuar sin cuenta» conserva la prueba local. Las cuentas tienen almacenamiento separado
+  por ID y no importan datos del invitado. Ver [configuración y pendientes](integracion-supabase.md).
 - **Mensajes remotos/RAG:** hoy los mensajes usan reglas locales. Mantener el tono y la salida
   local si el servicio falla; una respuesta remota no debe registrar hábitos ni modificar métricas.
   No hay claves, servidor ni endpoint configurados para esta capacidad.
 - **Avisos:** ya son locales y reales en Android, mediante `features/reminders` y
   `shared/native/reminders.ts`. No son push de servidor. Una conexión posterior no debe crear
   agendas duplicadas ni perder calma, máximo compartido, permisos o cancelación.
+  `ForegroundReminders` muestra los mensajes locales con la app abierta, también en el navegador.
+  Se deduplican por cita con los eventos del receptor Android. El aviso no registra un hábito.
+  La agenda conserva las alarmas Android aún válidas aunque su hora ya haya pasado, porque la
+  entrega del sistema puede demorarse; se retiran al cerrar su ventana o registrar el hábito.
+  Los botones de prueba de 10 segundos ya se retiraron: los avisos usan citas reales y permisos
+  Android de notificaciones y alarmas exactas. Las horas editadas actualizan las próximas citas
+  de hoy; `effectiveAt` conserva la identidad de las aperturas pasadas al guardar varias versiones
+  en el mismo día. No eliminar esas versiones ni reasignar registros históricos. Las metas
+  nuevas siguen aplicándose al siguiente día de planta. Ver `patch-0.3.3-notificaciones.md`.
 
 URLs y credenciales quedan por acordar. Las claves privadas de proveedores pertenecen al servicio
 correspondiente, no al código que se distribuye dentro de la APK. La app actual no envía fotos ni

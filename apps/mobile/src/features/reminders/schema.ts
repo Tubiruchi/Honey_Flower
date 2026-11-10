@@ -4,7 +4,7 @@ import type { LocalState } from '../local/model.ts';
 
 export interface WaterSchedule {
   version: 1;
-  changes: { fromDay: number; timeZone: string; times: string[] }[];
+  changes: { fromDay: number; effectiveAt?: number; timeZone: string; times: string[] }[];
 }
 export function createWaterSchedule(draft: OnboardingDraft, fromDay = 0): WaterSchedule {
   return {
@@ -19,10 +19,17 @@ export function validWaterSchedule(value: WaterSchedule) {
   return value.changes.every((change, index) => {
     if (
       !change ||
-      !Object.keys(change).every((key) => ['fromDay', 'timeZone', 'times'].includes(key)) ||
+      !Object.keys(change).every((key) =>
+        ['fromDay', 'effectiveAt', 'timeZone', 'times'].includes(key),
+      ) ||
       !Number.isSafeInteger(change.fromDay) ||
       change.fromDay < 0 ||
-      (index > 0 && change.fromDay <= value.changes[index - 1]!.fromDay) ||
+      (change.effectiveAt !== undefined &&
+        (!Number.isFinite(change.effectiveAt) || change.effectiveAt < 0)) ||
+      (index > 0 &&
+        (change.fromDay < value.changes[index - 1]!.fromDay ||
+          (change.fromDay === value.changes[index - 1]!.fromDay &&
+            (change.effectiveAt ?? 0) <= (value.changes[index - 1]!.effectiveAt ?? 0)))) ||
       !Array.isArray(change.times) ||
       change.times.length < 1 ||
       change.times.length > 12 ||
@@ -44,8 +51,19 @@ export function changeWaterSchedule(
   schedule: WaterSchedule,
   draft: OnboardingDraft,
   day: number,
+  effectiveAt?: number,
 ): WaterSchedule {
-  const past = schedule.changes.filter((change) => change.fromDay < day);
+  if (effectiveAt !== undefined) {
+    const last = schedule.changes.filter((change) => change.fromDay === day).at(-1);
+    effectiveAt = Math.max(effectiveAt, (last?.effectiveAt ?? -1) + 1);
+  }
+  const past = schedule.changes.filter(
+    (change) =>
+      change.fromDay < day ||
+      (effectiveAt !== undefined &&
+        change.fromDay === day &&
+        (change.effectiveAt ?? 0) < effectiveAt),
+  );
   const previous = past.at(-1);
   return {
     version: 1,
@@ -53,7 +71,15 @@ export function changeWaterSchedule(
       previous?.timeZone === draft.timeZone &&
       JSON.stringify(previous.times) === JSON.stringify(draft.waterTimes)
         ? past
-        : [...past, { fromDay: day, timeZone: draft.timeZone, times: [...draft.waterTimes] }],
+        : [
+            ...past,
+            {
+              fromDay: day,
+              ...(effectiveAt === undefined ? {} : { effectiveAt }),
+              timeZone: draft.timeZone,
+              times: [...draft.waterTimes],
+            },
+          ],
   };
 }
 export function upgradeWaterSchedule(state: LocalState, day: number): LocalState {

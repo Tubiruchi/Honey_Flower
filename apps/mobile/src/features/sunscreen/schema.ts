@@ -5,6 +5,8 @@ export const SUNSCREEN_POLICY = { version: 1, minutes: 60, contextFraction: 0.5 
 export interface SunscreenScheduleVersion {
   revision: number;
   fromDay: number;
+  /** Same-day edits replace only appointments that have not opened yet. */
+  effectiveAt?: number;
   timeZone: string;
   times: string[];
   policy: typeof SUNSCREEN_POLICY;
@@ -54,7 +56,7 @@ export function validSunscreenSchedule(v: SunscreenSchedule): boolean {
     if (
       !change ||
       !Object.keys(change).every((key) =>
-        ['revision', 'fromDay', 'timeZone', 'times', 'policy'].includes(key),
+        ['revision', 'fromDay', 'effectiveAt', 'timeZone', 'times', 'policy'].includes(key),
       ) ||
       !change.policy ||
       !Object.keys(change.policy).every((key) =>
@@ -69,7 +71,12 @@ export function validSunscreenSchedule(v: SunscreenSchedule): boolean {
       revisions.has(change.revision) ||
       !Number.isSafeInteger(change.fromDay) ||
       change.fromDay < 0 ||
-      (index > 0 && change.fromDay <= v.changes[index - 1]!.fromDay) ||
+      (change.effectiveAt !== undefined &&
+        (!Number.isFinite(change.effectiveAt) || change.effectiveAt < v.activatedAt)) ||
+      (index > 0 &&
+        (change.fromDay < v.changes[index - 1]!.fromDay ||
+          (change.fromDay === v.changes[index - 1]!.fromDay &&
+            (change.effectiveAt ?? 0) <= (v.changes[index - 1]!.effectiveAt ?? 0)))) ||
       !Array.isArray(change.times) ||
       change.times.length < 1 ||
       change.times.length > 13 ||
@@ -115,8 +122,19 @@ export function changeSunscreenSchedule(
   schedule: SunscreenSchedule,
   draft: OnboardingDraft,
   fromDay: number,
+  effectiveAt?: number,
 ): SunscreenSchedule {
-  const changes = schedule.changes.filter((change) => change.fromDay < fromDay);
+  if (effectiveAt !== undefined) {
+    const last = schedule.changes.filter((change) => change.fromDay === fromDay).at(-1);
+    effectiveAt = Math.max(effectiveAt, (last?.effectiveAt ?? -1) + 1);
+  }
+  const changes = schedule.changes.filter(
+    (change) =>
+      change.fromDay < fromDay ||
+      (effectiveAt !== undefined &&
+        change.fromDay === fromDay &&
+        (change.effectiveAt ?? 0) < effectiveAt),
+  );
   const previous = changes.at(-1);
   const times = [...draft.sunscreenTimes].sort();
   if (
@@ -131,7 +149,14 @@ export function changeSunscreenSchedule(
     revision,
     changes: [
       ...changes,
-      { revision, fromDay, timeZone: draft.timeZone, times, policy: { ...SUNSCREEN_POLICY } },
+      {
+        revision,
+        fromDay,
+        ...(effectiveAt === undefined ? {} : { effectiveAt }),
+        timeZone: draft.timeZone,
+        times,
+        policy: { ...SUNSCREEN_POLICY },
+      },
     ],
   };
 }

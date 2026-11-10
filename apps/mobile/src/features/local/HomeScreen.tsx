@@ -10,7 +10,7 @@ import {
 } from '../../shared/components';
 import { useLocal } from './LocalProvider';
 import { DAY_MS, dayStart, streaks } from './model';
-import { date, number, percent, time } from './format';
+import { date, number } from './format';
 import { confirmed } from '../../shared/data/localSnapshot';
 import { homeState } from '../home/model';
 import { waterPhotoTrigger } from '../water/policy';
@@ -25,18 +25,11 @@ export function HomeScreen() {
   const [selection, setSelection] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [undo, setUndo] = useState<{ id: string; closesAt: number } | null>(null);
-  const { today, cycle, selected, stats, summary, species, start, active } = homeState(
+  const { today, selected, stats, summary, species, start, active } = homeState(
     state,
     local.now,
     selection,
   );
-  const cycleEnd = state.cycleStarts[cycle]! + 7 * DAY_MS;
-  const sameMonth =
-    date(state.cycleStarts[cycle]!, state, { month: 'numeric', year: 'numeric' }) ===
-    date(cycleEnd, state, { month: 'numeric', year: 'numeric' });
-  const cycleLabel = sameMonth
-    ? `${date(state.cycleStarts[cycle]!, state, { day: 'numeric' })}–${date(cycleEnd, state)}`
-    : `${date(state.cycleStarts[cycle]!, state)}–${date(cycleEnd, state)}`;
   const selectedDate = date(start, state, {
     weekday: 'long',
     day: 'numeric',
@@ -71,14 +64,6 @@ export function HomeScreen() {
       <header className="local-greeting">
         <div>
           <h1 className="hf-type-heading-lg">Hola, {state.preferences.preferredName}</h1>
-          <p className="hf-type-caption">
-            Hoy,{' '}
-            {date(local.now, state, { weekday: 'short', day: 'numeric', month: 'short' }).replace(
-              ' de ',
-              ' ',
-            )}{' '}
-            · Ciclo {cycleLabel}
-          </p>
         </div>
         <StreakBadge days={streaks(state, local.now).current} />
       </header>
@@ -112,12 +97,8 @@ export function HomeScreen() {
         </div>
         <div className="local-window">
           <p className="hf-type-label-md">
-            {selectedDate.charAt(0).toLocaleUpperCase('es-MX') + selectedDate.slice(1)} ·{' '}
-            {active ? 'En curso' : selected > today ? 'Próximo' : 'Cerrado'}
-          </p>
-          <p className="hf-type-caption">
-            Del {date(start, state)}, {time(start, state)} al {date(start + DAY_MS, state)},{' '}
-            {time(start + DAY_MS, state)}
+            {selectedDate.charAt(0).toLocaleUpperCase('es-MX') + selectedDate.slice(1)}
+            {!active && (selected > today ? ' · Próximo' : ' · Cerrado')}
           </p>
         </div>
       </section>
@@ -126,11 +107,6 @@ export function HomeScreen() {
         <header>
           <div>
             <h2 className="hf-type-heading-md">Tu planta</h2>
-            <p className="hf-type-caption">
-              {summary.health === 'healthy'
-                ? 'Estado según días cerrados'
-                : `${percent(summary.healthScore).replace('%', ' %')} · ${summary.closed} ${summary.closed === 1 ? 'día cerrado' : 'días cerrados'}`}
-            </p>
           </div>
           <span className={`local-health local-health--${summary.health}`}>
             {

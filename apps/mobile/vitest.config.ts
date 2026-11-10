@@ -4,7 +4,9 @@ import { playwright } from '@vitest/browser-playwright';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 
 export default defineConfig({
-  optimizeDeps: { include: ['storybook/theming', 'react-router-dom'] },
+  optimizeDeps: {
+    include: ['storybook/theming', 'react-router-dom', 'react-dom', '@supabase/supabase-js'],
+  },
   plugins: [storybookTest({ configDir: fileURLToPath(new URL('./.storybook', import.meta.url)) })],
   test: {
     name: 'storybook',

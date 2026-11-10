@@ -9,6 +9,7 @@ export const privacyLegalReady = false;
 export function contentOrigin(value: unknown, hasProfile: boolean) {
   if (value && typeof value === 'object' && 'from' in value && typeof value.from === 'string') {
     if (value.from === '/perfil') return value.from;
+    if (value.from === '/cuenta/registro') return value.from;
     if (
       value.from.startsWith('/onboarding/') &&
       isOnboardingStep(value.from.slice('/onboarding/'.length))
@@ -78,17 +79,7 @@ export function ContentPage({ kind }: { kind: 'sources' | 'privacy' }) {
           footer={<Button onClick={back}>Entendido</Button>}
         >
           {kind === 'privacy' ? (
-            <>
-              {privacy.map(([title, description]) => (
-                <InfoCard title={title} key={title}>
-                  <p>{description}</p>
-                </InfoCard>
-              ))}
-              <p className="hf-type-caption hf-secondary">
-                Borrador informativo. El aviso definitivo se completará antes de habilitar cuentas
-                reales; este contenido no sustituye el aviso legal del responsable.
-              </p>
-            </>
+            <PrivacyDetails />
           ) : (
             <>
               {sources.map(([title, description, label, url]) => (
@@ -116,5 +107,27 @@ export function ContentPage({ kind }: { kind: 'sources' | 'privacy' }) {
         </SettingsPage>
       </div>
     </IonPage>
+  );
+}
+
+export function PrivacyDetails() {
+  return (
+    <div className="hf-stack">
+      {privacy.map(([title, description]) => (
+        <InfoCard title={title} key={title}>
+          <p>{description}</p>
+        </InfoCard>
+      ))}
+      <InfoCard title="Acceso a cuentas">
+        <p>
+          Al activar las cuentas, Supabase gestionará el correo, la contraseña y la sesión. Los
+          hábitos y las fotos todavía no se sincronizan con un servidor.
+        </p>
+      </InfoCard>
+      <p className="hf-type-caption hf-secondary">
+        Borrador informativo. El aviso definitivo se completará antes de habilitar cuentas reales;
+        este contenido no sustituye el aviso legal del responsable.
+      </p>
+    </div>
   );
 }

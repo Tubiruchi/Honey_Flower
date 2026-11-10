@@ -30,6 +30,25 @@ export function scheduleAt(state: LocalState, day: number) {
     .reverse()
     .find((change) => change.fromDay <= day);
 }
+/** Past openings keep their identity; a same-day edit replaces only future openings. */
+export function scheduleOccurrences<
+  T extends { fromDay: number; effectiveAt?: number; timeZone: string; times: string[] },
+>(start: number, day: number, changes: readonly T[]) {
+  const baseline = changes.filter((change) => change.fromDay < day).at(-1);
+  const versions = [
+    ...(baseline ? [baseline] : []),
+    ...changes.filter((change) => change.fromDay === day),
+  ];
+  return versions
+    .flatMap((change, i) => {
+      const from = change.fromDay < day ? start : Math.max(start, change.effectiveAt ?? start);
+      const until = versions[i + 1]?.effectiveAt ?? start + DAY_MS;
+      return [...clockOccurrences(start, change.timeZone)]
+        .filter(([time, at]) => change.times.includes(time) && at >= from && at < until)
+        .map(([time, at]) => ({ time, at, change }));
+    })
+    .sort((a, b) => a.at - b.at || a.time.localeCompare(b.time));
+}
 export function upgradeSunscreenSchedule(state: LocalState, now: number): LocalState {
   if (state.sunscreenSchedule) return state;
   const day = currentDay(state, now);
@@ -53,28 +72,32 @@ export function sunscreenWindows(state: LocalState, day: number): SunscreenWindo
   if (!schedule) return [];
   const start = dayStart(state, day);
   if (!Number.isFinite(start)) return [];
-  const actual = clockOccurrences(start, schedule.timeZone);
-  const entries = schedule.times
-    .map((time) => ({ time, at: actual.get(time) ?? null }))
-    .sort((a, b) => (a.at ?? Infinity) - (b.at ?? Infinity) || a.time.localeCompare(b.time));
-  return entries.map(({ time, at }, index) => {
-    const appointment = { scheduleRevision: schedule.revision, dayStart: start, time };
+  const actual = scheduleOccurrences(start, day, state.sunscreenSchedule!.changes);
+  // Keep nonexistent DST hours visible, without fabricating an opening.
+  const entries = [
+    ...actual,
+    ...schedule.times
+      .filter((time) => !clockOccurrences(start, schedule.timeZone).has(time))
+      .map((time) => ({ time, at: null, change: schedule })),
+  ];
+  return entries.map(({ time, at, change }, index) => {
+    const appointment = { scheduleRevision: change.revision, dayStart: start, time };
     const closesAt =
       at === null
         ? null
         : Math.min(
-            at + schedule.policy.minutes * MINUTE,
+            at + change.policy.minutes * MINUTE,
             entries[index + 1]?.at ?? start + DAY_MS,
             start + DAY_MS,
           );
     return {
-      id: `sun:${schedule.revision}:${start}:${time}`,
+      id: `sun:${change.revision}:${start}:${time}`,
       appointment,
       time,
-      timeZone: schedule.timeZone,
+      timeZone: change.timeZone,
       opensAt: at,
       closesAt,
-      contextAt: at === null ? null : at + (closesAt! - at) * schedule.policy.contextFraction,
+      contextAt: at === null ? null : at + (closesAt! - at) * change.policy.contextFraction,
       event:
         state.events.find(
           (event) => event.kind === 'sunscreen' && sameAppointment(event.appointment, appointment),

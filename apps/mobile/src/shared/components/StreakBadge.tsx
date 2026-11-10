@@ -1,11 +1,13 @@
 import { Icon } from './Icon';
 export function StreakBadge({ days = 2 }: { days?: number }) {
   return (
-    <div className="hf-streak-badge">
+    <div
+      className="hf-streak-badge"
+      role="img"
+      aria-label={`Racha de ${days} ${days === 1 ? 'día' : 'días'}`}
+    >
       <Icon name="flash" inheritColor />
-      <span>
-        Racha: {days} {days === 1 ? 'día' : 'días'}
-      </span>
+      <span>{days}</span>
     </div>
   );
 }

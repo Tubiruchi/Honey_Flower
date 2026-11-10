@@ -8,7 +8,6 @@ import {
   ProfileStat,
   SettingsLink,
   Stepper,
-  TimeRow,
   ToneSelector,
 } from '../../shared/components';
 import type { OnboardingDraft } from '../onboarding/model';
@@ -21,11 +20,17 @@ import { confirmed } from '../../shared/data/localSnapshot';
 import { useOpenRecords } from '../records/navigation';
 import { useReminders } from '../reminders/ReminderProvider';
 import '../preferences/profile.css';
+import { HabitScheduleFields } from '../preferences/HabitScheduleFields';
+import { TopNotice } from '../../shared/components/TopNotice';
 import { CAMERA_PREVIEW_PATH, TEMPORARY_CAMERA_PREVIEW_ENABLED } from '../water/temporaryPreview';
+import { useAuth } from '../auth/AuthProvider';
+import { APP_VERSION } from '../../shared/appVersion';
 
 type Editor = 'name' | 'goals' | 'schedule' | 'tone' | 'privacy' | null;
 export function ProfileScreen() {
   const local = useLocal();
+  const auth = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
   const state = local.state!;
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +41,7 @@ export function ProfileScreen() {
   const [draftRevision, setDraftRevision] = useState(local.preferencesRevision);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [noticeId, setNoticeId] = useState(0);
   const species = speciesAt(state, Math.floor(currentDay(state, local.now) / 7));
   const cycles = completedCycles(state, local.now);
   const open = useCallback(
@@ -43,6 +49,7 @@ export function ProfileScreen() {
       setDraft(structuredClone(state.preferences));
       setDraftRevision(local.preferencesRevision);
       setError('');
+      setMessage('');
       setEditor(section);
     },
     [state.preferences, local.preferencesRevision],
@@ -69,7 +76,6 @@ export function ProfileScreen() {
     <div className="local-screen profile-screen">
       <header className="profile-header">
         <h1 className="hf-type-heading-md">Perfil</h1>
-        <p className="hf-type-caption hf-secondary">Tu constancia y tus preferencias</p>
       </header>
       <section className="profile-identity" aria-label="Tu perfil">
         <div>
@@ -128,6 +134,47 @@ export function ProfileScreen() {
       </p>
       <section className="local-setting-group profile-more" aria-label="Más opciones de Perfil">
         <h2 className="hf-type-heading-md">Más opciones</h2>
+        {auth.user ? (
+          <>
+            <p className="hf-type-body-sm hf-secondary">{auth.user.email}</p>
+            <p className="hf-type-caption hf-secondary">
+              Los hábitos de tu cuenta se guardan por ahora en este celular. La sincronización está
+              pendiente.
+            </p>
+            <Button
+              variant="secondary"
+              disabled={local.busy}
+              loading={signingOut}
+              onClick={async () => {
+                if (signingOut) return;
+                setSigningOut(true);
+                setError('');
+                try {
+                  await auth.signOut();
+                  void navigate('/cuenta/entrar', { replace: true });
+                } catch {
+                  setError(
+                    'No pudimos cerrar la sesión. Revisa tu conexión y vuelve a intentarlo.',
+                  );
+                } finally {
+                  setSigningOut(false);
+                }
+              }}
+            >
+              Cerrar sesión
+            </Button>
+            {error && !editor && (
+              <TopNotice message={error} variant="error" onDismiss={() => setError('')} />
+            )}
+          </>
+        ) : (
+          <SettingsLink
+            label="Iniciar sesión o crear cuenta"
+            detail="Accede a tu cuenta de HoneyFlower"
+            icon={<Icon name="user" />}
+            onClick={() => navigate('/cuenta/entrar')}
+          />
+        )}
         {/* TEMPORARY: remove with the accepted integrations; see docs/conexiones-futuras.md. */}
         {TEMPORARY_CAMERA_PREVIEW_ENABLED && (
           <SettingsLink
@@ -163,8 +210,8 @@ export function ProfileScreen() {
           onClick={() => open('tone')}
         />
         <p className="hf-type-caption hf-secondary">
-          Las metas y citas nuevas se aplican al comenzar el siguiente día de planta. El nombre y el
-          tono se actualizan al guardar.
+          Los horarios actualizan las próximas citas al guardar. Las metas nuevas comienzan el
+          siguiente día de planta.
         </p>
         <SettingsLink
           label="Volver al onboarding"
@@ -175,16 +222,15 @@ export function ProfileScreen() {
       </section>
       {(!notices || notices.permission === 'unsupported') && (
         <p className="hf-type-caption hf-secondary">
-          Los recordatorios del teléfono y la linterna se prueban en Android. Aquí se conservan tus
-          preferencias y registros locales.
+          Los mensajes de tu planta se muestran con la app abierta. Los avisos del teléfono y la
+          linterna se prueban en Android.
         </p>
       )}
       <p className="hf-type-caption hf-secondary">
-        HoneyFlower · Prueba local en este dispositivo. No necesitas crear una cuenta.
+        HoneyFlower · {APP_VERSION}.{' '}
+        {auth.user ? 'Hábitos guardados en este dispositivo.' : 'Puedes usar la app sin cuenta.'}
       </p>
-      <p role="status" className="local-feedback">
-        {message}
-      </p>
+      <TopNotice message={message} noticeId={noticeId} onDismiss={() => setMessage('')} />
       {editor && (
         <Modal title={titles[editor]} onClose={() => setEditor(null)} busy={local.busy}>
           {editor === 'privacy' ? (
@@ -205,6 +251,8 @@ export function ProfileScreen() {
               className="hf-stack"
               onSubmit={async (event) => {
                 event.preventDefault();
+                setError('');
+                setNoticeId((n) => n + 1);
                 try {
                   confirmed(await local.update(draft, draftRevision));
                   setEditor(null);
@@ -212,7 +260,7 @@ export function ProfileScreen() {
                     editor === 'goals'
                       ? 'Metas guardadas para el siguiente día de planta.'
                       : editor === 'schedule'
-                        ? 'Horarios guardados para el siguiente día de planta.'
+                        ? 'Horarios guardados. Las próximas citas ya están actualizadas.'
                         : 'Cambios guardados en este dispositivo.',
                   );
                 } catch (e) {
@@ -220,6 +268,27 @@ export function ProfileScreen() {
                 }
               }}
             >
+              <TopNotice
+                message={
+                  local.pending
+                    ? 'No se pudo confirmar el guardado.'
+                    : error
+                      ? 'No se pudieron guardar los cambios. Revisa el formulario.'
+                      : ''
+                }
+                variant="error"
+                noticeId={noticeId}
+              >
+                {local.pending && (
+                  <Button
+                    variant="text"
+                    disabled={local.writing}
+                    onClick={() => void local.retry()}
+                  >
+                    Reintentar ahora
+                  </Button>
+                )}
+              </TopNotice>
               <fieldset className="local-form-fields" disabled={local.busy}>
                 {editor === 'name' && (
                   <Input
@@ -256,48 +325,7 @@ export function ProfileScreen() {
                     </p>
                   </>
                 )}
-                {editor === 'schedule' && (
-                  <>
-                    <h3 className="hf-type-label-md">Agua</h3>
-                    {draft.waterTimes.map((value, i) => (
-                      <TimeRow
-                        key={`water-${i}`}
-                        label={`Recordatorio ${i + 1}`}
-                        accessibleLabel={`Horario de agua ${i + 1}`}
-                        value={value}
-                        onChange={(next) =>
-                          setDraft({
-                            ...draft,
-                            waterTimes: draft.waterTimes.map((time, index) =>
-                              index === i ? next : time,
-                            ),
-                          })
-                        }
-                      />
-                    ))}
-                    <h3 className="hf-type-label-md">Protector solar</h3>
-                    <p className="hf-type-caption">
-                      Los horarios nuevos comienzan el siguiente día de planta. Los registros y las
-                      ventanas de este día se conservan.
-                    </p>
-                    {draft.sunscreenTimes.map((value, i) => (
-                      <TimeRow
-                        key={`sun-${i}`}
-                        label={i ? `Reaplicación ${i}` : 'Aplicación inicial'}
-                        accessibleLabel={`Horario de protector ${i + 1}`}
-                        value={value}
-                        onChange={(next) =>
-                          setDraft({
-                            ...draft,
-                            sunscreenTimes: draft.sunscreenTimes.map((time, index) =>
-                              index === i ? next : time,
-                            ),
-                          })
-                        }
-                      />
-                    ))}
-                  </>
-                )}
+                {editor === 'schedule' && <HabitScheduleFields draft={draft} onChange={setDraft} />}
                 {editor === 'tone' && (
                   <>
                     <ToneSelector
@@ -313,11 +341,7 @@ export function ProfileScreen() {
                     </p>
                   </>
                 )}
-                {error && (
-                  <p role="alert" className="hf-error">
-                    {error}
-                  </p>
-                )}
+                {error && <p className="hf-error">{error}</p>}
                 <Button type="submit" loading={local.writing}>
                   Guardar cambios
                 </Button>

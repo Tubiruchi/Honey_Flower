@@ -13,15 +13,15 @@ Consulta el [plan de gestión del proyecto](docs/gestion-del-proyecto.md) para v
 
 El equipo organiza el trabajo en ClickUp con tareas por fase y rol, responsables, fechas, estimaciones de referencia, criterios de aceptación y subtareas. Las dependencias muestran el orden entre entregables; los estados se actualizan con base en evidencia. El tablero detallado se comparte dentro del equipo.
 
-| Fase | Fechas | Enfoque |
-|---|---|---|
-| 1 | 19–23 oct | Diseño Figma y primera entrega de avances |
-| 2 | 26–30 oct | Revisión del prototipo y alcance inmediato |
-| 3 | 2–6 nov | Flujos principales y estados |
-| 4 | 9–13 nov | Jardín, progreso y revisión intermedia |
-| 5 | 16–20 nov | Integraciones o simulaciones delimitadas |
-| 6 | 23–27 nov | Integración del recorrido y correcciones |
-| 7 | 30 nov–4 dic | Preparación, validación, demo y cierre |
+| Fase | Fechas       | Enfoque                                    |
+| ---- | ------------ | ------------------------------------------ |
+| 1    | 19–23 oct    | Diseño Figma y primera entrega de avances  |
+| 2    | 26–30 oct    | Revisión del prototipo y alcance inmediato |
+| 3    | 2–6 nov      | Flujos principales y estados               |
+| 4    | 9–13 nov     | Jardín, progreso y revisión intermedia     |
+| 5    | 16–20 nov    | Integraciones o simulaciones delimitadas   |
+| 6    | 23–27 nov    | Integración del recorrido y correcciones   |
+| 7    | 30 nov–4 dic | Preparación, validación, demo y cierre     |
 
 La dedicación planeada es de aproximadamente dos horas por persona a la semana. Las estimaciones no son horas registradas. El tablero y sus fechas deben reflejar el avance comprobable del repositorio.
 
@@ -45,9 +45,11 @@ edición, estadísticas y preferencias que se conservan en el dispositivo.
 
 La primera entrada ahora abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de
 ocho pantallas implementado desde Figma. Sus preferencias sí se conservan como borrador local,
-sin crear cuenta. En esta fase **Ya tengo cuenta** lleva directamente a Inicio y activa la prueba
-local. Terminar el onboarding también inicia el modo local; las siguientes aperturas recuperan
-el perfil y los registros. Detalles: [prueba local y APK](docs/prueba-local-apk.md).
+sin crear cuenta. En **0.4.0**, **Ya tengo cuenta** abre inicio de sesión y **Continuar sin cuenta**
+recupera la prueba local. Las pantallas de registro y recuperación están preparadas para Supabase;
+por indicación del usuario, la conexión todavía no se activa. Sin configuración no se crean
+sesiones ficticias. Detalles: [cuentas y conexión](docs/integracion-supabase.md) y
+[prueba local y APK](docs/prueba-local-apk.md).
 
 ## Estructura
 
@@ -116,7 +118,7 @@ red Wi-Fi. El identificador es `com.honeyflower.app`. Ver [compilación y alcanc
   sus cinco componentes independientes, el catálogo de 26 iconos y ocho composiciones de dominio.
 - 234 tokens con sus 137 alias, 14 estilos tipográficos, tres sombras y Plus Jakarta Sans local.
 - Historias con variantes, estados e interacciones; app de demostración usando los mismos componentes.
-- Inicio, Análisis, Perfil y Registros funcionales sin servidor, 136 pruebas de lógica local y APK Android 0.3.2 descargable.
+- Inicio, Análisis, Perfil y Registros funcionales sin servidor, 136 pruebas de lógica local y APK Android 0.3.3 descargable.
 - Primera fase de integración: guardado confirmado, migración de datos, reintentos y deshacer seguro.
   Detalles y comprobaciones: [persistencia común](docs/fase-3-bloque-1-persistencia.md).
 - Segunda fase de integración: [Registros y navegación](docs/fase-3-bloque-2-registros.md), con filtros,

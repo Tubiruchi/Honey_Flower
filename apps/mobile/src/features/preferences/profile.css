@@ -8,11 +8,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 112px;
-  overflow: hidden;
+  min-height: 134px;
+  overflow: visible;
 }
 .profile-identity > div:first-child {
-  flex: 0 0 calc(100% - 146px);
+  flex: 1;
   min-width: 0;
   display: grid;
   gap: 12px;
@@ -20,15 +20,17 @@
 .profile-plant {
   flex: 0 0 154px;
   width: 154px;
-  height: 112px;
-  overflow: hidden;
+  height: 134px;
+  padding: 4px;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .profile-plant .hf-character {
-  width: 154px;
-  height: 125.125px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 320 / 260;
   flex-shrink: 0;
 }
 .profile-screen .hf-settings-link__chevron {

@@ -13,7 +13,7 @@ import org.json.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/** Inexact alarms are checked again at delivery: no late notice in calm or a closed window. */
+/** User-authorized exact alarms; every delivery still checks calm, windows and opt-out. */
 public class ReminderReceiver extends BroadcastReceiver {
     static final String STORE = "honeyflower_reminders";
     static final String SILENT = "hf_reminders_quiet_v1", SOUND = "hf_reminders_sound_v1";
@@ -33,8 +33,14 @@ public class ReminderReceiver extends BroadcastReceiver {
         return PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
     static void schedule(Context context, JSONObject entry) throws JSONException {
-        ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP, entry.getLong("at"), alarm(context, entry.getInt("id")));
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT < 31 || manager.canScheduleExactAlarms()) {
+            try {
+                manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, entry.getLong("at"), alarm(context, entry.getInt("id")));
+                return;
+            } catch (SecurityException revoked) { /* Permission can be revoked between the check and call. */ }
+        }
+        manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, entry.getLong("at"), alarm(context, entry.getInt("id")));
     }
     static void channels(Context context) {
         if (Build.VERSION.SDK_INT < 26) return;
@@ -74,7 +80,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         synchronized (ReminderReceiver.class) { receive(context, intent); }
     }
     private void receive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()) || AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(intent.getAction())) {
             JSONArray pending = entries(context);
             for (int i = 0; i < pending.length(); i++) {
                 JSONObject entry = pending.optJSONObject(i);

@@ -168,6 +168,7 @@ export const Profile: Story = {
     await canvas.findByRole('heading', { name: 'Perfil' });
     await expect(canvas.getByText('4', { exact: true })).toBeVisible();
     await expect(canvas.getByRole('button', { name: /Ver mis registros/ })).toBeVisible();
+    await expect(canvas.queryByText('Tu constancia y tus preferencias')).not.toBeInTheDocument();
   },
 };
 export const NewProfile: Story = {
@@ -198,6 +199,9 @@ export const Normal: Story = {
     ).toBeChecked();
     await expect(canvas.getByRole('switch', { name: 'Sonido reforzado' })).not.toBeChecked();
     await expect(canvas.getByRole('switch', { name: 'Señal breve de linterna' })).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('button', { name: /^Horarios de hábitos/ }),
+    ).not.toBeInTheDocument();
   },
 };
 export const SoundOnly: Story = {
@@ -270,10 +274,31 @@ export const Schedule: Story = {
     fireEvent.change(await canvas.findByLabelText('Horario de protector 1'), {
       target: { value: '06:30' },
     });
-    await userEvent.click(canvas.getByRole('button', { name: 'Guardar horarios' }));
-    await expect(await canvas.findByText('Preferencias guardadas')).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Guardar cambios' }));
+    await expect(
+      await canvas.findByText('Horarios guardados. Las próximas citas ya están actualizadas.'),
+    ).toBeVisible();
     await userEvent.click(await canvas.findByRole('button', { name: /Horarios de hábitos/ }));
     await expect(canvas.getByLabelText('Horario de protector 1')).toHaveValue('06:30');
+  },
+};
+export const NoticeExpires: Story = {
+  name: 'Perfil · aviso superior se retira automáticamente',
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(await canvas.findByRole('button', { name: /Editar perfil/ }));
+    const dialog = within(canvas.getByRole('dialog'));
+    await userEvent.click(dialog.getByRole('button', { name: 'Guardar cambios' }));
+    const message = await canvas.findByText('Cambios guardados en este dispositivo.');
+    const notice = message.closest('.top-notice')!;
+    await expect(notice.getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
+    await expect(notice.getBoundingClientRect().top).toBeLessThan(48);
+    await waitFor(
+      () =>
+        expect(
+          canvas.queryByText('Cambios guardados en este dispositivo.'),
+        ).not.toBeInTheDocument(),
+      { timeout: 8500 },
+    );
   },
 };
 export const Maximum: Story = {

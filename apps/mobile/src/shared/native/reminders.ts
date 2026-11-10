@@ -7,6 +7,8 @@ import type { Reminder } from '../../features/reminders/model';
 export type NoticePermission = 'granted' | 'denied' | 'prompt' | 'unsupported' | 'unknown';
 export interface ReminderDevice {
   supported: boolean;
+  exactStatus?: () => Promise<{ granted: boolean }>;
+  requestExactDelivery?: () => Promise<void>;
   permission: () => Promise<NoticePermission>;
   requestPermission: () => Promise<NoticePermission>;
   replace: (
@@ -24,6 +26,8 @@ export interface ReminderDevice {
   ) => Promise<() => void>;
 }
 interface GuardedPlugin {
+  exactStatus: () => Promise<{ granted: boolean }>;
+  requestExactDelivery: () => Promise<void>;
   readLocal: (options: { key: string }) => Promise<{ found: boolean; value: string | null }>;
   writeLocal: (options: { key: string; value: string | null }) => Promise<void>;
   replace: (options: {
@@ -66,6 +70,8 @@ export const browserReminders: ReminderDevice = {
 };
 const androidReminders: ReminderDevice = {
   supported: true,
+  exactStatus: () => guarded.exactStatus(),
+  requestExactDelivery: () => guarded.requestExactDelivery(),
   permission: async () => permission((await LocalNotifications.checkPermissions()).display),
   requestPermission: async () =>
     permission((await LocalNotifications.requestPermissions()).display),

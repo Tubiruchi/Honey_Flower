@@ -14,9 +14,13 @@ import {
   parseReminderLog,
   REMINDER_LOG_KEY,
 } from '../src/features/reminders/model.ts';
-import { ReminderCoordinator } from '../src/features/reminders/coordinator.ts';
+import {
+  ReminderCoordinator,
+  clearAccountReminders,
+} from '../src/features/reminders/coordinator.ts';
 import { upgradeWaterSchedule } from '../src/features/reminders/schema.ts';
 import { sunscreenWindows } from '../src/features/sunscreen/model.ts';
+import { ForegroundReminders } from '../src/features/reminders/foreground.ts';
 import { memoryStorage, LocalRepository } from '../src/shared/data/localRepository.ts';
 import { createSnapshot, LOCAL_SNAPSHOT_KEY } from '../src/shared/data/localSnapshot.ts';
 
@@ -213,7 +217,7 @@ test('sonido y linterna conservan cuatro combinaciones y apagado domina sin borr
       assert.deepEqual(off.goals, original.goals);
     }
 });
-test('guardar horarios conserva hoy y cambia agua/protector a partir del día siguiente', () => {
+test('guardar horarios actualiza las próximas citas de hoy sin fabricar avisos pasados', () => {
   const state = fresh();
   const original = planReminders(state, now).reminders.filter((r) => r.dayStart === start);
   const next = updatePreferences(
@@ -221,10 +225,12 @@ test('guardar horarios conserva hoy y cambia agua/protector a partir del día si
     { ...state.preferences, waterTimes: ['09:00'], sunscreenTimes: ['09:00', '12:00', '16:00'] },
     now,
   );
-  assert.deepEqual(
-    planReminders(next, now).reminders.filter((r) => r.dayStart === start),
-    original,
-  );
+  const today = planReminders(next, now).reminders.filter((r) => r.dayStart === start);
+  assert.notDeepEqual(today, original);
+  assert.equal(today.find((r) => r.kind === 'water').at, start + 9 * H);
+  assert.equal(today.find((r) => r.kind === 'sunscreen').at, start + 9 * H);
+  assert.ok(today.every((r) => r.at > now));
+  assert.deepEqual(next.events, state.events);
   const tomorrow = planReminders(next, start + DAY_MS + H).reminders.filter(
     (r) => r.dayStart === start + DAY_MS,
   );
@@ -232,6 +238,19 @@ test('guardar horarios conserva hoy y cambia agua/protector a partir del día si
   assert.equal(tomorrow.find((r) => r.kind === 'water').at, start + DAY_MS + 9 * H);
   assert.deepEqual(parseLocalState(JSON.stringify(next)).waterSchedule, next.waterSchedule);
 });
+test('cambiar un horario cancela sus futuras alarmas anteriores y reserva la nueva hora de hoy', async () => {
+  const f = fixture(),
+    state = fresh();
+  const at = start + 7 * H;
+  await f.coordinator.reconcile(state, at);
+  const next = updatePreferences(state, { ...state.preferences, waterTimes: ['07:05'] }, at);
+  await f.coordinator.reconcile(next, at);
+  const water = f.calls.at(-1).reminders.filter((r) => r.kind === 'water' && r.dayStart === start);
+  assert.equal(water.length, 1);
+  assert.equal(water[0].at, start + 7 * H + 5 * M);
+  assert.ok(!f.calls.at(-1).reminders.some((r) => r.kind === 'water' && r.at === start + 8 * H));
+});
+
 test('la migración de agua conserva eventos, agenda de protector y recibos; es idempotente', async () => {
   const state = fresh();
   delete state.waterSchedule;
@@ -266,6 +285,20 @@ test('agenda dañada o IDs repetidos se rechazan en vez de fingir una agenda vac
     parseReminderLog(JSON.stringify({ version: 1, entries: [{ ...entry, id: 1 }] })),
   );
 });
+test('cambiar el permiso de precisión vuelve a programar las mismas citas sin pedirlo automáticamente', async () => {
+  const f = fixture(),
+    state = fresh();
+  let exact = false;
+  f.port.exactStatus = async () => ({ granted: exact });
+  await f.coordinator.reconcile(state, now);
+  const initial = structuredClone(f.calls.at(-1).reminders);
+  exact = true;
+  await f.coordinator.reconcile(state, now);
+  assert.deepEqual(f.calls.at(-1).reminders, initial);
+  assert.equal(f.calls.filter((c) => c.enabled).length, 2);
+  assert.equal(f.faults.request, 0);
+});
+
 test('sin permiso no programa ni solicita autorización automáticamente', async () => {
   const f = fixture();
   f.faults.permission = 'denied';
@@ -290,6 +323,94 @@ test('revisar la misma agenda no vuelve a programar todos los avisos', async () 
   await f.coordinator.reconcile(state, now + 1000);
   assert.ok(first.pending > 0);
   assert.equal(f.calls.filter((c) => c.enabled).length, 1);
+});
+
+test('alcanzar la hora no cancela una alarma nativa aún válida; cerrar su ventana sí la retira', async () => {
+  const f = fixture(),
+    state = fresh();
+  state.preferences.notificationCap = 24;
+  await f.coordinator.reconcile(state, start + 8 * H - 1000);
+  const due = f.calls
+    .at(-1)
+    .reminders.find((r) => r.kind === 'sunscreen' && r.at === start + 8 * H);
+  await f.coordinator.reconcile(state, start + 8 * H + 15_000);
+  assert.ok(f.calls.at(-1).reminders.some((r) => r.key === due.key && r.id === due.id));
+  await f.coordinator.reconcile(state, due.expiresAt);
+  assert.ok(f.calls.at(-1).reminders.every((r) => r.key !== due.key));
+});
+
+test('registrar protector o completar agua cancela sus alarmas activas aunque sigan dentro de ventana', async () => {
+  const f = fixture(),
+    state = fresh();
+  state.preferences.notificationCap = 24;
+  await f.coordinator.reconcile(state, start + 8 * H - 1000);
+  const window = sunscreenWindows(state, 0)[0];
+  state.events.push(
+    { id: 'water-done', kind: 'water', amount: 2000, at: start + 8 * H },
+    {
+      id: 'sun-done',
+      kind: 'sunscreen',
+      amount: 1,
+      at: start + 8 * H,
+      appointment: window.appointment,
+    },
+  );
+  await f.coordinator.reconcile(state, start + 8 * H + 15_000);
+  const today = f.calls.at(-1).reminders.filter((r) => r.dayStart === start);
+  assert.ok(today.every((r) => r.kind !== 'water' && !r.key.startsWith(window.id + ':')));
+});
+
+test('reabrir conserva una alarma reservada que Android aún no ha entregado', async () => {
+  const f = fixture(),
+    state = fresh();
+  await f.coordinator.reconcile(state, start + 8 * H - 1000);
+  const due = f.calls.at(-1).reminders.find((r) => r.at === start + 8 * H);
+  const reopened = new ReminderCoordinator(f.port, f.storage);
+  await reopened.reconcile(state, start + 8 * H + 15_000);
+  assert.ok(f.calls.at(-1).reminders.some((r) => r.key === due.key && r.id === due.id));
+});
+
+test('simulación al cruzar la cita entrega ambos hábitos una vez, sin modificar el perfil', () => {
+  const state = fresh(),
+    clock = new ForegroundReminders();
+  state.preferences.notificationCap = 24;
+  const original = structuredClone(state);
+  assert.deepEqual(clock.tick(state, start + 8 * H - 1000, true), []);
+  const notices = clock.tick(state, start + 8 * H, true);
+  assert.deepEqual(notices.map((r) => r.kind).sort(), ['sunscreen', 'water']);
+  assert.ok(notices.every((r) => /¡Hey!/.test(r.body)));
+  assert.deepEqual(clock.tick(state, start + 8 * H + 1000, true), []);
+  clock.tick(state, start + 8 * H - 1000, true);
+  assert.deepEqual(clock.tick(state, start + 8 * H, true), []);
+  assert.deepEqual(state, original);
+});
+
+test('simulación respeta calma, apagado, máximo compartido y metas completadas', () => {
+  for (const condition of ['quiet', 'off', 'done', 'cap']) {
+    const state = fresh(),
+      clock = new ForegroundReminders();
+    if (condition === 'quiet') state.preferences.quietPeriods = [{ from: '07:00', to: '09:00' }];
+    if (condition === 'off') state.preferences.notifications = false;
+    if (condition === 'cap') state.preferences.notificationCap = 1;
+    if (condition === 'done')
+      state.events.push({ id: 'water', kind: 'water', amount: 2000, at: start + 7 * H });
+    clock.tick(state, start + 8 * H - 1000, true);
+    const notices = clock.tick(state, start + 8 * H, true);
+    if (condition === 'quiet' || condition === 'off') assert.equal(notices.length, 0);
+    if (condition === 'cap') assert.equal(notices.length, 1);
+    if (condition === 'done') assert.ok(notices.every((r) => r.kind !== 'water'));
+  }
+});
+
+test('volver de segundo plano o un reloj suspendido no reproduce mensajes atrasados', () => {
+  const state = fresh(),
+    clock = new ForegroundReminders();
+  clock.tick(state, start + 8 * H - 1000, true);
+  clock.tick(state, start + 8 * H - 500, false);
+  assert.deepEqual(clock.tick(state, start + 8 * H + 1000, true), []);
+  const suspended = new ForegroundReminders();
+  suspended.tick(state, start + 8 * H - 1000, true);
+  assert.deepEqual(suspended.tick(state, start + 8 * H + 120_000, true), []);
 });
 test('un fallo nativo cancela, muestra error y reintentar vuelve a programar', async () => {
   const f = fixture();
@@ -351,6 +472,22 @@ test('la última preferencia domina operaciones de agenda encoladas', async () =
   assert.equal(await on, null);
   assert.equal((await off).pending, 0);
   assert.ok(f.calls.every((c) => !c.enabled));
+});
+
+test('cerrar una cuenta invalida su agenda anterior y la nueva cuenta conserva la última programación', async () => {
+  const f = fixture(),
+    state = fresh();
+  await f.coordinator.reconcile(state, now);
+  const clear = clearAccountReminders(f.port, state.preferences);
+  const stale = f.coordinator.reconcile(state, now + 1000);
+  const next = new ReminderCoordinator(f.port, memoryStorage());
+  const disabled = { ...state, preferences: { ...state.preferences, notifications: false } };
+  const result = next.reconcile(disabled, now + 1000);
+  await clear;
+  assert.equal(await stale, null);
+  await result;
+  assert.equal(f.calls.at(-1).enabled, false);
+  assert.equal(await f.coordinator.reconcile(state, now + 2000), null);
 });
 
 test('la señal de linterna requiere opt-in, nivel reforzado, primer plano y movimiento no reducido', async () => {

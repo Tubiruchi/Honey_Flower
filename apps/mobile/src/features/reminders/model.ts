@@ -1,6 +1,6 @@
 import { currentDay, dayStart, dayStats, eventsAt, DAY_MS } from '../local/model.ts';
 import type { LocalState } from '../local/model.ts';
-import { clockOccurrences, sunscreenWindows } from '../sunscreen/model.ts';
+import { scheduleOccurrences, sunscreenWindows } from '../sunscreen/model.ts';
 import { inQuietTime } from './preferences.ts';
 
 export const REMINDER_LOG_KEY = 'honeyflower.reminders.v1';
@@ -79,15 +79,7 @@ export function planReminders(
   for (let day = today; day < end; day++) {
     const start = dayStart(state, day);
     const stats = dayStats(state, day);
-    const schedule = [...(state.waterSchedule?.changes ?? [])]
-      .reverse()
-      .find((v) => v.fromDay <= day);
-    const waterSlots = schedule
-      ? [...clockOccurrences(start, schedule.timeZone)]
-          .filter(([time]) => schedule.times.includes(time))
-          .map(([time, at]) => ({ time, at }))
-          .sort((a, b) => a.at - b.at)
-      : [];
+    const waterSlots = scheduleOccurrences(start, day, state.waterSchedule?.changes ?? []);
     const sun = sunscreenWindows(state, day);
     const candidates: Omit<Reminder, 'id' | 'title' | 'body' | 'sound'>[] = [];
     const waterEvents = eventsAt(state, day).filter((e) => e.kind === 'water');
@@ -162,8 +154,8 @@ export function planReminders(
       result.push({
         ...entry,
         id,
-        title: entry.kind === 'water' ? 'Tu cita de agua' : 'Tu cita de protector',
-        body: `${intensified ? phrase + ' ' : ''}${entry.kind === 'water' ? 'Puedes revisar y registrar tu agua.' : 'Revisa tu horario antes de confirmar una aplicación.'}`,
+        title: 'Tu planta te recuerda',
+        body: `${intensified ? phrase + ' ' : ''}${plantReminderMessage(entry.kind)}`,
         sound: entry.level === 'reinforced' && state.preferences.reinforcedSound,
       });
     }
@@ -174,5 +166,48 @@ export function planReminders(
       ...retained,
       ...result.map(({ key, id, dayStart, at }) => ({ key, id, dayStart, at })),
     ],
+  };
+}
+
+export function plantReminderMessage(kind: Reminder['kind']) {
+  return kind === 'water'
+    ? '¡Hey! Es hora de tomar agua. Yo también espero mi riego.'
+    : '¡Hey! Es hora de ponerte tu protector solar. Cuídate del sol.';
+}
+
+/** Keep reserved, still-valid notices while Android's inexact alarm awaits delivery. */
+export function planRemindersForDelivery(
+  state: LocalState,
+  now: number,
+  history: readonly Reservation[],
+) {
+  const plan = planReminders(state, now, history);
+  if (!state.preferences.notifications) return plan;
+  const active: Reminder[] = [];
+  for (const at of new Set(
+    history.filter((r) => r.at <= now && r.at > now - DAY_MS).map((r) => r.at),
+  )) {
+    const reserved = history.filter((r) => r.at === at);
+    const candidates = planReminders(
+      state,
+      at - 1,
+      history.filter((r) => r.at < at),
+    ).reminders;
+    for (const reminder of candidates) {
+      const original = reserved.find((r) => r.key === reminder.key);
+      if (!original || reminder.expiresAt <= now) continue;
+      const time = new Intl.DateTimeFormat('en-GB', {
+        timeZone: state.preferences.timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }).format(now);
+      if (!inQuietTime(time, state.preferences.quietPeriods))
+        active.push({ ...reminder, id: original.id });
+    }
+  }
+  return {
+    ...plan,
+    reminders: [...active, ...plan.reminders].sort((a, b) => a.at - b.at || a.id - b.id),
   };
 }

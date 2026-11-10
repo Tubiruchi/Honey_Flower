@@ -25,6 +25,7 @@ export interface OnboardingFlowProps {
   onStepChange?: (step: OnboardingStep) => void;
   onCreateAccount: (preferences: OnboardingPreferences) => void | Promise<void>;
   onSignIn: () => void | Promise<void>;
+  onContinueAsGuest?: (draft: OnboardingDraft) => void | Promise<void>;
   persist?: boolean;
   storage?: DraftStorage;
   /** Solo en el catálogo para comparar el mockup; la app obtiene los insets reales. */
@@ -40,6 +41,7 @@ export function OnboardingFlow({
   onStepChange,
   onCreateAccount,
   onSignIn,
+  onContinueAsGuest,
   persist = false,
   storage,
   referenceStatusBar = false,
@@ -255,6 +257,15 @@ export function OnboardingFlow({
         </fieldset>
       </form>
       <footer className="onb-actions">
+        {onContinueAsGuest && (step === 'bienvenida' || step === 'resumen') && (
+          <Button
+            variant="text"
+            disabled={submitting}
+            onClick={() => void onContinueAsGuest(draft)}
+          >
+            Continuar sin cuenta
+          </Button>
+        )}
         <div className="onb-action-slot">
           <Button type="submit" form={formId} loading={submitting}>
             {returnToSummary && step !== 'agua'
@@ -277,7 +288,7 @@ export function OnboardingFlow({
                 try {
                   await onSignIn();
                 } catch {
-                  showError('No pudimos abrir la prueba local. Tu configuración se conserva.');
+                  showError('No pudimos abrir el inicio de sesión. Tu configuración se conserva.');
                 } finally {
                   setSubmitting(false);
                   submittingRef.current = false;

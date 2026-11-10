@@ -173,13 +173,15 @@ export const ProfileRecovery: Story = {
   },
 };
 export const SkipWaitsForStorage: Story = {
-  name: 'Ya tengo cuenta · entra tras confirmar el guardado',
+  name: 'Sin cuenta · entra tras confirmar el guardado',
   args: { scenario: 'start', route: '/' },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(await canvas.findByRole('button', { name: 'Ya tengo cuenta' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Continuar sin cuenta' }));
     await expect(await canvas.findByText('Guardado sin confirmar')).toBeVisible();
     await expect(canvas.queryByRole('heading', { name: /Hola,/ })).not.toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: 'Ya tengo cuenta' })).toBeDisabled();
+    await expect(
+      canvas.queryByRole('button', { name: 'Continuar sin cuenta' }),
+    ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole('button', { name: 'Reintentar guardado' }));
     await expect(await canvas.findByRole('heading', { name: 'Hola, Invitado' })).toBeVisible();
     await expect(canvas.getByText('0 mL', { exact: true })).toBeVisible();

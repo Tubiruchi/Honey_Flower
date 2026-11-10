@@ -1,6 +1,6 @@
 # Fase 3 · Integrar los mockups en la aplicación
 
-Fecha: **8 de noviembre de 2026**, actualizado el **9 de noviembre**. Estado: **bloques 1–8 implementados; APK 0.3.2 disponible; aceptación en teléfono físico pendiente**.
+Fecha: **8 de noviembre de 2026**, actualizado el **9 de noviembre**. Estado: **bloques 1–8 implementados; APK 0.3.3 disponible; aceptación en teléfono físico pendiente**.
 
 ## Objetivo
 
@@ -354,3 +354,5 @@ Los cambios se revisan por bloque; la APK final integra solo recorridos comproba
 fecha con las estimaciones históricas de octubre: el esfuerzo de captura y avisos se concreta con la
 prueba técnica, y el de protector con su política acordada. Este plan permite comenzar el trabajo
 independiente sin inventar los parámetros pendientes.
+
+La [correcci�n 0.3.3](patch-0.3.3-inicio.md) inicia la revisi�n de UX por pantalla con Inicio.

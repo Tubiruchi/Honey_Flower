@@ -307,7 +307,7 @@ export const ProfileSchedule: Story = {
     await expect(modal.getByLabelText('Horario de protector 1')).toHaveValue('08:00');
     await expect(
       modal.getByText(
-        'Los horarios nuevos comienzan el siguiente día de planta. Los registros y las ventanas de este día se conservan.',
+        'Al guardar se actualizan las próximas citas de hoy. Los registros anteriores se conservan. Si cambias la cantidad de aplicaciones, la nueva meta y sus citas comienzan mañana.',
       ),
     ).toBeVisible();
     await userEvent.click(modal.getByRole('button', { name: 'Cerrar' }));

@@ -202,7 +202,7 @@ export function SunscreenScreen() {
           />
         ) : (
           <p className="hf-type-body-sm">
-            Los nuevos horarios comenzarán en el siguiente día de planta.
+            Los horarios nuevos se aplican a las próximas citas al guardar.
           </p>
         )}
         {view.legacy > 0 && (

@@ -1,14 +1,15 @@
-# Prueba local y APK Android · 0.3.2
+# Prueba local y APK Android · 0.4.0
 
-Entrega del **9 de noviembre de 2026**. Identificador `com.honeyflower.app`,
-`versionName 0.3.2-local`, `versionCode 5`. Mantiene la firma de depuración de las APK anteriores
+Entrega del **10 de noviembre de 2026**. Identificador `com.honeyflower.app`,
+`versionName 0.4.0-local`, `versionCode 9`. Mantiene la firma de depuración de las APK anteriores
 para actualizar conservando los datos. Requiere Android 7 o posterior y WebView actualizado.
 
 ## Funciones disponibles
 
-La app funciona sin servidor ni cuenta. **Ya tengo cuenta** inicia o recupera el modo local y
-abre Inicio. Terminar el onboarding también inicia un ciclo con las preferencias elegidas.
-Una instalación nueva comienza sin eventos ni plantas ganadas.
+La prueba mantiene el modo local sin cuenta. **Ya tengo cuenta** abre el formulario de acceso y
+**Continuar sin cuenta** inicia o recupera el modo local. Registro, acceso, recuperación y retorno
+de correo están conectados al proyecto HoneyFlower de Supabase. Ver [integración de cuentas](integracion-supabase.md).
+Una instalación nueva comienza sin eventos ni plantas ganadas; las sesiones de cuenta son reales.
 
 - **Inicio:** día de planta, calendario, agua, protector y estado derivado de los registros.
   Debajo de la planta permanece solo «Ver todos los registros», morado y subrayado.
@@ -24,10 +25,17 @@ Una instalación nueva comienza sin eventos ni plantas ganadas.
 - **Análisis:** jardín mensual, Vivas/Marchitas y progreso del ciclo seleccionado. Una planta
   por semana, normalmente 4–5 cierres por mes. Sin plantas de ejemplo al instalar.
 - **Perfil:** datos y estadísticas reales, nombre, metas, horarios, tono, ajustes de avisos,
-  fuentes y privacidad. Los horarios/metas nuevos comienzan el siguiente día de planta.
+  fuentes y privacidad. Los horarios actualizan las próximas citas de hoy; las metas nuevas
+  comienzan el siguiente día de planta. Los registros y días cerrados se conservan.
+- **Revisión de UX:** Análisis y Perfil sin los textos y enlaces retirados; un único editor
+  de horarios en Perfil, ilustración completa y avisos superiores de guardado. Barras de
+  desplazamiento ocultas manteniendo el desplazamiento funcional.
+- **Mensajes de la planta:** recordatorios de agua/protector según las citas activas con la
+  app abierta; cierre manual/automático y acceso al registro sin guardar automáticamente.
 - **Avisos Android:** permiso explícito, agenda local, calma y máximo compartido de 1–24 por día
   de planta. Apagarlos cancela la agenda y conserva las elecciones de sonido/linterna. Las alarmas
-  son inexactas y dependen de Android; negar permiso permite seguir registrando hábitos.
+  usan precisión cuando se autoriza **Alarmas y recordatorios** en Android. Sin ese permiso
+  pueden retrasarse; negar permisos permite seguir registrando hábitos.
 - **Señales opcionales:** sonido solo en nivel reforzado y pulso de linterna solo con aceptación,
   permiso, compatibilidad y app visible. Respetan los ajustes del sistema y No molestar.
 
@@ -35,9 +43,9 @@ El guardado Android confirma perfil, operaciones, agenda e intento mediante alma
 privado nativo antes de mostrar éxito. Migra la copia WebView anterior validada y conserva recibos
 para no duplicar reintentos. En navegador se usa su almacenamiento local.
 
-No hay cuenta, sincronización, reconocimiento automático ni servicios remotos. Las fotos son
-temporales y no se guardan con el registro ni se envían a un servidor. Desinstalar o borrar datos
-elimina esta copia; la copia de seguridad automática de Android está desactivada.
+Las cuentas están activadas, pero todavía no hay sincronización de hábitos ni reconocimiento automático.
+Las fotos son temporales y no se guardan con el registro ni se envían a un servidor. Desinstalar o
+borrar datos elimina esta copia; la copia de seguridad automática de Android está desactivada.
 
 ## Cámara temporal para revisión visual
 
@@ -56,6 +64,12 @@ El recorrido normal de agua continúa con su confirmación y guardado reales.
 
 ## Generar y descargar
 
+La APK 0.4.0 conserva el [lote completo de correcciones de UX](revision-ux-0.3.3.md).
+La [corrección de notificaciones](patch-0.3.3-notificaciones.md) sustituye la prueba de botones:
+en **Perfil → Notificaciones y horarios**, autoriza las notificaciones y **Permitir horarios
+exactos**. En **Horarios de hábitos**, guarda una hora futura cercana y sal de la app. El aviso
+se entrega mediante el sistema de notificaciones del teléfono.
+
 En Windows: `npm ci`, Java 21, Android SDK 36 y Build Tools con licencias aceptadas.
 El script usa `JAVA_HOME`/`ANDROID_HOME` o las ubicaciones habituales de Android Studio:
 
@@ -67,8 +81,8 @@ npm run apk:serve
 La compilación comprueba tipos, prepara recursos Android, ejecuta Gradle y verifica firma y SHA-256.
 Genera:
 
-- `artifacts/android/HoneyFlower-0.3.2-prueba.apk`
-- `artifacts/android/HoneyFlower-0.3.2-prueba.apk.sha256`
+- `artifacts/android/HoneyFlower-0.4.0-prueba.apk`
+- `artifacts/android/HoneyFlower-0.4.0-prueba.apk.sha256`
 
 Desde el celular, abrir la dirección **Misma red** que imprime el servidor. Ambos equipos deben
 estar en la misma Wi-Fi. El servidor comparte solo APK e icono, sin publicar el repositorio.
@@ -77,11 +91,12 @@ Conservar la app instalada al actualizar para mantener sus datos. La conexión l
 de la red y del firewall del equipo. Ctrl+C detiene el servidor de descarga.
 
 La firma es de depuración para pruebas. Se conserva el archivo anterior 0.2.0 como referencia;
-el servidor ofrece únicamente 0.3.2. Los binarios, claves y configuración local no se versionan.
+el servidor ofrece únicamente 0.4.0. Los binarios, claves y configuración local no se versionan.
 
 ## Recorrido prioritario en teléfono
 
-Instalar/actualizar → «Ya tengo cuenta» → agua → historial → editar/deshacer → protector en
+Instalar/actualizar → «Ya tengo cuenta» → probar acceso, registro, confirmación y recuperación →
+«Continuar sin cuenta» → agua → historial → editar/deshacer → protector en
 horario → Análisis → Perfil → prueba temporal de cámara → preferencias → cerrar y reabrir.
 Verificar que los cambios persisten y que el acceso temporal no altera los registros.
 
@@ -90,4 +105,6 @@ equipo los admite y funcionamiento sin conexión. La comprobación física es po
 pruebas de navegador y emulador; estas no acreditan sensores o accesibilidad de todos los teléfonos.
 Ver [entrega y evidencias de fase 8](fase-3-bloque-8-apk.md).
 La [corrección 0.3.1](patch-0.3.1-camara.md) sustituye la cámara externa de 0.3.0 por captura integrada.
-La [corrección 0.3.2](patch-0.3.2-navegacion.md) elimina la franja de fondo alrededor del menú.
+La [corrección 0.3.3](patch-0.3.3-navegacion.md) elimina la franja de fondo alrededor del menú.
+
+La [correcci�n 0.3.3](patch-0.3.3-inicio.md) simplifica fechas, subt�tulo y racha de Inicio.

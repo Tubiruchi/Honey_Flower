@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App as NativeApp } from '@capacitor/app';
@@ -9,8 +9,11 @@ import type { ReminderDevice } from '../../shared/native/reminders';
 import { ReminderCoordinator } from './coordinator';
 import type { ReminderStatus } from './coordinator';
 import { foregroundFlashAllowed, inQuietTime } from './preferences';
-import { IconButton } from '../../shared/components';
 import { createOnboardingDraft } from '../onboarding/model';
+import { ForegroundReminders } from './foreground';
+import type { Reminder } from './model';
+import { PlantReminderNotice } from './PlantReminderNotice';
+import { currentDay, speciesAt } from '../local/model';
 
 interface ReminderContextValue extends ReminderStatus {
   message: string;
@@ -18,6 +21,8 @@ interface ReminderContextValue extends ReminderStatus {
   requestPermission: () => Promise<void>;
   authorizeFlash: () => Promise<void>;
   retry: () => void;
+  exact: { available: boolean; granted: boolean };
+  requestExactDelivery: () => Promise<void>;
 }
 const Context = createContext<ReminderContextValue | null>(null);
 export function ReminderProvider({
@@ -38,12 +43,79 @@ export function ReminderProvider({
     issue: '',
   });
   const [flash, setFlash] = useState({ available: false, granted: false });
-  const [message, setMessage] = useState('');
+  const [queue, setQueue] = useState<Reminder[]>([]);
+  const [exact, setExact] = useState({ available: !!port.exactStatus, granted: false });
+  const seen = useRef(new Set<string>());
+  const [foreground] = useState(() => new ForegroundReminders());
   const [refresh, setRefresh] = useState(0);
   const latest = useRef(local);
   useEffect(() => {
     latest.current = local;
   }, [local]);
+  const received = useCallback(
+    (reminder: Reminder) => {
+      const current = latest.current;
+      if (!current.state || current.status !== 'ready' || document.visibilityState === 'hidden')
+        return;
+      const prefs = current.state.preferences;
+      const now = current.clock.now();
+      const time = new Intl.DateTimeFormat('en-GB', {
+        timeZone: prefs.timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }).format(now);
+      if (
+        !prefs.notifications ||
+        inQuietTime(time, prefs.quietPeriods) ||
+        (reminder.expiresAt !== undefined && now >= reminder.expiresAt)
+      )
+        return;
+      const key = reminder.key ?? `${reminder.kind}:${reminder.body}:${now}`;
+      if (seen.current.has(key)) return;
+      if (seen.current.size > 512) seen.current.delete(seen.current.values().next().value!);
+      seen.current.add(key);
+      setQueue((q) => [...q, { ...reminder, key }]);
+      if (
+        foregroundFlashAllowed(
+          prefs,
+          reminder.level,
+          true,
+          matchMedia('(prefers-reduced-motion: reduce)').matches,
+        )
+      )
+        void port.pulse().catch(() => {
+          /* The visible plant message remains available. */
+        });
+    },
+    [port],
+  );
+  useEffect(() => {
+    const tick = () => {
+      const current = latest.current;
+      const visible = document.visibilityState !== 'hidden';
+      if (!current.state || current.status !== 'ready') return;
+      const now = current.clock.now();
+      for (const notice of foreground.tick(current.state, now, visible)) received(notice);
+      setQueue((q) => {
+        const next = q.filter(
+          (r) =>
+            visible &&
+            current.state!.preferences.notifications &&
+            (r.expiresAt === undefined || r.expiresAt > now),
+        );
+        return next.length === q.length ? q : next;
+      });
+    };
+    const interval = window.setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+    window.addEventListener('focus', tick);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', tick);
+      window.removeEventListener('focus', tick);
+    };
+  }, [foreground, received]);
   useEffect(() => {
     let alive = true;
     if (local.status === 'error') {
@@ -69,40 +141,7 @@ export function ReminderProvider({
         void navigate(route, { state: { from: '/inicio' } });
     };
     void port
-      .listen((reminder) => {
-        const current = latest.current;
-        if (!current.state || current.status !== 'ready' || document.visibilityState === 'hidden')
-          return;
-        const prefs = current.state.preferences;
-        const time = new Intl.DateTimeFormat('en-GB', {
-          timeZone: prefs.timeZone,
-          hour: '2-digit',
-          minute: '2-digit',
-          hourCycle: 'h23',
-        }).format(current.clock.now());
-        if (
-          !prefs.notifications ||
-          inQuietTime(time, prefs.quietPeriods) ||
-          (reminder.expiresAt !== undefined && current.clock.now() >= reminder.expiresAt)
-        )
-          return;
-        setMessage(reminder.body);
-        if (
-          foregroundFlashAllowed(
-            prefs,
-            reminder.level,
-            document.visibilityState === 'visible',
-            matchMedia('(prefers-reduced-motion: reduce)').matches,
-          )
-        )
-          void port
-            .pulse()
-            .catch(() =>
-              setMessage(
-                'La linterna no está disponible. El recordatorio sigue visible en el teléfono.',
-              ),
-            );
-      }, opened)
+      .listen(received, opened)
       .then((cleanup) => {
         if (disposed) cleanup();
         else stop = cleanup;
@@ -121,7 +160,17 @@ export function ReminderProvider({
         if (!disposed) setFlash(value);
       })
       .catch(() => {});
+    const readExact = () => {
+      void port
+        .exactStatus?.()
+        .then((value) => {
+          if (!disposed) setExact({ available: true, granted: value.granted });
+        })
+        .catch(() => {});
+    };
+    readExact();
     const resume = () => {
+      readExact();
       setRefresh((v) => v + 1);
       void port
         .flashStatus()
@@ -147,7 +196,7 @@ export function ReminderProvider({
       document.removeEventListener('visibilitychange', resume);
       void native?.then((handle) => handle.remove());
     };
-  }, [port, navigate]);
+  }, [port, navigate, received]);
   async function authorize(action: 'notifications' | 'flash') {
     setStatus((s) => ({ ...s, busy: true, issue: '' }));
     try {
@@ -167,23 +216,44 @@ export function ReminderProvider({
       }));
     }
   }
+  const currentNotice = queue[0];
   return (
     <Context.Provider
       value={{
         ...status,
         flash,
-        message,
+        message: queue[0]?.body ?? '',
         requestPermission: () => authorize('notifications'),
         authorizeFlash: () => authorize('flash'),
         retry: () => setRefresh((v) => v + 1),
+        exact,
+        requestExactDelivery: async () => {
+          try {
+            await port.requestExactDelivery?.();
+            setRefresh((v) => v + 1);
+          } catch {
+            setStatus((s) => ({
+              ...s,
+              issue: 'No pudimos abrir el permiso de alarmas. Revisa los ajustes de Android.',
+            }));
+          }
+        },
       }}
     >
       {children}
-      {message && (
-        <div className="reminder-banner" aria-label="Recordatorio" role="status">
-          <p className="hf-type-body-sm">{message}</p>
-          <IconButton label="Cerrar recordatorio" icon="close" onClick={() => setMessage('')} />
-        </div>
+      {currentNotice && local.state && (
+        <PlantReminderNotice
+          key={currentNotice.key}
+          reminder={currentNotice}
+          species={speciesAt(local.state, Math.floor(currentDay(local.state, local.now) / 7))}
+          onClose={() => setQueue((q) => q.slice(1))}
+          onOpen={() => {
+            setQueue((q) => q.slice(1));
+            void navigate(currentNotice.kind === 'water' ? '/inicio/agua' : '/inicio/protector', {
+              state: { from: '/inicio' },
+            });
+          }}
+        />
       )}
     </Context.Provider>
   );

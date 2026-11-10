@@ -24,7 +24,8 @@ public class GuardedRemindersPlugin extends Plugin {
         if (validRoute(route)) { notifyListeners("opened", new JSObject().put("route", route), true); intent.removeExtra("hfRoute"); }
     }
     private boolean validRoute(String route) { return "/inicio/agua".equals(route) || "/inicio/protector".equals(route); }
-    private boolean localKey(String key) { return "honeyflower.local.v2".equals(key) || "honeyflower.reminders.v1".equals(key) || "honeyflower.water-attempt.v1".equals(key); }
+    private boolean localKey(String key) { return "honeyflower.local.v2".equals(key) || "honeyflower.reminders.v1".equals(key) || "honeyflower.water-attempt.v1".equals(key)
+        || (key != null && key.matches("honeyflower\\.account\\.[A-Za-z0-9_-]{1,128}\\.honeyflower\\.(local\\.v2|reminders\\.v1|water-attempt\\.v1)")); }
     @PluginMethod public void readLocal(PluginCall call) {
         synchronized (GuardedRemindersPlugin.class) {
         String key = call.getString("key");
@@ -64,14 +65,20 @@ public class GuardedRemindersPlugin extends Plugin {
             synchronized (ReminderReceiver.class) {
             JSArray requested = call.getArray("reminders", new JSArray());
             if (requested.length() > 168) { call.reject("La agenda excede el máximo del ciclo."); return; }
+            JSONArray previous = ReminderReceiver.entries(getContext());
             JSONArray clean = new JSONArray();
             for (int i = 0; i < requested.length(); i++) {
                 JSONObject entry = requested.getJSONObject(i);
                 int id = entry.getInt("id"); long at = entry.getLong("at"), expires = entry.getLong("expiresAt");
-                if (id < 1000000000 || id >= 2000000000 || at <= System.currentTimeMillis() || expires <= at || ReminderReceiver.wasSeen(getContext(), entry.getString("key"))) continue;
+                boolean alreadyScheduled = false;
+                for (int j = 0; j < previous.length(); j++) {
+                    JSONObject old = previous.optJSONObject(j);
+                    if (old != null && old.optInt("id") == id && old.optString("key").equals(entry.getString("key"))) alreadyScheduled = true;
+                }
+                // Preserve an existing inexact alarm until its window closes; never replay a new overdue entry.
+                if (id < 1000000000 || id >= 2000000000 || (at <= System.currentTimeMillis() && !alreadyScheduled) || expires <= System.currentTimeMillis() || expires <= at || ReminderReceiver.wasSeen(getContext(), entry.getString("key"))) continue;
                 clean.put(entry);
             }
-            JSONArray previous = ReminderReceiver.entries(getContext());
             for (int i = 0; i < previous.length(); i++) {
                 JSONObject entry = previous.optJSONObject(i); if (entry != null) ReminderReceiver.remove(getContext(), entry.optInt("id"));
             }
@@ -90,6 +97,22 @@ public class GuardedRemindersPlugin extends Plugin {
         } catch (Exception error) { call.reject("No pudimos programar los avisos del teléfono.", error); }
     }
     @PluginMethod public void pending(PluginCall call) { call.resolve(new JSObject().put("reminders", ReminderReceiver.entries(getContext()))); }
+    @PluginMethod public void exactStatus(PluginCall call) {
+        android.app.AlarmManager alarms = (android.app.AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+        call.resolve(new JSObject().put("granted", Build.VERSION.SDK_INT < 31 || alarms.canScheduleExactAlarms()));
+    }
+    @PluginMethod public void requestExactDelivery(PluginCall call) {
+        android.app.AlarmManager alarms = (android.app.AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= 31 && !alarms.canScheduleExactAlarms()) {
+            try {
+                getActivity().startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                    android.net.Uri.parse("package:" + getContext().getPackageName())));
+            } catch (android.content.ActivityNotFoundException unavailable) {
+                call.reject("Abre los ajustes de Android para permitir alarmas y recordatorios."); return;
+            }
+        }
+        call.resolve();
+    }
     private String flashCamera() {
         try { CameraManager manager = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
             for (String id : manager.getCameraIdList()) if (Boolean.TRUE.equals(manager.getCameraCharacteristics(id).get(CameraCharacteristics.FLASH_INFO_AVAILABLE))) return id;

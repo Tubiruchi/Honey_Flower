@@ -292,7 +292,7 @@ test('horarios y meta nuevos entran mañana; el comando de hoy conserva su versi
   assert.notEqual(scheduleAt(f.state, 1).revision, old.revision);
   assert.ok(parseSnapshot(f.values.get(LOCAL_SNAPSHOT_KEY)));
 });
-test('cambios repetidos y reversión antes de mañana conservan agenda histórica e IDs inequívocos', () => {
+test('cambios repetidos y reversión conservan las aperturas pasadas y los IDs históricos', () => {
   const f = fixture();
   const first = updatePreferences(
     f.state,
@@ -306,20 +306,55 @@ test('cambios repetidos y reversión antes de mañana conservan agenda históric
   );
   assert.ok(scheduleAt(second, 1).revision > scheduleAt(first, 1).revision);
   const reverted = updatePreferences(second, f.state.preferences, f.now);
-  assert.deepEqual(scheduleAt(reverted, 0), scheduleAt(f.state, 0));
-  assert.deepEqual(scheduleAt(reverted, 1), scheduleAt(f.state, 0));
+  assert.deepEqual(scheduleAt(reverted, 1).times, scheduleAt(f.state, 0).times);
+  assert.deepEqual(
+    sunscreenWindows(reverted, 0).filter((w) => w.opensAt <= f.now),
+    sunscreenWindows(f.state, 0).filter((w) => w.opensAt <= f.now),
+  );
+  assert.ok(parseSnapshot(JSON.stringify(createSnapshot(reverted))));
 });
-test('la zona de la agenda no cambia al modificar preferencias del día en curso', () => {
+test('cambiar zona aplica a las próximas citas y conserva la ventana ya abierta', () => {
   const f = fixture();
   const next = updatePreferences(
     f.state,
     { ...f.state.preferences, timeZone: 'America/Cancun' },
     f.now,
   );
-  assert.equal(scheduleAt(next, 0).timeZone, 'UTC');
+  assert.equal(scheduleAt(next, 0).timeZone, 'America/Cancun');
   assert.equal(scheduleAt(next, 1).timeZone, 'America/Cancun');
   assert.equal(sunscreenState(next, f.now).available.time, '11:00');
 });
+test('editar horas hoy conserva registros asignados, ventanas abiertas y días cerrados', async () => {
+  const f = fixture();
+  await f.repo.initialize();
+  await record(f);
+  const saved = structuredClone(f.state.events);
+  const window = sunscreenWindows(f.state, 0).find((w) => w.event);
+  const draft = { ...f.state.preferences, sunscreenTimes: ['12:00', '15:00', '18:00'] };
+  expectOk(await f.repo.execute(f.repo.prepare({ type: 'preferences', draft })));
+  assert.deepEqual(f.state.events, saved);
+  assert.deepEqual(
+    sunscreenWindows(f.state, 0).find((w) => w.event),
+    window,
+  );
+  assert.equal(sunscreenState(f.state, f.now).next.time, '12:00');
+  assert.ok(parseSnapshot(f.values.get(LOCAL_SNAPSHOT_KEY)));
+  f.setNow(start + DAY_MS + 10 * H);
+  await f.repo.refresh();
+  const closed = sunscreenWindows(f.state, 0);
+  expectOk(
+    await f.repo.execute(
+      f.repo.prepare({
+        type: 'preferences',
+        draft: { ...draft, sunscreenTimes: ['11:00', '16:00', '20:00'] },
+      }),
+    ),
+  );
+  assert.deepEqual(sunscreenWindows(f.state, 0), closed);
+  assert.deepEqual(f.state.events, saved);
+  assert.ok(parseSnapshot(f.values.get(LOCAL_SNAPSHOT_KEY)));
+});
+
 test('DST: una hora inexistente no se fabrica, y la hora repetida tiene un solo identificador', () => {
   const spring = fixture({
     initialAt: Date.UTC(2026, 2, 8, 5),

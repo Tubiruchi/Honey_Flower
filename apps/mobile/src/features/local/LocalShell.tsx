@@ -12,9 +12,11 @@ import { CAMERA_PREVIEW_PATH, TEMPORARY_CAMERA_PREVIEW_ENABLED } from '../water/
 import { SunscreenScreen } from '../sunscreen/SunscreenScreen';
 import './local.css';
 import { PreferencesScreen } from '../preferences/PreferencesScreen';
+import { useAuth } from '../auth/AuthProvider';
 
 export function LocalShell() {
   const local = useLocal();
+  const auth = useAuth();
   const navigate = useNavigate();
   const { pathname, state: navigationState } = useLocation();
   const scroll = useRef<HTMLElement>(null);
@@ -43,7 +45,16 @@ export function LocalShell() {
   }, [pathname, navigationState]);
   if (!local.state)
     return ['/fuentes', '/privacidad'].includes(pathname) ? null : (
-      <Navigate to="/onboarding/bienvenida" replace />
+      <Navigate
+        to={
+          auth.user
+            ? '/onboarding/nombre'
+            : auth.mode === 'signed-out'
+              ? '/cuenta/entrar'
+              : '/onboarding/bienvenida'
+        }
+        replace
+      />
     );
   return (
     <IonPage>
@@ -85,6 +96,10 @@ export function LocalShell() {
       {!tab && (
         <Routes>
           <Route path="/perfil/registros" element={<RecordsScreen />} />
+          <Route
+            path="/perfil/notificaciones/horarios"
+            element={<Navigate to="/perfil" replace state={{ openEditor: 'schedule' }} />}
+          />
           <Route path="/perfil/notificaciones/*" element={<PreferencesScreen />} />
           {/* TEMPORARY: delete this route when connecting the final camera/analyzer flow. */}
           {TEMPORARY_CAMERA_PREVIEW_ENABLED && (

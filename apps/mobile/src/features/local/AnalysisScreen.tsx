@@ -1,6 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, CycleProgressPanel, MonthNavigator, Segment } from '../../shared/components';
+import { CycleProgressPanel, MonthNavigator, Segment } from '../../shared/components';
 import { useLocal } from './LocalProvider';
 import { currentDay } from './model';
 import {
@@ -17,7 +16,6 @@ import '../analysis/analysis.css';
 export function AnalysisScreen() {
   const { state: snapshot, now } = useLocal();
   const state = snapshot!;
-  const navigate = useNavigate();
   const bounds = monthBounds(state, now);
   const [selectedMonth, setMonth] = useState(bounds.last);
   const month = Math.max(bounds.first, Math.min(selectedMonth, bounds.last));
@@ -48,13 +46,8 @@ export function AnalysisScreen() {
     <div className="local-screen analysis-screen">
       <header className="analysis-header">
         <h1 className="hf-type-heading-xl">Análisis</h1>
-        <p className="hf-type-body-sm hf-secondary">
-          Tu jardín y tu progreso, en este dispositivo.
-        </p>
       </header>
-      <Button variant="text" onClick={() => openProgress()}>
-        Ver progreso de mi ciclo
-      </Button>
+
       <div className="analysis-garden" aria-label="Colección mensual">
         <fieldset className="hf-garden-selector">
           <legend className="hf-sr-only">Colección de plantas</legend>
@@ -107,21 +100,7 @@ export function AnalysisScreen() {
               ? 'Tu primer mes de jardín.'
               : 'Usa las flechas para cambiar de mes.'}
         </p>
-        {plants.length === 0 ? (
-          <section className="analysis-empty">
-            <h2 className="hf-type-data-md">
-              {collection === 'alive'
-                ? 'Tu jardín está por florecer'
-                : 'No hay plantas marchitas este mes'}
-            </h2>
-            <p className="hf-type-body-sm hf-secondary">
-              {collection === 'alive'
-                ? 'Cada planta que sobreviva a su ciclo llegará a este jardín. Una planta por semana, reunidas por el mes de cierre.'
-                : 'Los ciclos que cierren por debajo de la meta aparecerán en este archivo.'}
-            </p>
-            <Button onClick={() => navigate('/inicio')}>Ver planta actual</Button>
-          </section>
-        ) : (
+        {plants.length > 0 && (
           <GardenCollectionList
             plants={plants}
             collection={collection}
@@ -140,16 +119,9 @@ export function AnalysisScreen() {
         <CycleProgressPanel
           {...progress}
           state={progress.closed ? 'closed' : 'in-progress'}
-          showChangeCycle={active > 0}
-          onChangeCycle={() => {
-            setCycle(progress.closed ? active : active - 1);
-            focusProgress();
-          }}
+          showChangeCycle={false}
+          onChangeCycle={() => {}}
         />
-        <p className="hf-type-caption hf-secondary">
-          Agua y protector aportan el mismo peso. Cada día cuenta hasta el 100 % de su meta
-          histórica; el promedio se calcula sobre siete días. Un excedente no compensa otro día.
-        </p>
       </div>
     </div>
   );

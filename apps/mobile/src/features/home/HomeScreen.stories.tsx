@@ -124,7 +124,11 @@ export const FirstEntry: Story = {
   play: async ({ canvas }) => {
     await canvas.findByRole('img', { name: 'Brote saludable' });
     await expect(canvas.getByText('0 mL', { exact: true })).toBeVisible();
-    await expect(canvas.getByText('Racha: 0 días')).toBeVisible();
+    const streak = canvas.getByRole('img', { name: 'Racha de 0 días' });
+    await expect(streak).toBeVisible();
+    await expect(streak).toHaveTextContent(/^0$/);
+    await expect(canvas.queryByText('En curso', { exact: true })).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Estado según días cerrados')).not.toBeInTheDocument();
   },
 };
 export const ConsultClosed: Story = {
