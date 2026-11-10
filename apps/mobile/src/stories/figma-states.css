@@ -1,4 +1,10 @@
 /* Storybook reference states, kept outside application styles. Controls retain native states. */
+.hf-reference-pressed .hf-swipe-action--edit {
+  background: var(--hf-color-action-primary-pressed);
+}
+.hf-reference-pressed .hf-swipe-action--delete {
+  background: var(--hf-color-action-destructive-pressed);
+}
 .hf-reference-focused .hf-button {
   padding-inline: 6px;
   background: var(--hf-color-background-canvas);

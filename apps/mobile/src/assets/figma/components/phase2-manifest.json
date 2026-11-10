@@ -1,0 +1,129 @@
+{
+  "fileKey": "VL7t5V9yd9nt1mkr0DpKJj",
+  "reviewedAt": "2026-11-08",
+  "source": "Original assets from get_design_context; temporary URLs excluded.",
+  "assets": [
+    {
+      "id": "225:2829",
+      "key": "imgFrame",
+      "path": "phase2-icon-edit.svg"
+    },
+    {
+      "id": "225:2832",
+      "key": "imgFrame",
+      "path": "phase2-icon-delete.svg"
+    },
+    {
+      "id": "225:2835",
+      "key": "imgFrame",
+      "path": "phase2-icon-options.svg"
+    },
+    {
+      "id": "118:1864",
+      "key": "imgIlustracionBroteDescuidadaCompleta",
+      "path": "phase2-sprout-neglected.png"
+    },
+    {
+      "id": "118:1864",
+      "key": "imgIlustracionBroteMarchitaCompleta",
+      "path": "phase2-sprout-withered.png"
+    },
+    {
+      "id": "118:1864",
+      "key": "imgIlustracionCactusDescuidadaCompleta",
+      "path": "phase2-cactus-neglected.png"
+    },
+    {
+      "id": "118:1864",
+      "key": "imgIlustracionCactusMarchitaCompleta",
+      "path": "phase2-cactus-withered.png"
+    },
+    {
+      "id": "265:3536",
+      "key": "imgBroteConSelloAssetAColor",
+      "path": "phase2-detection-approval-plant.png"
+    },
+    {
+      "id": "265:3558",
+      "key": "imgIconoDeAprobacion",
+      "path": "phase2-detection-approval-check.svg"
+    },
+    {
+      "id": "265:3538",
+      "key": "imgCola",
+      "path": "phase2-detection-message-tail.svg"
+    },
+    {
+      "id": "247:4905",
+      "key": "imgFotografiaContenido",
+      "path": "phase2-camera-photo.png"
+    },
+    {
+      "id": "247:4913",
+      "key": "imgEsquinasDeEncuadre",
+      "path": "phase2-camera-focus.svg"
+    },
+    {
+      "id": "247:4916",
+      "key": "imgDisparadorObjetivoTactil80",
+      "path": "phase2-camera-shutter.svg"
+    },
+    {
+      "id": "247:4906",
+      "key": "imgColaDelBocadillo",
+      "path": "phase2-camera-prompt-tail.svg"
+    },
+    {
+      "id": "345:6014",
+      "key": "imgApoyo18Sep",
+      "path": "phase2-garden-support.svg"
+    },
+    {
+      "id": "347:7494",
+      "key": "imgIconoDeAjuste",
+      "path": "phase2-preferences-calm.svg"
+    },
+    {
+      "id": "347:7494",
+      "key": "imgIconoDeAjuste1",
+      "path": "phase2-preferences-schedule.svg"
+    },
+    {
+      "id": "347:7494",
+      "key": "imgIconoDeAjuste2",
+      "path": "phase2-preferences-limit.svg"
+    }
+  ],
+  "plantFaceCrops": {
+    "size": [48, 68],
+    "imageSize": [180, 180],
+    "sprout": {
+      "healthy": {
+        "left": -71,
+        "top": -30
+      },
+      "neglected": {
+        "left": -71,
+        "top": -31
+      },
+      "withered": {
+        "left": -63,
+        "top": -29
+      }
+    },
+    "cactus": {
+      "healthy": {
+        "left": -66,
+        "top": -44
+      },
+      "neglected": {
+        "left": -67,
+        "top": -44
+      },
+      "withered": {
+        "left": -65,
+        "top": -43
+      }
+    }
+  }
+}

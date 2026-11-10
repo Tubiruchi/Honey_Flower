@@ -1,0 +1,108 @@
+.records-screen {
+  display: flex;
+  flex-direction: column;
+  height: var(--records-height, 100dvh);
+  max-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--hf-color-background-canvas);
+}
+.records-header {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  flex-shrink: 0;
+}
+.records-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+.records-title h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.records-filter-lock {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.records-count {
+  justify-content: space-between;
+  min-height: 28px;
+}
+.records-count span {
+  color: var(--hf-color-text-secondary);
+}
+.records-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scroll-padding-block: 8px;
+}
+.records-list > * {
+  flex-shrink: 0;
+}
+.records-footer {
+  padding: 12px 16px max(16px, env(safe-area-inset-bottom, 0px));
+  flex-shrink: 0;
+}
+.records-footer > .hf-type-caption {
+  font-size: var(--hf-typography-role-caption-size);
+  line-height: var(--hf-typography-role-caption-line-height);
+}
+.records-description {
+  color: var(--hf-color-text-secondary);
+}
+.records-recovery {
+  display: grid;
+  gap: 8px;
+}
+body:has(.records-recovery) .local-pending--floating {
+  display: none;
+}
+.records-screen .local-habits {
+  gap: 12px;
+}
+.records-screen .local-habit {
+  height: 112px;
+  gap: 4px;
+}
+.records-screen .local-habit strong {
+  margin: 0;
+}
+.records-screen .local-habit > p {
+  gap: 8px;
+}
+.records-screen .local-habit .hf-icon {
+  width: 20px;
+  height: 20px;
+}
+.records-screen .hf-operation-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--hf-color-surface-default);
+}
+.records-screen.is-keyboard .records-summary,
+.records-screen.is-keyboard .records-description {
+  display: none;
+}
+@media (max-height: 650px) {
+  .records-screen:has(input:focus) .records-summary,
+  .records-screen:has(input:focus) .records-description {
+    display: none;
+  }
+}
+.local-shell[hidden],
+.local-tab[hidden] {
+  display: none;
+}

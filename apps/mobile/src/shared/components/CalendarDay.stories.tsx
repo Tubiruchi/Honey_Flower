@@ -26,3 +26,9 @@ export const MissedSelected: Story = { args: { state: 'missed', selected: true }
 export const Future: Story = { args: { state: 'future', selected: false } };
 export const FutureSelected: Story = { args: { state: 'future', selected: true } };
 export const Today: Story = { args: { today: true, selected: true } };
+export const NeglectedSelected: Story = {
+  args: { state: 'partial', selected: true, health: 'neglected' },
+};
+export const WitheredCactusSelected: Story = {
+  args: { state: 'missed', selected: true, species: 'cactus', health: 'withered' },
+};

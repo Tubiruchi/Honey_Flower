@@ -20,15 +20,18 @@ export function SettingsLink({
   caution,
   icon,
   onClick,
+  id,
 }: {
   label?: string;
   detail?: string;
   caution?: boolean;
   icon?: ReactNode;
   onClick: () => void;
+  id?: string;
 }) {
   return (
     <button
+      id={id}
       className={`hf-settings-link${caution ? ' hf-settings-link--caution' : ''}`}
       type="button"
       onClick={onClick}

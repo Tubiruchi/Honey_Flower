@@ -38,7 +38,7 @@ apps/
       features/                 Composición de funcionalidades
       shared/components/        Componentes y *.stories.tsx junto a su implementación
       shared/styles/            Estilos comunes para app y Storybook
-      shared/data/              Reservado para persistencia y API
+      shared/data/              Repositorio local, migración, operaciones y reloj
       shared/native/            Reservado para adaptadores Capacitor
       stories/                  Bienvenida, fundamentos, composiciones y fixtures
     public/licenses/            Licencia de la fuente distribuida
@@ -94,12 +94,36 @@ red Wi-Fi. El identificador es `com.honeyflower.app`. Ver [compilación y alcanc
   sus cinco componentes independientes, el catálogo de 26 iconos y ocho composiciones de dominio.
 - 234 tokens con sus 137 alias, 14 estilos tipográficos, tres sombras y Plus Jakarta Sans local.
 - Historias con variantes, estados e interacciones; app de demostración usando los mismos componentes.
-- Tres pantallas funcionales sin servidor, diez pruebas de lógica local y APK Android instalable.
+- Inicio, Análisis, Perfil y Registros funcionales sin servidor, 136 pruebas de lógica local y APK Android 0.3.2 descargable.
+- Primera fase de integración: guardado confirmado, migración de datos, reintentos y deshacer seguro.
+  Detalles y comprobaciones: [persistencia común](docs/fase-3-bloque-1-persistencia.md).
+- Segunda fase de integración: [Registros y navegación](docs/fase-3-bloque-2-registros.md), con filtros,
+  consulta histórica, edición, eliminación confirmada y deshacer sobre datos locales.
+- Tercera fase de integración: [Inicio y estados de la planta](docs/fase-3-bloque-3-inicio.md), con
+  cuerpo/rostro coherentes, calendario operativo, métricas compartidas y registros rápidos reales.
+- Cuarta fase de integración: [agua con fotografía](docs/fase-3-bloque-4-agua.md), cámara real,
+  confirmación integrada, cantidad editable, reintento estable y recuperación del intento en Android.
+- Quinta fase de integración: [protector por horarios](docs/fase-3-bloque-5-protector.md), ventanas
+  de 60 minutos, contexto a mitad, confirmación personal, cita única y agenda versionada por día.
+- Séptima fase de integración: [Perfil, preferencias y avisos](docs/fase-3-bloque-7-perfil.md),
+  contenido público, ajustes confirmados, guardado durable Android y notificaciones locales reales.
+- Octava fase de integración: [APK 0.3.0 y revisión integrada](docs/fase-3-bloque-8-apk.md),
+  actualización conservando datos y cámara temporal desde Perfil sin guardar registros.
 - Comprobaciones de CI preparadas para GitHub Actions, con catálogo descargable como artefacto.
 
-Autenticación, backend, SQLite, sincronización, YOLO, RAG y notificaciones siguen pendientes.
-Storybook presenta resultados nativos simulados por props; no prueba permisos o sensores.
+Autenticación, backend, SQLite, sincronización, YOLO y RAG siguen pendientes.
+Storybook presenta resultados nativos con puertos aislados; Android utiliza cámara y avisos locales reales.
+La [APK 0.3.2](docs/patch-0.3.2-navegacion.md) presenta la navegación flotante sin franja de fondo.
+Conserva la cámara integrada y la foto temporal de [0.3.1](docs/patch-0.3.1-camara.md);
+la aceptación en teléfono y comprobación física de linterna siguen pendientes.
 Las ilustraciones originales y sus rostros ya se comparten con la biblioteca de Figma.
 Las pruebas Android se realizan por separado: pasar Axe no sustituye TalkBack, teclado real o revisión visual.
 
 Guías: [Storybook](docs/storybook.md), [onboarding](docs/onboarding.md), [arquitectura frontend](docs/arquitectura-frontend.md).
+
+Para quien conecte reconocimiento y servicios: [guía de conexiones futuras](docs/conexiones-futuras.md),
+con contratos existentes y lista de retirada de la prueba temporal de cámara en Perfil.
+
+La fase de Análisis integra el patio limpio de Figma y el jardín mensual desde ciclos cerrados,
+con una planta por semana, archivo de Marchitas y progreso real por ciclo. La instalación nueva
+permanece vacía. Ver [entrega del bloque 6](docs/fase-3-bloque-6-analisis.md).

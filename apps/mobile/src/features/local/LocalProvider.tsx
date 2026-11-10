@@ -1,173 +1,229 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import type { ReactNode } from 'react';
 import type { OnboardingDraft } from '../onboarding/model';
-import { readOnboardingSnapshot } from '../onboarding/model';
-import {
-  advanceCycle,
-  createLocalState,
-  editWaterEvent,
-  LOCAL_STORAGE_KEY,
-  parseLocalState,
-  recordEvent,
-  removeEvent,
-  updatePreferences,
-} from './model';
+import { ONBOARDING_STORAGE_KEY, readOnboardingSnapshot } from '../onboarding/model';
 import type { LocalState } from './model';
+import type { Clock } from '../../shared/data/clock';
+import { LocalRepository, memoryStorage } from '../../shared/data/localRepository';
+import type {
+  CommandRequest,
+  LocalStoragePort,
+  RepositoryView,
+} from '../../shared/data/localRepository';
+import { deviceLocalStorage } from '../../shared/native/localStorage';
+import { createSnapshot, LOCAL_SNAPSHOT_KEY } from '../../shared/data/localSnapshot';
+import type { LocalCommand, OperationResult } from '../../shared/data/localSnapshot';
+import type { SunscreenAppointment } from '../sunscreen/schema';
 
 interface LocalContextValue {
+  storage: LocalStoragePort;
+  clock: Clock;
+  commit: (command: LocalCommand) => Promise<OperationResult>;
   state: LocalState | null;
   now: number;
+  status: RepositoryView['status'];
   storageError: string;
-  start: (draft?: OnboardingDraft) => void;
-  record: (kind: 'water' | 'sunscreen', amount: number) => string;
-  remove: (id: string) => void;
-  edit: (id: string, amount: number) => void;
-  update: (draft: OnboardingDraft) => void;
+  busy: boolean;
+  writing: boolean;
+  pending: boolean;
+  preferencesRevision: number;
+  eventRevision: (id: string) => number;
+  start: (draft?: OnboardingDraft) => Promise<OperationResult>;
+  record: (kind: 'water' | 'sunscreen', amount: number) => Promise<OperationResult>;
+  recordSunscreen: (appointment: SunscreenAppointment) => Promise<OperationResult>;
+  remove: (id: string, expectedRevision?: number) => Promise<OperationResult>;
+  edit: (id: string, amount: number, expectedRevision?: number) => Promise<OperationResult>;
+  undo: (operationId: string) => Promise<OperationResult>;
+  update: (draft: OnboardingDraft, expectedRevision?: number) => Promise<OperationResult>;
+  retry: () => Promise<void>;
+  discard: () => Promise<void>;
 }
 const LocalContext = createContext<LocalContextValue | null>(null);
-
 export function LocalProvider({
   children,
   initialState,
   persist = true,
   referenceNow,
+  storage,
+  clock,
 }: {
   children: ReactNode;
   initialState?: LocalState;
   persist?: boolean;
   referenceNow?: number;
+  storage?: LocalStoragePort;
+  clock?: Clock;
 }) {
-  const [loaded] = useState(() => {
-    if (initialState) return { state: initialState, error: '' };
-    if (!persist) return { state: null, error: '' };
-    try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-      const state = parseLocalState(raw);
-      return {
-        state,
-        error:
-          raw && !state
-            ? 'No pudimos leer los datos locales. Conserva una copia antes de reiniciar la prueba.'
-            : '',
-      };
-    } catch {
-      return {
-        state: null,
-        error: 'El almacenamiento no está disponible. Los cambios serán temporales.',
-      };
-    }
-  });
-  const [state, setState] = useState<LocalState | null>(() =>
-    loaded.state ? advanceCycle(loaded.state, referenceNow ?? Date.now()) : null,
+  const [source] = useState(() =>
+    persist
+      ? (storage ?? deviceLocalStorage())
+      : memoryStorage(
+          initialState
+            ? { [LOCAL_SNAPSHOT_KEY]: JSON.stringify(createSnapshot(initialState)) }
+            : {},
+        ),
   );
-  const stateRef = useRef(state);
-  const [now, setNow] = useState(() => referenceNow ?? Date.now());
-  const [storageError, setStorageError] = useState(loaded.error);
-  const lastRecord = useRef({ at: -Infinity, signature: '' });
+  const [repository] = useState(
+    () =>
+      new LocalRepository({
+        storage: source,
+        clock: clock ?? (referenceNow === undefined ? undefined : { now: () => referenceNow }),
+        initialState: !persist ? initialState : undefined,
+      }),
+  );
+  const view = useSyncExternalStore(
+    repository.subscribe,
+    repository.getSnapshot,
+    repository.getSnapshot,
+  );
+  const waiters = useRef(new Map<string, (result: OperationResult) => void>());
+  const flights = useRef(new Map<string, Promise<OperationResult>>());
+  const recentRecord = useRef<{ key: string; result: OperationResult; until: number } | null>(null);
   useEffect(() => {
-    if (persist && loaded.state && stateRef.current !== loaded.state) {
-      const timer = window.setTimeout(() => {
-        try {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateRef.current));
-        } catch {
-          setStorageError('No pudimos guardar el inicio del nuevo ciclo.');
-        }
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [loaded, persist]);
-  function commit(next: LocalState) {
-    if (persist) {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
-        setStorageError('');
-      } catch {
-        setStorageError('No pudimos guardar los cambios. Mantén abierta la app para conservarlos.');
-      }
-    }
-    stateRef.current = next;
-    setState(next);
-  }
-  useEffect(() => {
+    void repository.initialize();
     if (referenceNow !== undefined) return;
     const refresh = () => {
-      if (document.visibilityState === 'hidden') return;
-      const time = Date.now();
-      setNow(time);
-      const current = stateRef.current;
-      if (current) {
-        const next = advanceCycle(current, time);
-        if (next !== current) {
-          if (persist) {
-            try {
-              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
-            } catch {
-              setStorageError('No pudimos guardar el inicio del nuevo ciclo.');
-            }
-          }
-          stateRef.current = next;
-          setState(next);
-        }
-      }
+      if (document.visibilityState !== 'hidden') void repository.refresh();
     };
-    refresh();
-    const timer = window.setInterval(refresh, 15_000);
+    const interval = window.setInterval(refresh, 15_000);
     document.addEventListener('visibilitychange', refresh);
     window.addEventListener('focus', refresh);
+    const storageChanged = (event: StorageEvent) => {
+      if (event.key === LOCAL_SNAPSHOT_KEY || event.key === null) refresh();
+    };
+    window.addEventListener('storage', storageChanged);
     return () => {
-      clearInterval(timer);
+      clearInterval(interval);
       document.removeEventListener('visibilitychange', refresh);
       window.removeEventListener('focus', refresh);
+      window.removeEventListener('storage', storageChanged);
     };
-  }, [persist, referenceNow]);
-  const time = () => referenceNow ?? Date.now();
-  const current = () => {
-    if (!stateRef.current) throw new Error('Entra al modo de prueba para comenzar.');
-    return advanceCycle(stateRef.current, time());
-  };
+  }, [repository, referenceNow]);
+
+  function settle(result: OperationResult) {
+    if (result.status === 'failed' && (result.reason === 'read' || result.reason === 'write'))
+      return;
+    waiters.current.get(result.operationId)?.(result);
+    waiters.current.delete(result.operationId);
+  }
+  /** Existing forms stay locked through a recoverable write; retry settles the original action. */
+  function run(request: CommandRequest): Promise<OperationResult> {
+    const frozen = structuredClone(request);
+    const key = JSON.stringify(frozen);
+    const active = flights.current.get(key);
+    if (active) return active;
+    // A synchronous local write can finish between the two clicks of one double tap.
+    if (
+      request.type === 'record' &&
+      recentRecord.current?.key === key &&
+      performance.now() < recentRecord.current.until
+    )
+      return Promise.resolve(recentRecord.current.result);
+    recentRecord.current = null;
+    const command = repository.prepare(frozen);
+    const task = commit(command)
+      .then((result) => {
+        if (request.type === 'record' && result.status === 'confirmed')
+          recentRecord.current = { key, result, until: performance.now() + 500 };
+        return result;
+      })
+      .finally(() => {
+        flights.current.delete(key);
+      });
+    flights.current.set(key, task);
+    return task;
+  }
+  function commit(command: LocalCommand): Promise<OperationResult> {
+    const key = `command:${command.id}`;
+    const active = flights.current.get(key);
+    if (active) return active;
+    const task = repository
+      .execute(command)
+      .then((result) => {
+        if (result.status === 'failed' && (result.reason === 'read' || result.reason === 'write')) {
+          return new Promise<OperationResult>((resolve) => {
+            waiters.current.set(command.id, resolve);
+          });
+        }
+        return result;
+      })
+      .finally(() => {
+        flights.current.delete(key);
+      });
+    flights.current.set(key, task);
+    return task;
+  }
+  async function retry() {
+    const result = await repository.retry();
+    if (result) settle(result);
+  }
+  async function discard() {
+    const pending = repository.getSnapshot().pending;
+    await repository.discard();
+    const next = repository.getSnapshot();
+    if (!pending || next.pending) return;
+    const receipt = next.snapshot?.operations.find((r) => r.command.id === pending.id);
+    settle(
+      receipt
+        ? { status: 'confirmed', operationId: pending.id, receipt, replayed: true }
+        : {
+            status: 'failed',
+            operationId: pending.id,
+            reason: 'discarded',
+            message: 'Se cerró el intento sin guardar. Tus datos confirmados se conservan.',
+            retryable: false,
+          },
+    );
+  }
   return (
     <LocalContext.Provider
       value={{
-        state,
-        now,
-        storageError,
-        start: (draft) => {
-          if (stateRef.current) {
-            commit(current());
-            return;
-          }
+        storage: source,
+        clock: clock ?? { now: () => referenceNow ?? Date.now() },
+        commit,
+        state: view.snapshot?.state ?? null,
+        now: view.now,
+        status: view.status,
+        storageError: view.issue,
+        busy: view.busy || !!view.pending,
+        writing: view.busy,
+        pending: !!view.pending,
+        preferencesRevision: view.snapshot?.preferencesRevision ?? 0,
+        eventRevision: (id) => view.snapshot?.eventVersions.find((v) => v.id === id)?.revision ?? 0,
+        start: async (draft) => {
           if (!draft && persist) {
             try {
-              draft = readOnboardingSnapshot(localStorage)?.draft;
+              const raw = await source.getItem(ONBOARDING_STORAGE_KEY);
+              draft = readOnboardingSnapshot({ getItem: () => raw })?.draft;
             } catch {
-              /* Defaults remain usable. */
+              /* A separate draft may be unavailable; profile reads remain guarded by the repository. */
             }
           }
-          commit(createLocalState(time(), draft, Math.random() < 0.5 ? 'sprout' : 'cactus'));
+          return run({ type: 'start', ...(draft ? { draft } : {}) });
         },
-        record: (kind, amount) => {
-          const at = time();
-          const signature = `${kind}:${amount}`;
-          if (
-            signature === lastRecord.current.signature &&
-            performance.now() - lastRecord.current.at < 500
-          )
-            throw new Error('Espera un instante antes de registrar otra vez.');
-          const id = crypto.randomUUID();
-          commit(recordEvent(current(), { id, kind, amount, at }, at));
-          lastRecord.current = { at: performance.now(), signature };
-          setNow(at);
-          return id;
-        },
-        edit: (id, amount) => {
-          commit(editWaterEvent(current(), id, amount, time()));
-        },
-        remove: (id) => {
-          commit(removeEvent(current(), id, time()));
-        },
-        update: (draft) => {
-          commit(updatePreferences(current(), draft, time()));
-        },
+        record: (kind, amount) => run({ type: 'record', kind, amount }),
+        recordSunscreen: (appointment) =>
+          run({
+            type: 'record',
+            kind: 'sunscreen',
+            amount: 1,
+            appointment,
+            dayStart: appointment.dayStart,
+          }),
+        remove: (eventId, expectedRevision) => run({ type: 'remove', eventId, expectedRevision }),
+        edit: (eventId, amount, expectedRevision) =>
+          run({ type: 'edit', eventId, amount, expectedRevision }),
+        undo: (targetOperationId) => run({ type: 'undo', targetOperationId }),
+        update: (draft, expectedRevision) => run({ type: 'preferences', draft, expectedRevision }),
+        retry,
+        discard,
       }}
     >
       {children}

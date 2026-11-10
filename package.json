@@ -18,7 +18,7 @@
     "storybook": "npm run storybook --workspace @honeyflower/mobile",
     "build-storybook": "npm run build-storybook --workspace @honeyflower/mobile",
     "test": "npm run test:onboarding && npm run test:local && npm run test-storybook",
-    "test:local": "node --test apps/mobile/tests/local-model.test.mjs",
+    "test:local": "node --test apps/mobile/tests/local-*.test.mjs",
     "apk:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
     "apk:serve": "node scripts/serve-apk.mjs",
     "test:onboarding": "node --test apps/mobile/tests/onboarding-model.test.mjs",

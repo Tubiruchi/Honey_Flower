@@ -45,7 +45,7 @@ function Screen({
         persist={false}
         referenceNow={now}
       >
-        <div className="local-shell local-story">
+        <div className="local-shell local-shell--tabs local-story">
           <div className="local-reference-status" aria-hidden="true">
             12:00
           </div>

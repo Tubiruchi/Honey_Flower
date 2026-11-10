@@ -3,40 +3,46 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button, InfoCard } from '../../shared/components';
 import { OnboardingFlow } from './OnboardingFlow';
 import { isOnboardingStep, readOnboardingSnapshot } from './model';
-import { LOCAL_STORAGE_KEY, parseLocalState } from '../local/model';
+import { confirmed } from '../../shared/data/localSnapshot';
 import { useLocal } from '../local/LocalProvider';
 
-export function onboardingEntryPath(): string {
+export function onboardingEntryPath(hasLocalState = false, persistDraft = true): string {
+  if (hasLocalState) return '/inicio';
+  if (!persistDraft) return '/onboarding/bienvenida';
   try {
-    if (parseLocalState(window.localStorage.getItem(LOCAL_STORAGE_KEY))) return '/inicio';
     return `/onboarding/${readOnboardingSnapshot(window.localStorage)?.step ?? 'bienvenida'}`;
   } catch {
     return '/onboarding/bienvenida';
   }
 }
 
-export function OnboardingRoute() {
+export function OnboardingRoute({ persistDraft = true }: { persistDraft?: boolean }) {
   const local = useLocal();
   const { step } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  if (!isOnboardingStep(step)) return <Navigate to={onboardingEntryPath()} replace />;
+  if (!isOnboardingStep(step))
+    return <Navigate to={onboardingEntryPath(!!local.state, persistDraft)} replace />;
   return (
     <IonPage>
       <OnboardingFlow
         step={step}
         initialDraft={draftFromNavigation(location.state) ?? local.state?.preferences}
         completionLabel="Empezar en este dispositivo"
-        persist
+        persist={persistDraft}
+        onOpenContent={(kind, draft) =>
+          navigate(kind === 'sources' ? '/fuentes' : '/privacidad', {
+            state: { from: location.pathname, draft },
+          })
+        }
         onStepChange={(next) => navigate(`/onboarding/${next}`)}
-        onCreateAccount={(preferences) => {
+        onCreateAccount={async (preferences) => {
           const draft = { ...preferences, waterGoalMl: String(preferences.waterGoalMl) };
-          if (local.state) local.update(draft);
-          else local.start(draft);
+          confirmed(await (local.state ? local.update(draft) : local.start(draft)));
           navigate('/inicio', { replace: true });
         }}
-        onSignIn={() => {
-          local.start();
+        onSignIn={async () => {
+          confirmed(await local.start());
           navigate('/inicio', { replace: true });
         }}
       />

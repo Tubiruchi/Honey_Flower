@@ -1,0 +1,791 @@
+{
+  "reviewedAt": "2026-11-08",
+  "status": "implemented_in_storybook",
+  "appIntegration": "pending",
+  "baseline": {
+    "files": 41,
+    "stories": 179
+  },
+  "current": {
+    "files": 71,
+    "stories": 306
+  },
+  "productDelta": {
+    "newFamilies": 19,
+    "newVariants": 62,
+    "additionalPlantVariants": 8,
+    "newStandalone": 2,
+    "newIcons": 3,
+    "newMasters": 75
+  },
+  "groups": [
+    {
+      "component": "SwipeAction",
+      "nodeId": "225:2870",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=225-2870",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/SwipeAction.tsx",
+      "stories": [
+        {
+          "nodeId": "225:2840",
+          "variant": "Acción=Editar, Estado=Normal",
+          "exportName": "Edit",
+          "storyId": "registros-swipeaction--edit"
+        },
+        {
+          "nodeId": "225:2845",
+          "variant": "Acción=Editar, Estado=Pressed",
+          "exportName": "EditPressed",
+          "storyId": "registros-swipeaction--edit-pressed"
+        },
+        {
+          "nodeId": "225:2850",
+          "variant": "Acción=Editar, Estado=Disabled",
+          "exportName": "EditDisabled",
+          "storyId": "registros-swipeaction--edit-disabled"
+        },
+        {
+          "nodeId": "225:2855",
+          "variant": "Acción=Eliminar, Estado=Normal",
+          "exportName": "Delete",
+          "storyId": "registros-swipeaction--delete"
+        },
+        {
+          "nodeId": "225:2860",
+          "variant": "Acción=Eliminar, Estado=Pressed",
+          "exportName": "DeletePressed",
+          "storyId": "registros-swipeaction--delete-pressed"
+        },
+        {
+          "nodeId": "225:2865",
+          "variant": "Acción=Eliminar, Estado=Disabled",
+          "exportName": "DeleteDisabled",
+          "storyId": "registros-swipeaction--delete-disabled"
+        }
+      ]
+    },
+    {
+      "component": "RecordFilters",
+      "nodeId": "225:2892",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=225-2892",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordFilters.tsx",
+      "stories": [
+        {
+          "nodeId": "225:2871",
+          "variant": "Selección=Todos",
+          "exportName": "All",
+          "storyId": "registros-recordfilters--all"
+        },
+        {
+          "nodeId": "225:2878",
+          "variant": "Selección=Agua",
+          "exportName": "Water",
+          "storyId": "registros-recordfilters--water"
+        },
+        {
+          "nodeId": "225:2885",
+          "variant": "Selección=Protector",
+          "exportName": "Sunscreen",
+          "storyId": "registros-recordfilters--sunscreen"
+        }
+      ]
+    },
+    {
+      "component": "RecordDayNavigator",
+      "nodeId": "225:2917",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=225-2917",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordDayNavigator.tsx",
+      "stories": [
+        {
+          "nodeId": "225:2893",
+          "variant": "Día=Actual",
+          "exportName": "Current",
+          "storyId": "registros-recorddaynavigator--current"
+        },
+        {
+          "nodeId": "225:2905",
+          "variant": "Día=Cerrado",
+          "exportName": "Closed",
+          "storyId": "registros-recorddaynavigator--closed"
+        }
+      ]
+    },
+    {
+      "component": "RecordItem",
+      "nodeId": "226:2935",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=226-2935",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordItem.tsx",
+      "stories": [
+        {
+          "nodeId": "226:2856",
+          "variant": "Hábito=Agua, Estado=Normal",
+          "exportName": "Water",
+          "storyId": "registros-recorditem--water"
+        },
+        {
+          "nodeId": "226:2871",
+          "variant": "Hábito=Agua, Estado=Acciones",
+          "exportName": "WaterActions",
+          "storyId": "registros-recorditem--water-actions"
+        },
+        {
+          "nodeId": "226:2885",
+          "variant": "Hábito=Agua, Estado=Solo lectura",
+          "exportName": "WaterReadonly",
+          "storyId": "registros-recorditem--water-readonly"
+        },
+        {
+          "nodeId": "226:2898",
+          "variant": "Hábito=Protector, Estado=Normal",
+          "exportName": "Sunscreen",
+          "storyId": "registros-recorditem--sunscreen"
+        },
+        {
+          "nodeId": "226:2913",
+          "variant": "Hábito=Protector, Estado=Acciones",
+          "exportName": "SunscreenActions",
+          "storyId": "registros-recorditem--sunscreen-actions"
+        },
+        {
+          "nodeId": "226:2922",
+          "variant": "Hábito=Protector, Estado=Solo lectura",
+          "exportName": "SunscreenReadonly",
+          "storyId": "registros-recorditem--sunscreen-readonly"
+        }
+      ]
+    },
+    {
+      "component": "RecordEditor",
+      "nodeId": "226:3064",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=226-3064",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordEditor.tsx",
+      "stories": [
+        {
+          "nodeId": "226:2936",
+          "variant": "Estado=Normal",
+          "exportName": "Normal",
+          "storyId": "registros-recordeditor--normal"
+        },
+        {
+          "nodeId": "226:2980",
+          "variant": "Estado=Error",
+          "exportName": "Error",
+          "storyId": "registros-recordeditor--error"
+        },
+        {
+          "nodeId": "226:3022",
+          "variant": "Estado=Guardando",
+          "exportName": "Saving",
+          "storyId": "registros-recordeditor--saving"
+        }
+      ]
+    },
+    {
+      "component": "RecordDelete",
+      "nodeId": "226:3097",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=226-3097",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordDelete.tsx",
+      "stories": [
+        {
+          "nodeId": "226:3065",
+          "variant": "Estado=Confirmación",
+          "exportName": "Confirmation",
+          "storyId": "registros-recorddelete--confirmation"
+        },
+        {
+          "nodeId": "226:3081",
+          "variant": "Estado=Eliminando",
+          "exportName": "Deleting",
+          "storyId": "registros-recorddelete--deleting"
+        }
+      ]
+    },
+    {
+      "component": "RecordFeedback",
+      "nodeId": "226:3154",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=226-3154",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RecordFeedback.tsx",
+      "stories": [
+        {
+          "nodeId": "226:3098",
+          "variant": "Tipo=Actualizado",
+          "exportName": "Updated",
+          "storyId": "registros-recordfeedback--updated"
+        },
+        {
+          "nodeId": "226:3113",
+          "variant": "Tipo=Eliminado",
+          "exportName": "Deleted",
+          "storyId": "registros-recordfeedback--deleted"
+        },
+        {
+          "nodeId": "226:3126",
+          "variant": "Tipo=Deshecho",
+          "exportName": "Undone",
+          "storyId": "registros-recordfeedback--undone"
+        },
+        {
+          "nodeId": "226:3139",
+          "variant": "Tipo=ErrorTemporal",
+          "exportName": "TemporaryError",
+          "storyId": "registros-recordfeedback--temporary-error"
+        }
+      ]
+    },
+    {
+      "component": "SunscreenScheduleRow",
+      "nodeId": "326:4001",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=326-4001",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/SunscreenScheduleRow.tsx",
+      "stories": [
+        {
+          "nodeId": "326:3997",
+          "variant": "Estado=Registrada",
+          "exportName": "Registered",
+          "storyId": "hábitos-sunscreenschedulerow--registered"
+        },
+        {
+          "nodeId": "326:3998",
+          "variant": "Estado=Disponible",
+          "exportName": "Available",
+          "storyId": "hábitos-sunscreenschedulerow--available"
+        },
+        {
+          "nodeId": "326:3999",
+          "variant": "Estado=Próxima",
+          "exportName": "Upcoming",
+          "storyId": "hábitos-sunscreenschedulerow--upcoming"
+        },
+        {
+          "nodeId": "326:4000",
+          "variant": "Estado=Cerrada",
+          "exportName": "Closed",
+          "storyId": "hábitos-sunscreenschedulerow--closed"
+        }
+      ]
+    },
+    {
+      "component": "SunscreenWindowCard",
+      "nodeId": "326:4026",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=326-4026",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/SunscreenWindowCard.tsx",
+      "stories": [
+        {
+          "nodeId": "326:4022",
+          "variant": "Estado=EnHorario",
+          "exportName": "InWindow",
+          "storyId": "hábitos-sunscreenwindowcard--in-window"
+        },
+        {
+          "nodeId": "326:4023",
+          "variant": "Estado=Desconfianza",
+          "exportName": "Context",
+          "storyId": "hábitos-sunscreenwindowcard--context"
+        },
+        {
+          "nodeId": "326:4024",
+          "variant": "Estado=Registrada",
+          "exportName": "Registered",
+          "storyId": "hábitos-sunscreenwindowcard--registered"
+        },
+        {
+          "nodeId": "326:4025",
+          "variant": "Estado=Cerrada",
+          "exportName": "Closed",
+          "storyId": "hábitos-sunscreenwindowcard--closed"
+        }
+      ]
+    },
+    {
+      "component": "DetectionApprovalPlant",
+      "nodeId": "265:3536",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=265-3536",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/DetectionApprovalPlant.tsx",
+      "stories": [
+        {
+          "nodeId": "265:3536",
+          "variant": "HF / Building Blocks / DetectionApprovalPlant",
+          "exportName": "Approved",
+          "storyId": "cámara-detectionapprovalplant--approved"
+        }
+      ]
+    },
+    {
+      "component": "DetectionApprovalStamp",
+      "nodeId": "265:3551",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=265-3551",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/DetectionApprovalStamp.tsx",
+      "stories": [
+        {
+          "nodeId": "265:3545",
+          "variant": "Fondo=Fotografía",
+          "exportName": "Photo",
+          "storyId": "cámara-detectionapprovalstamp--photo"
+        },
+        {
+          "nodeId": "265:3548",
+          "variant": "Fondo=Superficie",
+          "exportName": "Surface",
+          "storyId": "cámara-detectionapprovalstamp--surface"
+        }
+      ]
+    },
+    {
+      "component": "DetectionApprovalBadge",
+      "nodeId": "265:3558",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=265-3558",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/DetectionApprovalBadge.tsx",
+      "stories": [
+        {
+          "nodeId": "265:3552",
+          "variant": "Fondo=Fotografía",
+          "exportName": "Photo",
+          "storyId": "cámara-detectionapprovalbadge--photo"
+        },
+        {
+          "nodeId": "265:3555",
+          "variant": "Fondo=Superficie",
+          "exportName": "Surface",
+          "storyId": "cámara-detectionapprovalbadge--surface"
+        }
+      ]
+    },
+    {
+      "component": "DetectionPlantMessage",
+      "nodeId": "265:3538",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=265-3538",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/DetectionPlantMessage.tsx",
+      "stories": [
+        {
+          "nodeId": "265:3538",
+          "variant": "HF / DetectionPlantMessage",
+          "exportName": "Approved",
+          "storyId": "cámara-detectionplantmessage--approved"
+        }
+      ]
+    },
+    {
+      "component": "DetectionResultActions",
+      "nodeId": "265:3621",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=265-3621",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/DetectionResultActions.tsx",
+      "stories": [
+        {
+          "nodeId": "265:3559",
+          "variant": "Estado=Normal",
+          "exportName": "Normal",
+          "storyId": "cámara-detectionresultactions--normal"
+        },
+        {
+          "nodeId": "265:3581",
+          "variant": "Estado=Loading",
+          "exportName": "Loading",
+          "storyId": "cámara-detectionresultactions--loading"
+        },
+        {
+          "nodeId": "265:3601",
+          "variant": "Estado=Disabled",
+          "exportName": "Disabled",
+          "storyId": "cámara-detectionresultactions--disabled"
+        }
+      ]
+    },
+    {
+      "component": "ConfirmationAmountField",
+      "nodeId": "290:4037",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=290-4037",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/ConfirmationAmountField.tsx",
+      "stories": [
+        {
+          "nodeId": "290:4007",
+          "variant": "Estado=Normal",
+          "exportName": "Normal",
+          "storyId": "cámara-confirmationamountfield--normal"
+        },
+        {
+          "nodeId": "290:4017",
+          "variant": "Estado=Error",
+          "exportName": "Error",
+          "storyId": "cámara-confirmationamountfield--error"
+        },
+        {
+          "nodeId": "290:4027",
+          "variant": "Estado=Disabled",
+          "exportName": "Disabled",
+          "storyId": "cámara-confirmationamountfield--disabled"
+        }
+      ]
+    },
+    {
+      "component": "RegistrationConfirmation",
+      "nodeId": "290:4135",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=290-4135",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/RegistrationConfirmation.tsx",
+      "stories": [
+        {
+          "nodeId": "290:4038",
+          "variant": "Estado=Normal",
+          "exportName": "Normal",
+          "storyId": "cámara-registrationconfirmation--normal"
+        },
+        {
+          "nodeId": "290:4062",
+          "variant": "Estado=Guardando",
+          "exportName": "Saving",
+          "storyId": "cámara-registrationconfirmation--saving"
+        },
+        {
+          "nodeId": "290:4086",
+          "variant": "Estado=ErrorCantidad",
+          "exportName": "AmountError",
+          "storyId": "cámara-registrationconfirmation--amount-error"
+        },
+        {
+          "nodeId": "290:4110",
+          "variant": "Estado=ErrorGuardado",
+          "exportName": "SaveError",
+          "storyId": "cámara-registrationconfirmation--save-error"
+        }
+      ]
+    },
+    {
+      "component": "AsyncContentState",
+      "nodeId": "343:4576",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=343-4576",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/AsyncContentState.tsx",
+      "stories": [
+        {
+          "nodeId": "343:4573",
+          "variant": "Estado=Cargando",
+          "exportName": "Loading",
+          "storyId": "base-asynccontentstate--loading"
+        },
+        {
+          "nodeId": "343:4574",
+          "variant": "Estado=Error",
+          "exportName": "Error",
+          "storyId": "base-asynccontentstate--error"
+        },
+        {
+          "nodeId": "343:4575",
+          "variant": "Estado=Vacío",
+          "exportName": "Empty",
+          "storyId": "base-asynccontentstate--empty"
+        }
+      ]
+    },
+    {
+      "component": "SunscreenScheduleAgenda",
+      "nodeId": "326:4063",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=326-4063",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/SunscreenScheduleAgenda.tsx",
+      "stories": [
+        {
+          "nodeId": "326:4060",
+          "variant": "Estado=Activa",
+          "exportName": "Active",
+          "storyId": "hábitos-sunscreenscheduleagenda--active"
+        },
+        {
+          "nodeId": "326:4061",
+          "variant": "Estado=Registrada",
+          "exportName": "Registered",
+          "storyId": "hábitos-sunscreenscheduleagenda--registered"
+        },
+        {
+          "nodeId": "326:4062",
+          "variant": "Estado=Cerrada",
+          "exportName": "Closed",
+          "storyId": "hábitos-sunscreenscheduleagenda--closed"
+        }
+      ]
+    },
+    {
+      "component": "CycleHabitChart",
+      "nodeId": "343:4240",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=343-4240",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/CycleHabitChart.tsx",
+      "stories": [
+        {
+          "nodeId": "343:4236",
+          "variant": "Hábito=Agua, Período=Cerrado",
+          "exportName": "WaterClosed",
+          "storyId": "análisis-cyclehabitchart--water-closed"
+        },
+        {
+          "nodeId": "343:4237",
+          "variant": "Hábito=Agua, Período=EnCurso",
+          "exportName": "WaterInProgress",
+          "storyId": "análisis-cyclehabitchart--water-in-progress"
+        },
+        {
+          "nodeId": "343:4238",
+          "variant": "Hábito=Protector, Período=Cerrado",
+          "exportName": "SunscreenClosed",
+          "storyId": "análisis-cyclehabitchart--sunscreen-closed"
+        },
+        {
+          "nodeId": "343:4239",
+          "variant": "Hábito=Protector, Período=EnCurso",
+          "exportName": "SunscreenInProgress",
+          "storyId": "análisis-cyclehabitchart--sunscreen-in-progress"
+        }
+      ]
+    },
+    {
+      "component": "CycleProgressSummary",
+      "nodeId": "343:4387",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=343-4387",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/CycleProgressSummary.tsx",
+      "stories": [
+        {
+          "nodeId": "343:4385",
+          "variant": "Estado=Cerrado",
+          "exportName": "Closed",
+          "storyId": "análisis-cycleprogresssummary--closed"
+        },
+        {
+          "nodeId": "343:4386",
+          "variant": "Estado=EnCurso",
+          "exportName": "InProgress",
+          "storyId": "análisis-cycleprogresssummary--in-progress"
+        }
+      ]
+    },
+    {
+      "component": "CycleProgressPanel",
+      "nodeId": "343:4396",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=343-4396",
+      "change": "new",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/CycleProgressPanel.tsx",
+      "stories": [
+        {
+          "nodeId": "343:4394",
+          "variant": "Estado=Cerrado",
+          "exportName": "Closed",
+          "storyId": "análisis-cycleprogresspanel--closed"
+        },
+        {
+          "nodeId": "343:4395",
+          "variant": "Estado=EnCurso",
+          "exportName": "InProgress",
+          "storyId": "análisis-cycleprogresspanel--in-progress"
+        }
+      ]
+    },
+    {
+      "component": "PlantCharacter",
+      "nodeId": "118:1864",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=118-1864",
+      "change": "expanded-4-to-12",
+      "scope": "product",
+      "componentFile": "apps/mobile/src/shared/components/PlantCharacter.tsx",
+      "stories": [
+        {
+          "nodeId": "118:1856",
+          "variant": "Especie=Brote, Estado=Saludable, Vista=Completa",
+          "exportName": "Sprout",
+          "storyId": "planta-plantcharacter--sprout"
+        },
+        {
+          "nodeId": "118:1858",
+          "variant": "Especie=Brote, Estado=Saludable, Vista=Rostro",
+          "exportName": "SproutFace",
+          "storyId": "planta-plantcharacter--sprout-face"
+        },
+        {
+          "nodeId": "118:1860",
+          "variant": "Especie=Cactus, Estado=Saludable, Vista=Completa",
+          "exportName": "Cactus",
+          "storyId": "planta-plantcharacter--cactus"
+        },
+        {
+          "nodeId": "118:1862",
+          "variant": "Especie=Cactus, Estado=Saludable, Vista=Rostro",
+          "exportName": "CactusFace",
+          "storyId": "planta-plantcharacter--cactus-face"
+        },
+        {
+          "nodeId": "302:3805",
+          "variant": "Especie=Brote, Estado=Descuidada, Vista=Completa",
+          "exportName": "SproutNeglected",
+          "storyId": "planta-plantcharacter--sprout-neglected"
+        },
+        {
+          "nodeId": "302:3807",
+          "variant": "Especie=Brote, Estado=Descuidada, Vista=Rostro",
+          "exportName": "SproutNeglectedFace",
+          "storyId": "planta-plantcharacter--sprout-neglected-face"
+        },
+        {
+          "nodeId": "302:3809",
+          "variant": "Especie=Brote, Estado=Marchita, Vista=Completa",
+          "exportName": "SproutWithered",
+          "storyId": "planta-plantcharacter--sprout-withered"
+        },
+        {
+          "nodeId": "302:3811",
+          "variant": "Especie=Brote, Estado=Marchita, Vista=Rostro",
+          "exportName": "SproutWitheredFace",
+          "storyId": "planta-plantcharacter--sprout-withered-face"
+        },
+        {
+          "nodeId": "302:3813",
+          "variant": "Especie=Cactus, Estado=Descuidada, Vista=Completa",
+          "exportName": "CactusNeglected",
+          "storyId": "planta-plantcharacter--cactus-neglected"
+        },
+        {
+          "nodeId": "302:3815",
+          "variant": "Especie=Cactus, Estado=Descuidada, Vista=Rostro",
+          "exportName": "CactusNeglectedFace",
+          "storyId": "planta-plantcharacter--cactus-neglected-face"
+        },
+        {
+          "nodeId": "302:3817",
+          "variant": "Especie=Cactus, Estado=Marchita, Vista=Completa",
+          "exportName": "CactusWithered",
+          "storyId": "planta-plantcharacter--cactus-withered"
+        },
+        {
+          "nodeId": "302:3819",
+          "variant": "Especie=Cactus, Estado=Marchita, Vista=Rostro",
+          "exportName": "CactusWitheredFace",
+          "storyId": "planta-plantcharacter--cactus-withered-face"
+        }
+      ]
+    },
+    {
+      "component": "CameraPhoto",
+      "nodeId": "247:4905",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=247-4905",
+      "change": "auxiliary-not-new-product",
+      "scope": "prototype-helper",
+      "componentFile": "apps/mobile/src/shared/components/CameraPrimitives.tsx",
+      "stories": [
+        {
+          "nodeId": "247:4901",
+          "variant": "Estado=Enfoque",
+          "exportName": "Focused",
+          "storyId": "cámara-prototipo-cameraphoto--focused"
+        },
+        {
+          "nodeId": "247:4903",
+          "variant": "Estado=Desenfoque",
+          "exportName": "Blurred",
+          "storyId": "cámara-prototipo-cameraphoto--blurred"
+        }
+      ]
+    },
+    {
+      "component": "PlantPrompt",
+      "nodeId": "247:4906",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=247-4906",
+      "change": "auxiliary-not-new-product",
+      "scope": "prototype-helper",
+      "componentFile": "apps/mobile/src/shared/components/CameraPrimitives.tsx",
+      "stories": [
+        {
+          "nodeId": "247:4906",
+          "variant": "HF / Mockup / PlantPrompt",
+          "exportName": "Prompt",
+          "storyId": "cámara-prototipo-plantprompt--prompt"
+        }
+      ]
+    },
+    {
+      "component": "CameraFocus",
+      "nodeId": "247:4913",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=247-4913",
+      "change": "auxiliary-not-new-product",
+      "scope": "prototype-helper",
+      "componentFile": "apps/mobile/src/shared/components/CameraPrimitives.tsx",
+      "stories": [
+        {
+          "nodeId": "247:4913",
+          "variant": "HF / Mockup / CameraFocus",
+          "exportName": "Focus",
+          "storyId": "cámara-prototipo-camerafocus--focus"
+        }
+      ]
+    },
+    {
+      "component": "CameraShutter",
+      "nodeId": "247:4916",
+      "sourceUrl": "https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=247-4916",
+      "change": "auxiliary-not-new-product",
+      "scope": "prototype-helper",
+      "componentFile": "apps/mobile/src/shared/components/CameraPrimitives.tsx",
+      "stories": [
+        {
+          "nodeId": "247:4916",
+          "variant": "HF / Mockup / CameraShutter",
+          "exportName": "Shutter",
+          "storyId": "cámara-prototipo-camerashutter--shutter"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "nodeId": "225:2829",
+      "name": "HF / Icon / edit",
+      "storyId": "base-icon--library"
+    },
+    {
+      "nodeId": "225:2832",
+      "name": "HF / Icon / delete",
+      "storyId": "base-icon--library"
+    },
+    {
+      "nodeId": "225:2835",
+      "name": "HF / Icon / options",
+      "storyId": "base-icon--library"
+    }
+  ],
+  "notes": [
+    "Cada variante nueva tiene una historia de referencia; las interacciones y composiciones se cuentan aparte.",
+    "PlantCharacter incluye cuatro variantes preexistentes para acreditar el conjunto completo de doce.",
+    "Auxiliares de cámara separados de producto; captura, permisos y guardado de las composiciones son simulaciones."
+  ]
+}

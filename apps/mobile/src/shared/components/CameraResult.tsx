@@ -8,6 +8,10 @@ export interface CameraResultProps {
   onConfirm: () => void;
   onRetry: () => void;
   onManual: () => void;
+  /** Water may require a captured photo before personal review can continue. */
+  requiresPhoto?: boolean;
+  hasCapturedPhoto?: boolean;
+  onExit?: () => void;
 }
 
 const descriptions: Record<CameraOutcome, string> = {
@@ -24,6 +28,9 @@ export function CameraResult({
   onConfirm,
   onRetry,
   onManual,
+  requiresPhoto = false,
+  hasCapturedPhoto = false,
+  onExit,
 }: CameraResultProps) {
   return (
     <section className="hf-camera hf-card" aria-label="Resultado de cámara">
@@ -37,19 +44,32 @@ export function CameraResult({
           ? (objectLabel ?? 'Objeto identificado')
           : 'Necesitamos tu confirmación'}
       </h2>
-      <p role="status">{descriptions[outcome]}</p>
-      {outcome === 'identified' && (
+      <p role="status">
+        {requiresPhoto && !hasCapturedPhoto
+          ? 'Necesitas tomar una fotografía para continuar con este registro de agua. Puedes reintentar o salir sin registrar.'
+          : descriptions[outcome]}
+      </p>
+      {outcome === 'identified' && (!requiresPhoto || hasCapturedPhoto) && (
         <Button onClick={onConfirm}>Confirmo que realicé el hábito</Button>
       )}
-      {outcome !== 'permission-denied' && (
+      {(outcome !== 'permission-denied' || requiresPhoto) && (
         <Button variant="secondary" onClick={onRetry}>
           Intentar otra vez
         </Button>
       )}
-      <Button variant="text" onClick={onManual}>
-        Registrar manualmente
-      </Button>
-      <p className="hf-muted">La imagen no demuestra que hayas bebido agua o aplicado protector.</p>
+      {(!requiresPhoto || hasCapturedPhoto) && (
+        <Button variant="text" onClick={onManual}>
+          {requiresPhoto ? 'Revisar cantidad' : 'Registrar manualmente'}
+        </Button>
+      )}
+      {requiresPhoto && onExit && (
+        <Button variant="text" onClick={onExit}>
+          Salir sin registrar
+        </Button>
+      )}
+      <p className="hf-muted">
+        La imagen no demuestra que hayas bebido agua. El protector se registra sin cámara.
+      </p>
     </section>
   );
 }

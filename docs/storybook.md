@@ -1,5 +1,9 @@
 # Storybook
 
+La [entrega de la fase 2](storybook-fase-2.md) incorpora las nuevas familias del
+[plan de migración](plan-storybook-fase-2.md). El [mapa de cobertura](storybook-fase-2-coverage.json)
+relaciona los maestros y variantes de Figma con sus historias.
+
 ## Iniciar y compilar
 
 Desde la raíz del repositorio, `npm ci` y `npm run storybook`. El catálogo se abre en
@@ -13,7 +17,7 @@ El lockfile fija el árbol completo. Vitest 4.1.12 usa Playwright para ejecutar 
 
 - Componente: `src/shared/components/Nombre.tsx`. Historia: `Nombre.stories.tsx` en la misma carpeta.
 - Metadatos CSF 3 con `satisfies Meta<typeof Componente>` y `StoryObj<typeof meta>`.
-- Categorías: Base, Hábitos, Planta, Recordatorios, Cámara, Sincronización y Jardín.
+- Categorías: Base, Hábitos, Registros, Planta, Recordatorios, Cámara, Sincronización, Jardín y Análisis.
 - Textos de producto en español, props y tipos en inglés; nombres de archivos en PascalCase.
 - Variantes por `args`; eventos por callbacks. Usar `fn()` de `storybook/test` para observarlos.
 - Un ejemplo interactivo usa un componente contenedor con estado, separado del render de la historia.
@@ -22,9 +26,10 @@ El lockfile fija el árbol completo. Vitest 4.1.12 usa Playwright para ejecutar 
 
 ## Biblioteca de Figma
 
-La revisión del 18 de octubre de 2026 cubre las 22 familias con variantes y los cinco
-componentes independientes de [Componentes](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=65-676),
-además de los 26 iconos originales. **Figma / Biblioteca / Vista general** reúne una muestra;
+La base de octubre y la ampliación del 8 de noviembre cubren las **41 familias de producto,
+siete independientes y 29 iconos** de [Componentes](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=65-676).
+Los cinco estados auxiliares de cámara se conservan aparte en **Cámara / Prototipo**.
+**Figma / Biblioteca / Vista general** reúne una muestra;
 cada familia tiene sus historias, controles y documentación individual.
 
 Base: Button, IconButton, Input, Switch, Segment, ToneSelector, SettingRow, Stepper, TimeRow,
@@ -35,6 +40,11 @@ Planta y hábitos: Plant, PlantCharacter, CalendarDay, WeeklyDay, HabitSummary y
 Jardín: GreenhouseScene, GardenBackdrop, GardenCollectionRow y MonthNavigator.
 Las ilustraciones y los recortes de rostros provienen de los recursos originales, guardados
 en `src/assets/figma/components`; los iconos mantienen su silueta al heredar colores semánticos.
+
+Fase 2: siete familias de Registros, tres de protector por horarios, cinco de detección y
+confirmación, tres de progreso por ciclo y AsyncContentState. PlantCharacter cubre doce
+combinaciones de especie, cuidado y vista; CalendarDay mantiene sus ocho variantes de progreso
+y acepta un rostro acorde al cuidado. Inicio / Análisis / Perfil es la navegación canónica.
 
 Los estados Pressed/Focused tienen referencias estáticas en las historias mediante
 `referenceState`. Sus estilos están solo en `src/stories/figma-states.css`; la aplicación
@@ -55,9 +65,10 @@ supervivencia, no verifican hábitos mediante imágenes y no guardan eventos.
 ## Tokens y estilo
 
 `packages/design-tokens/tokens.json` conserva la instantánea completa de
-`Docs/ux-ui/tokens-diseno.md` v1.0 del 18 de octubre de 2026: 234 variables, 137 alias,
+`Docs/ux-ui/tokens-diseno.md` v1.5, cotejada el 8 de noviembre de 2026: 234 variables visuales, 137 alias,
 14 estilos tipográficos y tres sombras. La colección Wireframe conserva su identidad;
 no se usa como tema claro del producto.
+Los dos booleanos de prototipo de Figma quedan fuera del paquete CSS. El cotejo no cambió valores ni alias.
 
 `npm run tokens:build` genera el CSS manteniendo nombres WEB y referencias `var(...)` entre
 alias. `npm run tokens:check` detecta alias circulares, ausentes, desactualizados o CSS sin regenerar.
@@ -105,8 +116,80 @@ Vite mantiene una advertencia de tamaño de chunks en ambas compilaciones. La op
 paquete queda pendiente antes de evaluar rendimiento y distribución Android. CI remoto, APK,
 TalkBack y permisos reales todavía no se han ejecutado.
 
+## Integración de Registros · 8 de noviembre de 2026
+
+**Pantallas / Registros conectados** incorpora 16 historias sobre las rutas y componentes reales
+de la app, con almacenamiento aislado. Cubren edición, confirmación de eliminación, deshacer,
+filtros/días, retorno, lectura, recuperación y entrada manual. El catálogo alcanza 330 historias.
+Las demostraciones previas de **Pantallas / Registros** se conservan como referencias aisladas;
+la aplicación usa `RecordsScreen`, no su controlador simulado.
+Ver [entrega del bloque 2](fase-3-bloque-2-registros.md).
+
+## Integración de Inicio · 8 de noviembre de 2026
+
+**Pantallas / Inicio conectado** mantiene 12 historias de las rutas reales: dos especies por tres
+estados calculados, primera entrada, consulta de días cerrados/futuros, retorno, registros rápidos,
+excedentes y nombre largo. **Hábitos / HabitSummary** añade dos composiciones métricas,
+compartidas por Inicio y Registros. El catálogo alcanza **344 historias** tras retirar el formulario
+personalizado de Inicio según la propuesta aprobada; sus casos de persistencia usan la ruta manual.
+Ver [entrega del bloque 3](fase-3-bloque-3-inicio.md).
+
+## Integración de Agua · 8 de noviembre de 2026
+
+**Pantallas / Agua conectada** añade once historias: solicitud, revisión personal
+integrada, confirmar, permiso denegado, cancelación, salida/continuación, repetir, rechazo,
+fallo de análisis, reintento de guardado y aprobación de ejemplo para un futuro analizador.
+El catálogo alcanza **355 historias en 75 archivos**, con sus interacciones verificadas.
+
+Estas historias inyectan una cámara y almacenamiento aislados. La imagen de demostración solo
+pertenece al puerto de prueba; la app pasa una captura real explícita a CameraPhoto. El analizador
+predeterminado no muestra sellos de aprobación. Ver [entrega del bloque 4](fase-3-bloque-4-agua.md).
+
+## Integración de Protector · 8 de noviembre de 2026
+
+**Pantallas / Protector conectado** añade 17 historias con las rutas reales y almacenamiento aislado:
+ordinario, contexto, guardado, deshacer, cancelación, cerrado, próximo horario, cero reaplicaciones,
+reintento, vencimiento, cambio de día, lectura, legado, Perfil, historial filtrado y agenda extensa.
+**Hábitos / SunscreenWindowCard** añade Próximo horario para distinguir espera y horario terminado.
+El catálogo alcanza **373 historias en 76 archivos**.
+
+El usuario eligió para esta prueba ventanas de 60 minutos y contexto al pasar su mitad. Las historias
+inyectan un reloj controlable; no cambian el reloj del dispositivo ni envían avisos del teléfono.
+Las demostraciones históricas **Protector por horarios** se conservan separadas de las rutas
+conectadas. Ver [entrega del bloque 5](fase-3-bloque-5-protector.md).
+
 ## Referencias oficiales
 
 - [React y Vite en Storybook](https://storybook.js.org/docs/get-started/frameworks/react-vite).
 - [Pruebas de interacción](https://storybook.js.org/docs/writing-tests/interaction-testing).
 - [Addon de Vitest](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon).
+
+## Integración de Análisis · 9 de noviembre de 2026
+
+**Pantallas / Análisis conectado** incorpora doce historias: jardín vacío, una/dos/cuatro/cinco
+plantas, progreso de registros reales, selección independiente, archivo de Marchitas, lectura,
+recuperación, metas históricas y desbordamiento. El catálogo alcanza **385 historias en 77 archivos**.
+Las historias usan la misma composición que la aplicación y datos aislados; no se añaden plantas
+ni registros al navegador del usuario. Ver [entrega del bloque 6](fase-3-bloque-6-analisis.md).
+
+## Integración de Perfil y preferencias · 9 de noviembre de 2026
+
+**Pantallas / Perfil y preferencias conectados** añade 26 historias sobre la composición y rutas
+reales: estadísticas, nombre/especie, las cuatro combinaciones de señales, apagado sin perderlas,
+guardar/cancelar, calma incompatible, horarios, máximo, permiso explícito/denegado, aceptación de
+linterna, aviso visible sin registro automático, fallos y recuperación, web sin soporte, fuentes,
+privacidad y retorno al onboarding. El catálogo alcanza **411 historias en 78 archivos**.
+
+Se inyectan almacenamiento y dispositivo aislados; estas historias nunca solicitan permisos ni
+programan avisos reales. El receptor nativo se comprueba por separado en Android.
+`TimeRow` incorpora error accesible sin cambiar sus variantes anteriores.
+Ver [entrega del bloque 7](fase-3-bloque-7-perfil.md).
+
+## Revisión de APK · 9 de noviembre de 2026
+
+**Pantallas / Agua conectada** añade tres historias del acceso temporal desde Perfil: captura
+y repetición sin escrituras persistentes, salida/continuación y permiso denegado. Usan la misma
+composición de Agua con puertos aislados; sus comprobaciones garantizan que no cambian perfil,
+recibos o intento normal. Deben retirarse al eliminar esa función temporal, según
+[conexiones futuras](conexiones-futuras.md).
+El catálogo alcanza **414 historias en 78 archivos**. Ver [bloque 8](fase-3-bloque-8-apk.md).

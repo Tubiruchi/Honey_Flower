@@ -1,0 +1,156 @@
+.water-screen {
+  position: relative;
+  isolation: isolate;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  color: var(--hf-color-text-primary);
+  background: #211a31;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+.water-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 48px;
+}
+.water-header h1 {
+  margin: 0;
+}
+.water-preview-notice {
+  margin: 4px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--hf-color-background-canvas);
+  color: var(--hf-color-text-primary);
+  line-height: 1.5;
+}
+.water-header .hf-button {
+  width: auto;
+}
+.water-background,
+.water-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  object-fit: cover;
+}
+.water-background .hf-camera-photo {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.water-background .hf-camera-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.water-screen--photo::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #171125d9 0%, #17112500 48%, #171125c0 70%);
+  pointer-events: none;
+}
+.water-capture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100% - 60px);
+  gap: 16px;
+  padding-top: 20px;
+}
+.water-capture > .hf-plant-prompt,
+.water-review > .hf-plant-prompt {
+  width: 100%;
+  max-width: 370px;
+}
+.water-focus {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: 250px;
+  width: 100%;
+}
+.water-focus .hf-camera-focus {
+  max-height: 50dvh;
+  width: auto;
+  max-width: 70%;
+}
+.water-focus p {
+  position: absolute;
+  text-align: center;
+  max-width: 190px;
+  line-height: 1.6;
+}
+.water-card {
+  margin: 36px auto;
+  max-width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.water-card h2,
+.water-card p {
+  margin: 0;
+}
+.water-card p {
+  line-height: 1.6;
+}
+.water-review {
+  max-width: 370px;
+  margin: 20px auto 0;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100% - 80px);
+  gap: 16px;
+}
+.water-review__caption {
+  margin: 0;
+  margin-top: auto;
+  padding-top: 180px;
+  text-shadow: 0 1px 3px #000;
+  line-height: 1.5;
+}
+.water-review .hf-registration-confirm {
+  width: 100%;
+  box-sizing: border-box;
+}
+.water-approved {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.water-screen .local-dialog {
+  max-width: 354px;
+}
+.water-screen .local-dialog > .hf-button {
+  width: 100%;
+}
+body:has(.water-screen) > .local-pending--floating,
+body:has(.water-screen) .local-pending--floating {
+  display: none;
+}
+@media (max-height: 650px) {
+  .water-capture {
+    gap: 8px;
+    padding-top: 8px;
+  }
+  .water-focus {
+    min-height: 160px;
+  }
+  .water-focus .hf-camera-focus {
+    max-height: 35dvh;
+  }
+  .water-review__caption {
+    padding-top: 96px;
+  }
+}

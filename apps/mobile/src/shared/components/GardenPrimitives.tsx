@@ -14,12 +14,12 @@ export function GreenhouseScene() {
     />
   );
 }
-export function GardenBackdrop() {
+export function GardenBackdrop({ decorative = false }: { decorative?: boolean }) {
   return (
     <div className="hf-garden-backdrop">
       <img
         src={figmaComponents.backdrop.imgIlustracionDeEntornoSinUiNiPersonajes}
-        alt="Jardín dentro de un invernadero"
+        alt={decorative ? '' : 'Jardín dentro de un invernadero'}
       />
     </div>
   );
@@ -28,17 +28,19 @@ export function GardenCollectionRow({
   name = 'Cactus dramático',
   date = '25 sep · Ciclo completado',
   species = 'cactus',
+  health = 'healthy',
   onOpen,
 }: {
   name?: string;
   date?: string;
   species?: PlantCharacterProps['species'];
+  health?: PlantCharacterProps['health'];
   onOpen: () => void;
 }) {
   return (
     <button className="hf-collection-row" type="button" onClick={onOpen}>
       <span className="hf-collection-row__portrait">
-        <PlantCharacter view="face" species={species} decorative />
+        <PlantCharacter view="face" species={species} health={health} decorative />
       </span>
       <span className="hf-collection-row__text">
         <span className="hf-type-label-md">{name}</span>
@@ -52,18 +54,25 @@ export function MonthNavigator({
   month = 'Octubre 2026',
   count = '0 plantas ganadas este mes',
   nextDisabled,
+  previousDisabled,
   onPrevious,
   onNext,
 }: {
   month?: string;
   count?: string;
   nextDisabled?: boolean;
+  previousDisabled?: boolean;
   onPrevious: () => void;
   onNext: () => void;
 }) {
   return (
     <div className="hf-month-navigator">
-      <button type="button" aria-label="Mes anterior" onClick={onPrevious}>
+      <button
+        type="button"
+        aria-label="Mes anterior"
+        disabled={previousDisabled}
+        onClick={onPrevious}
+      >
         <span>
           <Icon name="back" inheritColor />
         </span>

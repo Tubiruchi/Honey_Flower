@@ -5,6 +5,24 @@ import {
   validateOnboardingStep,
 } from '../onboarding/model.ts';
 import type { OnboardingDraft } from '../onboarding/model.ts';
+import { validWaterVerification } from '../water/verification.ts';
+import type { WaterVerification } from '../water/verification.ts';
+import {
+  createSunscreenSchedule,
+  changeSunscreenSchedule,
+  validSunscreenSchedule,
+  validAppointment,
+} from '../sunscreen/schema.ts';
+import type { SunscreenSchedule, SunscreenAppointment } from '../sunscreen/schema.ts';
+import { validGardenCollection } from '../analysis/collection.ts';
+import type { GardenCollection } from '../analysis/collection.ts';
+import {
+  createWaterSchedule,
+  changeWaterSchedule,
+  validWaterSchedule,
+} from '../reminders/schema.ts';
+import type { WaterSchedule } from '../reminders/schema.ts';
+import { validateReminderPreferences } from '../reminders/preferences.ts';
 
 export const LOCAL_STORAGE_KEY = 'honeyflower.local.v1';
 export const DAY_MS = 86_400_000;
@@ -16,6 +34,8 @@ export interface HabitEvent {
   amount: number;
   at: number;
   editedAt?: number;
+  verification?: WaterVerification;
+  appointment?: SunscreenAppointment;
 }
 export interface GoalChange {
   day: number;
@@ -30,6 +50,9 @@ export interface LocalState {
   preferences: OnboardingDraft;
   goals: GoalChange[];
   events: HabitEvent[];
+  sunscreenSchedule?: SunscreenSchedule;
+  garden?: GardenCollection;
+  waterSchedule?: WaterSchedule;
 }
 
 export function createLocalState(
@@ -80,6 +103,9 @@ export function createLocalState(
       },
     ],
     events: [],
+    sunscreenSchedule: createSunscreenSchedule(preferences, now),
+    garden: { version: 1, groupBy: 'cycle-end', timeZone: preferences.timeZone },
+    waterSchedule: createWaterSchedule(preferences),
   };
 }
 export function currentDay(state: LocalState, now: number) {
@@ -131,18 +157,32 @@ export function dayStats(state: LocalState, day: number) {
     complete: waterProgress === 1 && sunscreenProgress === 1,
   };
 }
+/** Compensated summation keeps an exact 80 % week from falling below its threshold. */
+function progressMean(values: number[], denominator = values.length) {
+  let sum = 0,
+    correction = 0;
+  for (const value of values) {
+    const adjusted = value - correction;
+    const next = sum + adjusted;
+    correction = next - sum - adjusted;
+    sum = next;
+  }
+  return sum / denominator;
+}
 export function cycleStats(state: LocalState, cycle: number, now: number) {
   const today = currentDay(state, now);
   const days = Array.from({ length: 7 }, (_, i) => dayStats(state, cycle * 7 + i));
   const closed = days.filter((day) => day.day < today);
-  const progress = days.reduce((sum, day) => sum + (day.day <= today ? day.progress : 0), 0) / 7;
-  const healthScore = closed.length
-    ? closed.reduce((sum, day) => sum + day.progress, 0) / closed.length
-    : 1;
+  const progress = progressMean(
+    days.map((day) => (day.day <= today ? day.progress : 0)),
+    7,
+  );
+  const healthScore = closed.length ? progressMean(closed.map((day) => day.progress)) : 1;
   return {
     days,
     progress,
     closed: closed.length,
+    healthScore,
     survived: progress >= 0.8,
     health: healthScore >= 0.8 ? 'healthy' : healthScore >= 0.4 ? 'neglected' : 'withered',
   } as const;
@@ -165,6 +205,18 @@ export function completedCycles(state: LocalState, now: number) {
 }
 export function recordEvent(state: LocalState, event: HabitEvent, now: number): LocalState {
   state = advanceCycle(state, now);
+  if (
+    event.appointment !== undefined &&
+    (event.kind !== 'sunscreen' || !validAppointment(event.appointment))
+  )
+    throw new Error('La cita de protector no es válida.');
+  if (
+    event.verification !== undefined &&
+    (event.kind !== 'water' ||
+      !validWaterVerification(event.verification, event.at) ||
+      event.verification.capturedAt < dayStart(state, currentDay(state, now)))
+  )
+    throw new Error('La fotografía no corresponde al día del registro.');
   if (state.events.some((e) => e.id === event.id)) return state;
   if (
     !event.id ||
@@ -208,6 +260,8 @@ export function updatePreferences(state: LocalState, preferences: OnboardingDraf
     const error = validateOnboardingStep(step, preferences);
     if (error) throw new Error(error);
   }
+  const reminderError = validateReminderPreferences(preferences);
+  if (reminderError) throw new Error(reminderError);
   const day = currentDay(state, now) + 1;
   const previous = goalsAt(state, currentDay(state, now));
   const next = {
@@ -217,7 +271,20 @@ export function updatePreferences(state: LocalState, preferences: OnboardingDraf
   };
   const goals = state.goals.filter((goal) => goal.day < day);
   if (previous.water !== next.water || previous.sunscreen !== next.sunscreen) goals.push(next);
-  return { ...state, preferences, goals };
+  const schedule =
+    state.sunscreenSchedule ??
+    createSunscreenSchedule(state.preferences, now, currentDay(state, now));
+  return {
+    ...state,
+    preferences,
+    goals,
+    sunscreenSchedule: changeSunscreenSchedule(schedule, preferences, day),
+    waterSchedule: changeWaterSchedule(
+      state.waterSchedule ?? createWaterSchedule(state.preferences, currentDay(state, now)),
+      preferences,
+      day,
+    ),
+  };
 }
 
 /** Validate persisted data before it participates in calculations; never import account/session fields. */
@@ -271,6 +338,14 @@ export function parseLocalState(raw: string | null): LocalState | null {
     )
       return null;
     const ids = new Set<string>();
+    if (value.garden !== undefined && !validGardenCollection(value.garden)) return null;
+    if (value.waterSchedule !== undefined && !validWaterSchedule(value.waterSchedule)) return null;
+    if (
+      value.sunscreenSchedule !== undefined &&
+      (!validSunscreenSchedule(value.sunscreenSchedule) ||
+        value.sunscreenSchedule.activatedAt < value.startedAt)
+    )
+      return null;
     for (const e of value.events) {
       if (
         !e ||
@@ -279,6 +354,10 @@ export function parseLocalState(raw: string | null): LocalState | null {
         ids.has(e.id) ||
         !Number.isFinite(e.at) ||
         (e.editedAt !== undefined && (!Number.isFinite(e.editedAt) || e.editedAt < e.at)) ||
+        (e.verification !== undefined &&
+          (e.kind !== 'water' || !validWaterVerification(e.verification, e.at))) ||
+        (e.appointment !== undefined &&
+          (e.kind !== 'sunscreen' || !validAppointment(e.appointment))) ||
         !value.cycleStarts.some((start) => e.at >= start && e.at < start + WEEK_MS) ||
         (e.kind === 'water'
           ? !Number.isInteger(e.amount) || e.amount < 1 || e.amount > 10000
@@ -294,12 +373,19 @@ export function parseLocalState(raw: string | null): LocalState | null {
       firstSpecies: value.firstSpecies,
       preferences,
       goals: value.goals.map(({ day, water, sunscreen }) => ({ day, water, sunscreen })),
-      events: value.events.map(({ id, kind, amount, at, editedAt }) => ({
+      ...(value.garden ? { garden: { ...value.garden } } : {}),
+      ...(value.waterSchedule ? { waterSchedule: structuredClone(value.waterSchedule) } : {}),
+      ...(value.sunscreenSchedule
+        ? { sunscreenSchedule: structuredClone(value.sunscreenSchedule) }
+        : {}),
+      events: value.events.map(({ id, kind, amount, at, editedAt, verification, appointment }) => ({
         id,
         kind,
         amount,
         at,
         ...(editedAt !== undefined ? { editedAt } : {}),
+        ...(verification !== undefined ? { verification: structuredClone(verification) } : {}),
+        ...(appointment !== undefined ? { appointment: structuredClone(appointment) } : {}),
       })),
     };
   } catch {

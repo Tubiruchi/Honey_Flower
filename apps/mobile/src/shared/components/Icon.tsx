@@ -1,8 +1,12 @@
 import type { CSSProperties } from 'react';
 import { figmaComponents } from '../../assets/figma/components';
+import { phase2Assets } from '../../assets/figma/components/phase2';
 
 const source = figmaComponents.icons;
 export const iconSources = {
+  edit: phase2Assets.edit,
+  delete: phase2Assets.delete,
+  options: phase2Assets.options,
   drop: source.imgHfIconDrop,
   sun: source.imgHfIconSun,
   clock: source.imgHfIconClock,

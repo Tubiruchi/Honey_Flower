@@ -26,6 +26,25 @@ import {
   iconSources,
 } from '../shared/components';
 import type { ReactNode } from 'react';
+import {
+  AsyncContentState,
+  ConfirmationAmountField,
+  CycleProgressPanel,
+  DetectionApprovalBadge,
+  DetectionApprovalStamp,
+  DetectionPlantMessage,
+  DetectionResultActions,
+  RecordDelete,
+  RecordEditor,
+  RecordFeedback,
+  RecordFilters,
+  RecordItem,
+  RecordDayNavigator,
+  RegistrationConfirmation,
+  SunscreenScheduleAgenda,
+  SunscreenWindowCard,
+} from '../shared/components';
+import { closedCycle, sunscreenAgenda } from './fixtures/phase2';
 
 function Sample({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -154,6 +173,44 @@ export const Overview: Story = {
               </div>
             ))}
           </div>
+        </Sample>
+        <Sample title="Registros · filtros y acciones">
+          <RecordFilters value="all" onChange={action} />
+          <RecordDayNavigator onPrevious={action} onNext={action} />
+          <RecordItem state="actions" onEdit={action} onDelete={action} />
+          <RecordEditor value="400" onChange={action} onSave={action} onCancel={action} />
+          <RecordDelete onCancel={action} onDelete={action} />
+          <RecordFeedback onAction={action} />
+        </Sample>
+        <Sample title="Protector por horarios">
+          <SunscreenWindowCard window="11:00–11:30" application="Aplicación de las 11:00" />
+          <SunscreenScheduleAgenda {...sunscreenAgenda('active')} />
+        </Sample>
+        <Sample title="Cámara · detección">
+          <div className="hf-row">
+            <DetectionApprovalStamp background="surface" />
+            <DetectionApprovalBadge background="surface" />
+          </div>
+          <DetectionPlantMessage />
+          <DetectionResultActions onReview={action} onRetake={action} />
+        </Sample>
+        <Sample title="Confirmación de cantidad">
+          <ConfirmationAmountField value="250" onChange={action} />
+          <RegistrationConfirmation
+            value="250"
+            onChange={action}
+            onConfirm={action}
+            onRetrySave={action}
+            onRetake={action}
+          />
+        </Sample>
+        <Sample title="Cuidado y lectura">
+          <PlantCharacter health="neglected" />
+          <PlantCharacter species="cactus" health="withered" />
+          <AsyncContentState state="error" onRetry={action} />
+        </Sample>
+        <Sample title="Progreso de ciclo">
+          <CycleProgressPanel {...closedCycle} onChangeCycle={action} />
         </Sample>
       </div>
     </main>

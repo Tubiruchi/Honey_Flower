@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="224" height="430" viewBox="0 0 224 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Esquinas de encuadre" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M2 28V14C2 6 6 2 14 2H28M196 2H210C218 2 222 6 222 14V28M222 402V416C222 424 218 428 210 428H196M28 428H14C6 428 2 424 2 416V402" stroke-width="3" stroke-linecap="round" stroke="white"/>
+</g>
+<defs>
+<clipPath id="clip0_0_4">
+<rect width="224" height="430" fill="white"/>
+</clipPath>
+</defs>
+</svg>

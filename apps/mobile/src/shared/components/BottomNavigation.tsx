@@ -2,7 +2,7 @@ import { Icon } from './Icon';
 import type { IconProps } from './Icon';
 export const navigationItems = [
   { value: 'home', label: 'Inicio', icon: 'home' },
-  { value: 'garden', label: 'Jardín', icon: 'leaf' },
+  { value: 'garden', label: 'Análisis', icon: 'leaf' },
   { value: 'profile', label: 'Perfil', icon: 'user' },
 ] as const;
 export function NavigationItem({
@@ -32,7 +32,7 @@ export function NavigationItem({
 }
 export function BottomNavigation({
   active = 'home',
-  gardenLabel = 'Jardín',
+  gardenLabel = 'Análisis',
   onNavigate,
 }: {
   active?: (typeof navigationItems)[number]['value'];

@@ -1,79 +1,93 @@
-# Prueba local y APK Android · 0.2.0
+# Prueba local y APK Android · 0.3.2
 
-La app funciona sin servidor ni cuenta. En esta fase **Ya tengo cuenta** abre Inicio directamente
-y crea el perfil local si no existe. Las siguientes aperturas recuperan Inicio y los datos guardados.
-Terminar el onboarding también inicia la prueba local con las preferencias elegidas.
+Entrega del **9 de noviembre de 2026**. Identificador `com.honeyflower.app`,
+`versionName 0.3.2-local`, `versionCode 5`. Mantiene la firma de depuración de las APK anteriores
+para actualizar conservando los datos. Requiere Android 7 o posterior y WebView actualizado.
 
-## Funciones
+## Funciones disponibles
 
-- Inicio: calendario de siete ventanas de 24 horas, registros de +250/+500 mL, cantidad personalizada,
-  aplicación inicial y reaplicaciones de protector. Historial con edición/eliminación del día abierto
-  y deshacer el último registro; los días cerrados conservan sus datos.
-- Análisis: gráficos por hábito, periodos Semanal/Mensual/Todo, avance del ciclo y colección de ciclos
-  que sobrevivieron o terminaron marchitos. Una instalación nueva empieza sin registros ni plantas ganadas.
-- Perfil: nombre, metas, cantidad de reaplicaciones, horarios y tono de mensajes locales. Las nuevas
-  metas se aplican al siguiente día operativo. No se cambian metas ni porcentajes pasados.
-- Persistencia versionada y validada en `localStorage`, clave `honeyflower.local.v1`. Fallos de escritura
-  se muestran en pantalla. Guardar, cerrar y abrir la app conserva los registros en el mismo dispositivo.
+La app funciona sin servidor ni cuenta. **Ya tengo cuenta** inicia o recupera el modo local y
+abre Inicio. Terminar el onboarding también inicia un ciclo con las preferencias elegidas.
+Una instalación nueva comienza sin eventos ni plantas ganadas.
 
-Ambos hábitos pesan igual; cada uno se limita al 100% para el cálculo. La supervivencia usa 80% real,
-sin redondear. La salud se calcula con días cerrados, y la racha exige ambos hábitos completos.
-Al regresar tras una ausencia prolongada se cierra el ciclo activo y empieza uno nuevo; no se inventan
-ciclos ni plantas por las semanas en que no se abrió la app.
+- **Inicio:** día de planta, calendario, agua, protector y estado derivado de los registros.
+  Debajo de la planta permanece solo «Ver todos los registros», morado y subrayado.
+- **Navegación:** cápsula flotante con exterior transparente; el contenido se desplaza por detrás
+  y conserva espacio al final para acceder a las últimas acciones.
+- **Agua:** cantidades manuales y fotografía real cuando corresponde. La foto y la confirmación
+  comparten pantalla; permite repetir, cancelar y recuperar el intento normal. La revisión es
+  personal; el reconocimiento automático lo integrará su responsable posteriormente.
+- **Protector:** aplicación inicial y reaplicaciones en citas con ventana de 60 minutos, acortada
+  por la siguiente cita o cierre del día. Contexto a mitad de ventana y control de duplicados.
+- **Registros:** consulta, filtros, corrección/eliminación del día abierto y deshacer. Los días
+  cerrados son de consulta y conservan sus metas históricas.
+- **Análisis:** jardín mensual, Vivas/Marchitas y progreso del ciclo seleccionado. Una planta
+  por semana, normalmente 4–5 cierres por mes. Sin plantas de ejemplo al instalar.
+- **Perfil:** datos y estadísticas reales, nombre, metas, horarios, tono, ajustes de avisos,
+  fuentes y privacidad. Los horarios/metas nuevos comienzan el siguiente día de planta.
+- **Avisos Android:** permiso explícito, agenda local, calma y máximo compartido de 1–24 por día
+  de planta. Apagarlos cancela la agenda y conserva las elecciones de sonido/linterna. Las alarmas
+  son inexactas y dependen de Android; negar permiso permite seguir registrando hábitos.
+- **Señales opcionales:** sonido solo en nivel reforzado y pulso de linterna solo con aceptación,
+  permiso, compatibilidad y app visible. Respetan los ajustes del sistema y No molestar.
 
-No incluye autenticación, sincronización, cámara/YOLO, LLM ni avisos del sistema. Los horarios se guardan
-como referencia; el perfil explica que esta APK todavía no envía notificaciones. Desinstalar o borrar
-los datos de Android elimina esta copia. La copia de seguridad automática Android está desactivada.
+El guardado Android confirma perfil, operaciones, agenda e intento mediante almacenamiento
+privado nativo antes de mostrar éxito. Migra la copia WebView anterior validada y conserva recibos
+para no duplicar reintentos. En navegador se usa su almacenamiento local.
 
-## Diseño
+No hay cuenta, sincronización, reconocimiento automático ni servicios remotos. Las fotos son
+temporales y no se guardan con el registro ni se envían a un servidor. Desinstalar o borrar datos
+elimina esta copia; la copia de seguridad automática de Android está desactivada.
 
-Se comparten los componentes, tokens, fuentes y personajes originales con Storybook. Referencias:
-[Inicio](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=132-2962),
-[Perfil](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=154-3289) y
-[estructura de Analíticas](https://www.figma.com/design/VL7t5V9yd9nt1mkr0DpKJj/Joyner?node-id=109-829).
-Analíticas aplica la paleta Dark a su wireframe. La pestaña central se llama Análisis en esta fase,
-según la petición actual; `/jardin` redirige a `/analisis`. Las muestras con cifras de Figma solo
-existen en **Pantallas / Prueba local**, con almacenamiento desactivado.
+## Cámara temporal para revisión visual
 
-## Generar la APK
+**Perfil → Más opciones → Probar cámara · temporal.**
 
-En Windows, instalar las dependencias con `npm ci`. Requiere Java 21, Android SDK Platform 36,
-Build Tools y las licencias de SDK aceptadas. El script usa `JAVA_HOME`/`ANDROID_HOME` o detecta
-las ubicaciones habituales de Android Studio. Las rutas locales no se versionan.
+1. Pulsar «Activar cámara» y después el obturador.
+2. Ver la cámara en directo dentro de HoneyFlower y pulsar «Tomar foto».
+3. Revisar la imagen dentro del diseño de Agua, el campo de cantidad y «Volver a tomar».
+4. «Terminar prueba» vuelve a Perfil; cancelar permite continuar o descartar la prueba.
+
+El aviso visible identifica que es temporal. Esta ruta no añade agua, no modifica registros
+ni recibos, y usa un intento solo en memoria. Reiniciar ese proceso requiere otra fotografía.
+Se retirará cuando se acepten las conexiones definitivas. Los comentarios `TEMPORARY` y la
+[guía de conexiones futuras](conexiones-futuras.md) enumeran todos los puntos que hay que retirar.
+El recorrido normal de agua continúa con su confirmación y guardado reales.
+
+## Generar y descargar
+
+En Windows: `npm ci`, Java 21, Android SDK 36 y Build Tools con licencias aceptadas.
+El script usa `JAVA_HOME`/`ANDROID_HOME` o las ubicaciones habituales de Android Studio:
 
 ```powershell
 npm run apk:build
-```
-
-El script comprueba TypeScript, compila, copia los recursos web al proyecto Android, ejecuta Gradle,
-verifica la firma con `apksigner` y genera:
-
-- `artifacts/android/HoneyFlower-0.2.0-prueba.apk`
-- `artifacts/android/HoneyFlower-0.2.0-prueba.apk.sha256`
-
-La APK está firmada con la clave de depuración de la máquina: es instalable para pruebas,
-sin configuración de servidor remoto. Los fuentes Android se versionan; los recursos web copiados,
-salidas, claves y `local.properties` se excluyen. El binario requiere Android 7 o posterior y WebView actualizado.
-
-## Descargar desde el celular
-
-```powershell
 npm run apk:serve
 ```
 
-Abrir desde el teléfono la dirección **Misma red** que imprime el servidor, con ambos dispositivos
-en la misma red Wi-Fi. El servidor comparte únicamente la APK y el icono. No publica el repositorio.
-Abrir la descarga e instalar; Android puede solicitar habilitar instalaciones desde ese navegador.
-La conexión local depende de la red y de las reglas del firewall del equipo.
+La compilación comprueba tipos, prepara recursos Android, ejecuta Gradle y verifica firma y SHA-256.
+Genera:
 
-## Verificación
+- `artifacts/android/HoneyFlower-0.3.2-prueba.apk`
+- `artifacts/android/HoneyFlower-0.3.2-prueba.apk.sha256`
 
-`npm run check`, `npm test` y `npm run build-storybook` verifican código, modelo, interacciones y
-accesibilidad automática. Las pruebas de navegador comprueban salto del onboarding, registros,
-edición, persistencia, metas futuras y anchos 320/360/402/480. La firma de la APK se verifica por separado.
+Desde el celular, abrir la dirección **Misma red** que imprime el servidor. Ambos equipos deben
+estar en la misma Wi-Fi. El servidor comparte solo APK e icono, sin publicar el repositorio.
+Descargar e instalar; si Android lo solicita, permitir la instalación desde ese navegador.
+Conservar la app instalada al actualizar para mantener sus datos. La conexión local depende
+de la red y del firewall del equipo. Ctrl+C detiene el servidor de descarga.
 
-Instalación y arranque verificados en un emulador Pixel 7. Con Wi-Fi y datos desactivados se probaron
-las tres pantallas, registros, edición del nombre, recarga y reapertura completa conservando los datos.
-La prueba funcional se ejecutó sobre WebView con CDP. El sistema del emulador presentó falta de memoria
-y un aviso de System UI no responde; no se observó una excepción de la app. La validación táctil,
-TalkBack y rendimiento en un teléfono físico siguen pendientes.
+La firma es de depuración para pruebas. Se conserva el archivo anterior 0.2.0 como referencia;
+el servidor ofrece únicamente 0.3.2. Los binarios, claves y configuración local no se versionan.
+
+## Recorrido prioritario en teléfono
+
+Instalar/actualizar → «Ya tengo cuenta» → agua → historial → editar/deshacer → protector en
+horario → Análisis → Perfil → prueba temporal de cámara → preferencias → cerrar y reabrir.
+Verificar que los cambios persisten y que el acceso temporal no altera los registros.
+
+Revisar también Atrás, teclado, giro, segundo plano, permisos, TalkBack, sonido/linterna si el
+equipo los admite y funcionamiento sin conexión. La comprobación física es posterior a las
+pruebas de navegador y emulador; estas no acreditan sensores o accesibilidad de todos los teléfonos.
+Ver [entrega y evidencias de fase 8](fase-3-bloque-8-apk.md).
+La [corrección 0.3.1](patch-0.3.1-camara.md) sustituye la cámara externa de 0.3.0 por captura integrada.
+La [corrección 0.3.2](patch-0.3.2-navegacion.md) elimina la franja de fondo alrededor del menú.

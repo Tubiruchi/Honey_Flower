@@ -12,7 +12,10 @@ Explora **Fundamentos** para revisar los tokens y **Pantallas** para ver una com
 
 - Tema Dark, 234 variables CSS y 14 estilos tipográficos del registro de diseño.
 - Componentes base y los ocho componentes de dominio previstos en la arquitectura.
-- Las 22 familias de Figma, sus cinco piezas independientes y los 26 iconos originales.
+- Las 41 familias de producto de Figma, siete piezas independientes y 29 iconos originales.
+- Registros, protector por horarios, detección/confirmación y progreso por ciclo.
+- Doce variantes de personaje, con cuerpo y rostro para cada estado de cuidado.
+- Los auxiliares de cámara se muestran por separado en **Cámara / Prototipo**.
 - Variantes de carga, deshabilitado, error, permisos y conexión.
 - Pruebas de interacción y accesibilidad en Chromium con Vitest.
 - Anchos de revisión: 320, 360, 402 y 480; selecciónalos desde la barra de herramientas.
@@ -27,10 +30,17 @@ Explora **Fundamentos** para revisar los tokens y **Pantallas** para ver una com
 
 ## Estado de esta entrega
 
+La migración del 8 de noviembre incorpora 19 familias nuevas y amplía las plantas.
+**Pantallas / Registros**, **Protector por horarios**, **Agua con fotografía**,
+**Análisis actualizado** y **Perfil objetivo** permiten probar las nuevas composiciones
+con datos y resultados simulados. Las nuevas historias de **Perfil y preferencias conectados**
+usan las rutas de la aplicación con almacenamiento y dispositivo aislados.
+
 Los componentes están implementados y se comparten con la app. El onboarding guarda un borrador
 local de preferencias y usa la planta original de Figma; sus historias usan datos de ejemplo
 aislados. **Pantallas / Prueba local** incorpora Inicio, Análisis y Perfil funcionales. La app
 guarda registros en el dispositivo y calcula sus ciclos; las historias evitan el almacenamiento real.
 No hay autenticación ni API. Las vistas ya usan los personajes originales de Figma.
-Cámara, YOLO, notificaciones, sincronización y permisos nativos requieren integración
-y pruebas reales en Android. Las historias no solicitan permisos ni realizan llamadas de pago.
+La aplicación Android integra cámara y avisos locales con permisos reales, comprobados por separado
+de las historias. YOLO y sincronización siguen pendientes. Las historias no solicitan permisos,
+programan avisos ni realizan llamadas de pago.

@@ -1,0 +1,106 @@
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  height: 100dvh;
+  margin-inline: auto;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--hf-color-background-canvas);
+}
+.settings-page .hf-preferences-header {
+  min-height: 56px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.settings-page .hf-preferences-header h1 {
+  overflow-wrap: anywhere;
+}
+.settings-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+}
+.settings-form,
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.settings-footer {
+  padding: 8px 16px max(16px, env(safe-area-inset-bottom));
+  background: var(--hf-color-background-canvas);
+  flex-shrink: 0;
+}
+.settings-footer > .hf-button {
+  width: 100%;
+}
+.settings-content .hf-settings-link__chevron {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+}
+.settings-content .hf-settings-link__chevron .hf-icon {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+}
+.settings-content .hf-setting-row {
+  padding: 16px;
+}
+.settings-time {
+  display: grid;
+  gap: 4px;
+}
+.settings-content .hf-info-card {
+  width: 100%;
+}
+.settings-content .hf-source-link {
+  margin-block: 0;
+}
+.settings-content .hf-info-card__body p {
+  margin: 0;
+}
+.onb-content-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.onb-content-link {
+  min-height: 48px;
+  padding: 8px 0;
+  border: 0;
+  color: var(--hf-color-action-primary);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reminder-banner {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: min(calc(100% - 32px), 448px);
+  padding: 12px;
+  border: 1px solid var(--hf-color-border-control);
+  border-radius: 16px;
+  background: var(--hf-color-surface-default);
+  color: var(--hf-color-text-primary);
+}
+.settings-content:focus-visible {
+  outline: 2px solid var(--hf-color-action-primary);
+  outline-offset: -4px;
+}

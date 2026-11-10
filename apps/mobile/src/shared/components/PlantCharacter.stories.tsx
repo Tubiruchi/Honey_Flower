@@ -21,3 +21,15 @@ export const Sprout: Story = {};
 export const SproutFace: Story = { args: { view: 'face' } };
 export const Cactus: Story = { args: { species: 'cactus' } };
 export const CactusFace: Story = { args: { species: 'cactus', view: 'face' } };
+export const SproutNeglected: Story = { args: { health: 'neglected' } };
+export const SproutNeglectedFace: Story = { args: { health: 'neglected', view: 'face' } };
+export const SproutWithered: Story = { args: { health: 'withered' } };
+export const SproutWitheredFace: Story = { args: { health: 'withered', view: 'face' } };
+export const CactusNeglected: Story = { args: { species: 'cactus', health: 'neglected' } };
+export const CactusNeglectedFace: Story = {
+  args: { species: 'cactus', health: 'neglected', view: 'face' },
+};
+export const CactusWithered: Story = { args: { species: 'cactus', health: 'withered' } };
+export const CactusWitheredFace: Story = {
+  args: { species: 'cactus', health: 'withered', view: 'face' },
+};

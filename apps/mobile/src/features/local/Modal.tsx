@@ -1,14 +1,17 @@
 import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { IconButton } from '../../shared/components';
+import { LocalPendingRecovery } from './LocalDataBoundary';
 export function Modal({
   title,
   onClose,
   children,
+  busy = false,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  busy?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
@@ -22,16 +25,17 @@ export function Modal({
       aria-labelledby={id}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        if (!busy) onClose();
       }}
     >
       <header>
         <h2 id={id} className="hf-type-heading-md">
           {title}
         </h2>
-        <IconButton label="Cerrar" icon="close" onClick={onClose} />
+        <IconButton label="Cerrar" icon="close" disabled={busy} onClick={onClose} />
       </header>
       {children}
+      <LocalPendingRecovery inline />
     </dialog>
   );
 }

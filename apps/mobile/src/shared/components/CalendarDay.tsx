@@ -10,6 +10,7 @@ export interface CalendarDayProps {
   selected?: boolean;
   today?: boolean;
   species?: PlantCharacterProps['species'];
+  health?: PlantCharacterProps['health'];
   onSelect?: () => void;
 }
 export function CalendarDay({
@@ -20,6 +21,7 @@ export function CalendarDay({
   selected,
   today,
   species,
+  health,
   onSelect,
 }: CalendarDayProps) {
   const indicator =
@@ -38,7 +40,7 @@ export function CalendarDay({
         className={`hf-calendar-day__capsule hf-calendar-day__capsule--${state}${selected ? ' is-selected' : ''}${today ? ' is-today' : ''}`}
       >
         {selected ? (
-          <PlantCharacter view="face" species={species} decorative />
+          <PlantCharacter view="face" species={species} health={health} decorative />
         ) : state === 'complete' ? (
           <img src={figmaComponents.calendar.imgIcono} alt="" />
         ) : state === 'partial' ? (

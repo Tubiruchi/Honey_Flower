@@ -14,6 +14,8 @@ import {
 import type { OnboardingDraft, OnboardingPreferences, OnboardingStep } from './model';
 import { onboardingScreens } from './screens';
 import './onboarding.css';
+import { validateReminderPreferences } from '../reminders/preferences';
+import '../preferences/preferences.css';
 
 type DraftStorage = Pick<Storage, 'getItem' | 'setItem'>;
 export interface OnboardingFlowProps {
@@ -22,12 +24,13 @@ export interface OnboardingFlowProps {
   step?: OnboardingStep;
   onStepChange?: (step: OnboardingStep) => void;
   onCreateAccount: (preferences: OnboardingPreferences) => void | Promise<void>;
-  onSignIn: () => void;
+  onSignIn: () => void | Promise<void>;
   persist?: boolean;
   storage?: DraftStorage;
   /** Solo en el catálogo para comparar el mockup; la app obtiene los insets reales. */
   referenceStatusBar?: boolean;
   completionLabel?: string;
+  onOpenContent?: (kind: 'sources' | 'privacy', draft: OnboardingDraft) => void;
 }
 
 export function OnboardingFlow({
@@ -41,6 +44,7 @@ export function OnboardingFlow({
   storage,
   referenceStatusBar = false,
   completionLabel,
+  onOpenContent,
 }: OnboardingFlowProps) {
   const [initial] = useState(() => {
     try {
@@ -65,6 +69,7 @@ export function OnboardingFlow({
   const [error, setError] = useState<string | null>(null);
   const [storageIssue, setStorageIssue] = useState(initial.storageIssue);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const scrollRef = useRef<HTMLFormElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -115,6 +120,14 @@ export function OnboardingFlow({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
+    if (step === 'avisos' || step === 'resumen') {
+      const issue = validateReminderPreferences(draft);
+      if (issue) {
+        if (step === 'resumen') go('avisos');
+        showError(issue);
+        return;
+      }
+    }
     const invalid =
       step === 'resumen'
         ? firstInvalidStep(draft)
@@ -127,16 +140,19 @@ export function OnboardingFlow({
       return;
     }
     if (step === 'resumen') {
+      if (submittingRef.current) return;
+      submittingRef.current = true;
       setSubmitting(true);
       save(draft, step);
       try {
         await onCreateAccount(toOnboardingPreferences(draft));
       } catch {
         showError(
-          'No pudimos continuar con tu cuenta. Conservamos tu configuración para que vuelvas a intentarlo.',
+          'No pudimos guardar tu configuración. Conservamos el borrador para que vuelvas a intentarlo.',
         );
       } finally {
         setSubmitting(false);
+        submittingRef.current = false;
       }
       return;
     }
@@ -168,55 +184,75 @@ export function OnboardingFlow({
         noValidate
         aria-label="Configuración inicial"
       >
-        <div className="onb-document">
-          <header className="onb-header">
-            {'back' in screen ? (
-              <AppBar
-                title={progressStep > 0 ? `PASO ${progressStep} DE 6` : 'HONEYFLOWER'}
-                onBack={() => {
-                  setReturnToSummary(false);
-                  go(onboardingSteps[onboardingSteps.indexOf(step) - 1]!);
+        <fieldset disabled={submitting} className="onb-content-lock">
+          <div className="onb-document">
+            <header className="onb-header">
+              {'back' in screen ? (
+                <AppBar
+                  title={progressStep > 0 ? `PASO ${progressStep} DE 6` : 'HONEYFLOWER'}
+                  onBack={() => {
+                    setReturnToSummary(false);
+                    go(onboardingSteps[onboardingSteps.indexOf(step) - 1]!);
+                  }}
+                />
+              ) : (
+                <p className="hf-type-label-sm hf-muted">HONEYFLOWER</p>
+              )}
+              {progressStep > 0 && <OnboardingProgress step={progressStep} />}
+              <div className="onb-hero">
+                <h1 className="hf-type-heading-lg" ref={headingRef} tabIndex={-1}>
+                  {screen.title}
+                </h1>
+                <FigmaAsset src={screen.plant} />
+              </div>
+              <p className="hf-type-body-sm onb-description">{screen.description}</p>
+            </header>
+            <div className="onb-panel">
+              {storageIssue && (
+                <Feedback variant="error">
+                  <p>
+                    No pudimos guardar el borrador en este dispositivo. Mantén esta vista abierta
+                    para conservar tus cambios.
+                  </p>
+                </Feedback>
+              )}
+              {error && (
+                <div ref={errorRef} tabIndex={-1} className="onb-error">
+                  <Feedback variant="error">
+                    <p>{error}</p>
+                  </Feedback>
+                </div>
+              )}
+              <OnboardingContent
+                step={step}
+                draft={draft}
+                onChange={change}
+                onEdit={(target) => {
+                  setReturnToSummary(true);
+                  go(target);
                 }}
               />
-            ) : (
-              <p className="hf-type-label-sm hf-muted">HONEYFLOWER</p>
-            )}
-            {progressStep > 0 && <OnboardingProgress step={progressStep} />}
-            <div className="onb-hero">
-              <h1 className="hf-type-heading-lg" ref={headingRef} tabIndex={-1}>
-                {screen.title}
-              </h1>
-              <FigmaAsset src={screen.plant} />
+              {onOpenContent && (step === 'habitos' || step === 'resumen') && (
+                <nav className="onb-content-links" aria-label="Información de HoneyFlower">
+                  <button
+                    className="onb-content-link"
+                    type="button"
+                    onClick={() => onOpenContent('sources', draft)}
+                  >
+                    Consultar fuentes
+                  </button>
+                  <button
+                    className="onb-content-link"
+                    type="button"
+                    onClick={() => onOpenContent('privacy', draft)}
+                  >
+                    Privacidad y uso de datos
+                  </button>
+                </nav>
+              )}
             </div>
-            <p className="hf-type-body-sm onb-description">{screen.description}</p>
-          </header>
-          <div className="onb-panel">
-            {storageIssue && (
-              <Feedback variant="error">
-                <p>
-                  No pudimos guardar el borrador en este dispositivo. Mantén esta vista abierta para
-                  conservar tus cambios.
-                </p>
-              </Feedback>
-            )}
-            {error && (
-              <div ref={errorRef} tabIndex={-1} className="onb-error">
-                <Feedback variant="error">
-                  <p>{error}</p>
-                </Feedback>
-              </div>
-            )}
-            <OnboardingContent
-              step={step}
-              draft={draft}
-              onChange={change}
-              onEdit={(target) => {
-                setReturnToSummary(true);
-                go(target);
-              }}
-            />
           </div>
-        </div>
+        </fieldset>
       </form>
       <footer className="onb-actions">
         <div className="onb-action-slot">
@@ -232,9 +268,20 @@ export function OnboardingFlow({
           <div className="onb-action-slot">
             <Button
               variant="text"
-              onClick={() => {
+              disabled={submitting}
+              onClick={async () => {
+                if (submittingRef.current) return;
+                submittingRef.current = true;
+                setSubmitting(true);
                 save(draft, step);
-                onSignIn();
+                try {
+                  await onSignIn();
+                } catch {
+                  showError('No pudimos abrir la prueba local. Tu configuración se conserva.');
+                } finally {
+                  setSubmitting(false);
+                  submittingRef.current = false;
+                }
               }}
             >
               Ya tengo cuenta

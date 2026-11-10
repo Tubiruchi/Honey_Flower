@@ -1,0 +1,46 @@
+.local-screen.profile-screen {
+  gap: 16px;
+}
+.profile-header {
+  margin-top: -4px;
+}
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 112px;
+  overflow: hidden;
+}
+.profile-identity > div:first-child {
+  flex: 0 0 calc(100% - 146px);
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+.profile-plant {
+  flex: 0 0 154px;
+  width: 154px;
+  height: 112px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-plant .hf-character {
+  width: 154px;
+  height: 125.125px;
+  flex-shrink: 0;
+}
+.profile-screen .hf-settings-link__chevron {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+}
+.profile-screen .hf-settings-link__chevron .hf-icon {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+}
+.profile-more {
+  margin-top: 8px;
+}

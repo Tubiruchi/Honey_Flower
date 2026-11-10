@@ -9,6 +9,7 @@ export interface TimeRowProps {
   disabled?: boolean;
   clockIcon?: ReactNode;
   onChange: (value: string) => void;
+  error?: string;
 }
 
 export function TimeRow({
@@ -18,10 +19,13 @@ export function TimeRow({
   disabled,
   clockIcon,
   onChange,
+  error,
 }: TimeRowProps) {
   const id = useId();
   return (
-    <div className={`hf-time-row${disabled ? ' hf-time-row--disabled' : ''}`}>
+    <div
+      className={`hf-time-row${disabled ? ' hf-time-row--disabled' : ''}${error ? ' hf-time-row--error' : ''}`}
+    >
       <label htmlFor={id}>{label}</label>
       <div className="hf-time-row__control">
         <span className="hf-time-row__display" aria-hidden="true">
@@ -38,10 +42,17 @@ export function TimeRow({
           aria-label={accessibleLabel ?? label}
           value={value}
           disabled={disabled}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
           onClick={(event) => event.currentTarget.showPicker?.()}
           onChange={(event) => onChange(event.target.value)}
         />
       </div>
+      {error && (
+        <span className="hf-sr-only" id={`${id}-error`}>
+          {error}
+        </span>
+      )}
     </div>
   );
 }

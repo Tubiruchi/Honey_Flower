@@ -30,11 +30,13 @@ const preview: Preview = {
           'Figma',
           'Base',
           'Hábitos',
+          'Registros',
           'Planta',
           'Recordatorios',
           'Cámara',
           'Sincronización',
           'Jardín',
+          'Análisis',
           'Pantallas',
         ],
       },
@@ -44,11 +46,14 @@ const preview: Preview = {
   decorators: [
     (Story, context) => (
       <div
-        className={`${context.parameters.edgeToEdge ? 'hf-story-edge' : 'hf-story-frame'} hf-reference-${context.parameters.referenceState ?? 'normal'}`}
+        className={`${context.parameters.edgeToEdge ? 'hf-story-edge' : 'hf-story-frame'}${context.parameters.referenceLayout ? ' hf-story-reference' : ''} hf-reference-${context.parameters.referenceState ?? 'normal'}`}
         lang="es"
         style={
           context.parameters.designWidth
-            ? { maxWidth: context.parameters.designWidth + 48 }
+            ? {
+                maxWidth:
+                  context.parameters.designWidth + (context.parameters.referenceLayout ? 32 : 48),
+              }
             : undefined
         }
       >
