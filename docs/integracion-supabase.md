@@ -1,4 +1,4 @@
-# Cuentas y futura conexión a Supabase · 0.4.0
+# Cuentas y conexión a Supabase · 0.4.1
 
 Estado al 10 de noviembre de 2026: **autenticación conectada y comprobada** con el proyecto
 `HoneyFlower` (`jkrlnelqsafkztsvnbrr`) de la conexión Noemi. El proyecto de evaluación no se usó.
@@ -16,8 +16,12 @@ se inicia desde la APK conectada, porque PKCE conserva el verificador en ese dis
   `features/auth/supabase.ts`, con `@supabase/supabase-js` fijado en **2.119.0** y lockfile.
 - Restauración y actualización de sesión mediante el SDK. Flujos de correo con PKCE y retorno
   web/Android. Los errores no imprimen credenciales, claves o respuestas técnicas del servidor.
-- «Ya tengo cuenta» abre el acceso. «Continuar sin cuenta» recupera la prueba local; terminar
-  el onboarding ofrece crear cuenta o continuar sin cuenta. Perfil incluye el acceso a cuentas.
+- Una instalación nueva abre onboarding. «Ya tengo cuenta» abre el acceso; crear cuenta aparece
+  después de completar hábitos. «Continuar sin cuenta» aparece únicamente en el resumen.
+- Antes del alta se conserva una entrega temporal con correo normalizado y preferencias, nunca
+  contraseña o sesión. Al confirmar o iniciar sesión con ese correo, se crea el perfil local de
+  la cuenta y se consume la entrega. Cerrar o reabrir la app mientras se espera el correo vuelve
+  a la pantalla de confirmación, no al onboarding.
 - Sin variables válidas, los formularios indican que las cuentas están pendientes y no envían
   solicitudes ni aceptan credenciales ficticias. Los adaptadores simulados solo viven en Storybook.
 - Los hábitos siguen siendo locales. Cada `user.id` tiene su propio espacio de almacenamiento
@@ -94,9 +98,9 @@ ejercita el **SDK real** contra HTTP interceptado: alta pendiente, acceso, resta
 de contraseña, recuperación, intercambio PKCE, salida y rechazo de claves privadas. No genera
 cuentas ni envía correos reales.
 
-Queda pendiente, al elegir proyecto: comprobar cuentas reales, entrega de correo, apertura de
-sus enlaces en el celular, errores de red y caducidad reales, configuración de privacidad y
-políticas de datos. Los estados visuales y las pruebas locales no acreditan esos servicios.
+Queda pendiente comprobar el recorrido 0.4.1 completo en un teléfono real, además de errores de
+red y caducidad, configuración final de privacidad y políticas de datos. Los estados visuales y
+las pruebas locales no acreditan por sí solos todos esos servicios.
 
 Referencias consultadas: [contraseña y registro](https://supabase.com/docs/reference/javascript/auth-signup),
 [intercambio PKCE](https://supabase.com/docs/reference/javascript/auth-exchangecodeforsession),

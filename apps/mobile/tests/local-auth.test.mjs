@@ -10,6 +10,24 @@ import {
 import { accountStorage, accountStorageKey } from '../src/shared/data/accountStorage.ts';
 import { memoryStorage, LocalRepository } from '../src/shared/data/localRepository.ts';
 import { LOCAL_SNAPSHOT_KEY } from '../src/shared/data/localSnapshot.ts';
+import { createOnboardingDraft, ONBOARDING_STORAGE_KEY } from '../src/features/onboarding/model.ts';
+import {
+  completePendingAccountSetup,
+  discardPendingAccountSetup,
+  PENDING_ACCOUNT_SETUP_KEY,
+  readCompletedOnboardingDraft,
+  readPendingAccountSetup,
+  savePendingAccountSetup,
+} from '../src/features/auth/pendingSetup.ts';
+
+function removableStorage(seed = {}) {
+  const values = new Map(Object.entries(seed));
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+    removeItem: (key) => values.delete(key),
+  };
+}
 
 test('correo validado, contraseñas sin recorte y límite compatible con caracteres Unicode', () => {
   assert.equal(emailError(' persona@example.com '), '');
@@ -77,4 +95,50 @@ test('cada cuenta, modo invitado y claves antiguas quedan aislados al reabrir re
   await source.setItem('honeyflower.local.v1', 'guest legacy');
   assert.equal(await accountStorage(source, 'account-a').getItem('honeyflower.local.v1'), null);
   assert.throws(() => accountStorageKey(LOCAL_SNAPSHOT_KEY, '../other'));
+});
+test('la configuración terminada se entrega solo a la cuenta que se registró', () => {
+  const draft = { ...createOnboardingDraft('America/Cancun'), preferredName: 'Noemí' };
+  const storage = removableStorage({
+    [ONBOARDING_STORAGE_KEY]: JSON.stringify({ version: 1, step: 'resumen', draft }),
+  });
+  assert.deepEqual(readCompletedOnboardingDraft(storage), draft);
+  savePendingAccountSetup(storage, ' Noemi@Example.COM ', draft, 1000);
+  assert.equal(
+    readPendingAccountSetup(storage, 'noemi@example.com', 2000).draft.preferredName,
+    'Noemí',
+  );
+  assert.equal(readPendingAccountSetup(storage, 'otra@example.com', 2000), null);
+  assert.doesNotMatch(storage.getItem(PENDING_ACCOUNT_SETUP_KEY), /password|contraseña|session/i);
+});
+test('un alta fallida conserva el onboarding pero descarta la entrega de cuenta', () => {
+  const draft = { ...createOnboardingDraft('UTC'), preferredName: 'Alex' };
+  const storage = removableStorage({
+    [ONBOARDING_STORAGE_KEY]: JSON.stringify({ version: 1, step: 'resumen', draft }),
+  });
+  savePendingAccountSetup(storage, 'alex@example.com', draft);
+  discardPendingAccountSetup(storage, 'alex@example.com');
+  assert.equal(storage.getItem(PENDING_ACCOUNT_SETUP_KEY), null);
+  assert.ok(storage.getItem(ONBOARDING_STORAGE_KEY));
+});
+test('la entrega completada se consume una sola vez y elimina el borrador global', () => {
+  const draft = { ...createOnboardingDraft('UTC'), preferredName: 'Alex' };
+  const storage = removableStorage({
+    [ONBOARDING_STORAGE_KEY]: JSON.stringify({ version: 1, step: 'resumen', draft }),
+  });
+  savePendingAccountSetup(storage, 'alex@example.com', draft);
+  completePendingAccountSetup(storage, 'alex@example.com');
+  assert.equal(storage.getItem(PENDING_ACCOUNT_SETUP_KEY), null);
+  assert.equal(storage.getItem(ONBOARDING_STORAGE_KEY), null);
+});
+test('borradores inválidos o entregas vencidas no pueden crear el perfil', () => {
+  const invalid = { ...createOnboardingDraft('UTC'), preferredName: '' };
+  const storage = removableStorage();
+  assert.throws(() => savePendingAccountSetup(storage, 'alex@example.com', invalid, 1000));
+  const valid = { ...invalid, preferredName: 'Alex' };
+  savePendingAccountSetup(storage, 'alex@example.com', valid, 1000);
+  assert.equal(
+    readPendingAccountSetup(storage, 'alex@example.com', 31 * 24 * 60 * 60 * 1000),
+    null,
+  );
+  assert.ok(storage.getItem(PENDING_ACCOUNT_SETUP_KEY));
 });

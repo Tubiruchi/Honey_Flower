@@ -9,14 +9,25 @@ import { memoryStorage } from '../../shared/data/localRepository';
 import type { LocalStoragePort } from '../../shared/data/localRepository';
 import { createLocalState } from '../local/model';
 import { createOnboardingDraft } from '../onboarding/model';
+import { ONBOARDING_STORAGE_KEY } from '../onboarding/model';
 import { createSnapshot, LOCAL_SNAPSHOT_KEY } from '../../shared/data/localSnapshot';
+import { PENDING_ACCOUNT_SETUP_KEY, savePendingAccountSetup } from './pendingSetup';
+
+const completedDraft = () => ({
+  ...createOnboardingDraft('America/Cancun'),
+  preferredName: 'Ana',
+});
+const registrationEntry = () => ({
+  pathname: '/cuenta/registro',
+  state: { draft: completedDraft() },
+});
 
 function AccountDemo({
   route = '/cuenta/entrar',
   scenario = 'ready',
   onAction = () => {},
 }: {
-  route?: string;
+  route?: string | { pathname: string; state?: unknown };
   scenario?:
     | 'ready'
     | 'unconfigured'
@@ -24,10 +35,13 @@ function AccountDemo({
     | 'offline'
     | 'restored'
     | 'signout-error'
-    | 'restore-error';
+    | 'restore-error'
+    | 'new-account';
   onAction?: (action: string) => void;
 }) {
   const [router] = useState(() => {
+    window.localStorage.removeItem(PENDING_ACCOUNT_SETUP_KEY);
+    window.localStorage.removeItem(ONBOARDING_STORAGE_KEY);
     const a: AccountUser = { id: 'account-a', email: 'ana@example.com', name: 'Ana' };
     const b: AccountUser = { id: 'account-b', email: 'beto@example.com', name: 'Beto' };
     let user = scenario === 'restored' || scenario === 'signout-error' ? a : null;
@@ -43,6 +57,7 @@ function AccountDemo({
       [a.id, 'Ana'],
       [b.id, 'Beto'],
     ] as const) {
+      if (scenario === 'new-account' && scope === a.id) continue;
       const state = createLocalState(Date.now() - 3_600_000, {
         ...createOnboardingDraft('UTC'),
         preferredName: name,
@@ -63,6 +78,8 @@ function AccountDemo({
       return storage;
     };
     let callback: Promise<AccountUser> | undefined;
+    if (scenario === 'new-account')
+      savePendingAccountSetup(window.localStorage, a.email, completedDraft());
     const port: AuthPort = {
       configured: scenario !== 'unconfigured',
       restore: async () => {
@@ -158,12 +175,26 @@ export const Login: Story = {
 export const PendingConnection: Story = {
   name: 'Conexión pendiente · sin sesión ficticia',
   args: { scenario: 'unconfigured' },
-  play: async ({ canvas, userEvent, args }) => {
+  play: async ({ canvas, args }) => {
     await expect(await canvas.findByText('Acceso a cuentas pendiente')).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Iniciar sesión' })).toBeDisabled();
-    await userEvent.click(canvas.getByRole('button', { name: 'Continuar sin cuenta' }));
-    await expect(await canvas.findByRole('heading', { name: 'Hola, Invitada' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('button', { name: 'Continuar sin cuenta' }),
+    ).not.toBeInTheDocument();
     await expect(args.onAction).not.toHaveBeenCalled();
+  },
+};
+export const FirstLaunch: Story = {
+  name: 'Primera apertura · onboarding antes de crear cuenta',
+  args: { route: '/' },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByRole('heading', { name: 'Tu constancia tiene una nueva compañera' }),
+    ).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Ya tengo cuenta' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('button', { name: 'Continuar sin cuenta' }),
+    ).not.toBeInTheDocument();
   },
 };
 export const AlreadyHaveAccount: Story = {
@@ -210,9 +241,9 @@ export const Offline: Story = {
 };
 export const Register: Story = {
   name: 'Registro · confirmación de correo antes de entrar',
-  args: { route: '/cuenta/registro' },
+  args: { route: registrationEntry() },
   play: async ({ canvas, userEvent, args }) => {
-    await userEvent.type(await canvas.findByLabelText('Tu nombre'), 'Ana');
+    await expect(await canvas.findByLabelText('Tu nombre')).toHaveValue('Ana');
     await credentials(canvas, userEvent);
     await userEvent.type(canvas.getByLabelText('Confirmar contraseña'), 'password-example');
     await userEvent.click(canvas.getByRole('checkbox'));
@@ -225,7 +256,7 @@ export const Register: Story = {
 };
 export const RegisterValidation: Story = {
   name: 'Registro · valida correo, contraseñas y aceptación',
-  args: { route: '/cuenta/registro' },
+  args: { route: registrationEntry() },
   play: async ({ canvas, userEvent, args }) => {
     await userEvent.click(await canvas.findByRole('button', { name: 'Crear cuenta' }));
     await expect(await canvas.findByText('Escribe un correo electrónico válido.')).toBeVisible();
@@ -235,9 +266,8 @@ export const RegisterValidation: Story = {
 };
 export const PrivacyPreservesForm: Story = {
   name: 'Aviso de privacidad conserva la edición del registro',
-  args: { route: '/cuenta/registro' },
+  args: { route: registrationEntry() },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.type(await canvas.findByLabelText('Tu nombre'), 'Ana');
     await credentials(canvas, userEvent);
     await userEvent.click(canvas.getByRole('button', { name: 'Leer aviso de privacidad' }));
     await expect(await canvas.findByRole('dialog', { name: 'Aviso de privacidad' })).toBeVisible();
@@ -279,6 +309,17 @@ export const ResetPassword: Story = {
     await expect(args.onAction).toHaveBeenCalledWith('password-updated');
   },
 };
+export const ConfirmedAccountKeepsSetup: Story = {
+  name: 'Confirmación · conserva onboarding y entra directo a Inicio',
+  args: { route: '/cuenta/callback?code=valid', scenario: 'new-account' },
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByRole('heading', { name: 'Hola, Ana' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('heading', { name: 'Tu constancia tiene una nueva compañera' }),
+    ).not.toBeInTheDocument();
+    await expect(window.localStorage.getItem(PENDING_ACCOUNT_SETUP_KEY)).toBeNull();
+  },
+};
 export const RestoredSession: Story = {
   name: 'Sesión restaurada · perfil de su cuenta',
   args: { route: '/perfil', scenario: 'restored' },
@@ -297,7 +338,7 @@ export const SignOutFailure: Story = {
   },
 };
 export const SeparateAccounts: Story = {
-  name: 'Cambiar de cuenta conserva datos separados de Ana, Beto e Invitada',
+  name: 'Cambiar de cuenta conserva datos separados de Ana y Beto',
   args: { route: '/perfil', scenario: 'restored' },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(await canvas.findByRole('button', { name: 'Cerrar sesión' }));
@@ -308,10 +349,7 @@ export const SeparateAccounts: Story = {
     await expect(canvas.getByText('0 mL', { exact: true })).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Perfil' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Cerrar sesión' }));
-    await userEvent.click(await canvas.findByRole('button', { name: 'Continuar sin cuenta' }));
-    await expect(await canvas.findByRole('heading', { name: 'Hola, Invitada' })).toBeVisible();
-    await userEvent.click(canvas.getByRole('button', { name: 'Perfil' }));
-    await userEvent.click(canvas.getByRole('button', { name: /Iniciar sesión o crear cuenta/ }));
+    await expect(await canvas.findByRole('form', { name: 'Iniciar sesión' })).toBeVisible();
     await credentials(canvas, userEvent);
     await userEvent.click(canvas.getByRole('button', { name: 'Iniciar sesión' }));
     await expect(await canvas.findByRole('heading', { name: 'Hola, Ana' })).toBeVisible();

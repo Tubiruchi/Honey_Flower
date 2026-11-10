@@ -43,12 +43,13 @@ npm run dev
 Abrir [HoneyFlower](http://localhost:5173). Incluye Inicio, Análisis y Perfil con registros,
 edición, estadísticas y preferencias que se conservan en el dispositivo.
 
-La primera entrada ahora abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de
-ocho pantallas implementado desde Figma. Sus preferencias sí se conservan como borrador local,
-sin crear cuenta. En **0.4.0**, **Ya tengo cuenta** abre inicio de sesión y **Continuar sin cuenta**
-recupera la prueba local. Las pantallas de registro y recuperación están preparadas para Supabase;
-por indicación del usuario, la conexión todavía no se activa. Sin configuración no se crean
-sesiones ficticias. Detalles: [cuentas y conexión](docs/integracion-supabase.md) y
+La primera entrada abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de ocho
+pantallas implementado desde Figma. En **0.4.1**, **Ya tengo cuenta** abre el inicio de sesión;
+las personas nuevas configuran primero sus hábitos y se registran al terminar. La confirmación
+de correo aplica esa configuración a la cuenta una sola vez y abre Inicio, sin repetir el
+onboarding. **Continuar sin cuenta** está disponible en el resumen. Registro y recuperación están
+conectados al proyecto HoneyFlower de Supabase. Sin configuración válida no se crean sesiones
+ficticias. Detalles: [cuentas y conexión](docs/integracion-supabase.md) y
 [prueba local y APK](docs/prueba-local-apk.md).
 
 ## Estructura

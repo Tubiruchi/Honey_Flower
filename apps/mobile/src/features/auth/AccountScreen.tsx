@@ -20,9 +20,14 @@ import {
 } from './model';
 import { useLocal } from '../local/LocalProvider';
 import { confirmed } from '../../shared/data/localSnapshot';
-import { readOnboardingSnapshot } from '../onboarding/model';
 import { Modal } from '../local/Modal';
 import { PrivacyDetails } from '../content/ContentPage';
+import {
+  completedOnboardingDraft,
+  discardPendingAccountSetup,
+  readCompletedOnboardingDraft,
+  savePendingAccountSetup,
+} from './pendingSetup';
 import './account.css';
 
 type View = 'entrar' | 'registro' | 'recuperar' | 'confirmar' | 'nueva-clave';
@@ -71,9 +76,19 @@ function AccountForm({ view }: { view: View }) {
   const navigate = useNavigate();
   const location = useLocation();
   const local = useLocal();
+  const [registrationDraft] = useState(() => {
+    if (view !== 'registro') return null;
+    const navigationDraft = completedOnboardingDraft(location.state?.draft);
+    if (navigationDraft) return navigationDraft;
+    try {
+      return readCompletedOnboardingDraft(window.localStorage);
+    } catch {
+      return null;
+    }
+  });
   const [name, setName] = useState(() =>
-    typeof location.state?.draft?.preferredName === 'string'
-      ? location.state.draft.preferredName
+    registrationDraft
+      ? registrationDraft.preferredName
       : (local.state?.preferences.preferredName ?? ''),
   );
   const [email, setEmail] = useState(() =>
@@ -103,10 +118,10 @@ function AccountForm({ view }: { view: View }) {
     form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
   }, [errors]);
   if (auth.user && (view === 'entrar' || view === 'registro')) return <Navigate to="/" replace />;
+  if (view === 'registro' && !registrationDraft)
+    return <Navigate to="/onboarding/bienvenida" replace />;
   const move = (next: View) =>
-    void navigate(`/cuenta/${next}`, { state: { email, draft: location.state?.draft } });
-  const guest = () =>
-    void navigate('/cuenta/invitado', { state: { draft: location.state?.draft } });
+    void navigate(`/cuenta/${next}`, { state: { email, draft: registrationDraft } });
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (flight.current) return;
@@ -138,12 +153,20 @@ function AccountForm({ view }: { view: View }) {
         setPassword('');
         void navigate('/', { replace: true });
       } else if (view === 'registro') {
-        const user = await auth.port.signUp(email.trim(), password, name.trim());
+        const setupDraft = { ...registrationDraft!, preferredName: name.trim() };
+        savePendingAccountSetup(window.localStorage, email, setupDraft);
+        let user;
+        try {
+          user = await auth.port.signUp(email.trim(), password, name.trim());
+        } catch (error) {
+          discardPendingAccountSetup(window.localStorage, email);
+          throw error;
+        }
         setPassword('');
         setConfirmation('');
-        void navigate(user ? '/onboarding/nombre' : '/cuenta/confirmar', {
+        void navigate(user ? '/' : '/cuenta/confirmar', {
           replace: true,
-          state: { email: email.trim(), draft: location.state?.draft },
+          state: { email: email.trim(), draft: setupDraft },
         });
       } else if (view === 'recuperar') {
         await auth.port.resetPassword(email.trim());
@@ -225,9 +248,8 @@ function AccountForm({ view }: { view: View }) {
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
             error={errors.email}
-            disabled={busy}
+            disabled
           />
           <Button
             disabled={!auth.port.configured || busy || cooldown > 0}
@@ -361,12 +383,11 @@ function AccountForm({ view }: { view: View }) {
           <Button
             variant="text"
             disabled={busy}
-            onClick={() => move(view === 'entrar' ? 'registro' : 'entrar')}
+            onClick={() =>
+              view === 'entrar' ? navigate('/onboarding/bienvenida') : move('entrar')
+            }
           >
             {view === 'entrar' ? 'Crear una cuenta' : 'Ya tengo cuenta'}
-          </Button>
-          <Button variant="secondary" disabled={busy} onClick={guest}>
-            Continuar sin cuenta
           </Button>
         </div>
       )}
@@ -463,10 +484,12 @@ export function GuestEntry() {
       void navigate('/inicio', { replace: true });
       return;
     }
+    const draft = completedOnboardingDraft(location.state?.draft);
+    if (!draft) {
+      void navigate('/onboarding/bienvenida', { replace: true });
+      return;
+    }
     let alive = true;
-    const draft = readOnboardingSnapshot({
-      getItem: () => JSON.stringify({ version: 1, step: 'resumen', draft: location.state?.draft }),
-    })?.draft;
     void local
       .start(draft)
       .then(confirmed)

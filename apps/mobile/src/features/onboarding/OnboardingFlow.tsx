@@ -257,7 +257,7 @@ export function OnboardingFlow({
         </fieldset>
       </form>
       <footer className="onb-actions">
-        {onContinueAsGuest && (step === 'bienvenida' || step === 'resumen') && (
+        {onContinueAsGuest && step === 'resumen' && (
           <Button
             variant="text"
             disabled={submitting}

@@ -52,7 +52,21 @@ function RecoveryDemo({
     };
   });
   return (
-    <MemoryRouter initialEntries={[route]}>
+    <MemoryRouter
+      initialEntries={[
+        scenario === 'start'
+          ? {
+              pathname: '/onboarding/resumen',
+              state: {
+                draft: {
+                  ...createOnboardingDraft('America/Cancun'),
+                  preferredName: 'Invitado',
+                },
+              },
+            }
+          : route,
+      ]}
+    >
       <LocalProvider storage={storage} referenceNow={now}>
         <AppRoutes persistOnboardingDraft={false} />
       </LocalProvider>
@@ -174,7 +188,7 @@ export const ProfileRecovery: Story = {
 };
 export const SkipWaitsForStorage: Story = {
   name: 'Sin cuenta · entra tras confirmar el guardado',
-  args: { scenario: 'start', route: '/' },
+  args: { scenario: 'start', route: '/onboarding/resumen' },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(await canvas.findByRole('button', { name: 'Continuar sin cuenta' }));
     await expect(await canvas.findByText('Guardado sin confirmar')).toBeVisible();

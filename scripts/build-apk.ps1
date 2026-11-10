@@ -23,7 +23,7 @@ try {
     finally { Pop-Location }
     $destination = Join-Path $projectRoot 'artifacts/android'
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
-    $apk = Join-Path $destination 'HoneyFlower-0.4.0-prueba.apk'
+    $apk = Join-Path $destination 'HoneyFlower-0.4.1-prueba.apk'
     Copy-Item -LiteralPath './apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk' -Destination $apk -Force
     $signer = Get-ChildItem -LiteralPath (Join-Path $SdkPath 'build-tools') -Directory | Sort-Object Name -Descending | ForEach-Object { Join-Path $_.FullName 'apksigner.bat' } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $signer) { throw 'No se encontró apksigner en Android Build Tools.' }

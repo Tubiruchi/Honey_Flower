@@ -53,7 +53,7 @@ export function AuthProvider({
   const previousUser = useRef<string | null>(null);
   const [mode, setMode] = useState<'guest' | 'signed-out'>(() => {
     try {
-      return persist && localStorage.getItem(ACCESS_KEY) === 'signed-out' ? 'signed-out' : 'guest';
+      return persist && localStorage.getItem(ACCESS_KEY) === 'guest' ? 'guest' : 'signed-out';
     } catch {
       return 'signed-out';
     }
@@ -65,6 +65,18 @@ export function AuthProvider({
   useEffect(() => {
     let alive = true,
       changed = false;
+    const settleWithoutSession = () => {
+      let guest = false;
+      if (persist) {
+        try {
+          guest = localStorage.getItem(ACCESS_KEY) === 'guest';
+          if (!guest) localStorage.setItem(ACCESS_KEY, 'signed-out');
+        } catch {
+          guest = false;
+        }
+      }
+      setMode(guest ? 'guest' : 'signed-out');
+    };
     const unsubscribe = port.subscribe((next, recovering) => {
       changed = true;
       if (!alive) return;
@@ -76,16 +88,7 @@ export function AuthProvider({
       setRecovery(recovering);
       setLoading(false);
       setIssue('');
-      if (!next) {
-        setMode('signed-out');
-        if (persist) {
-          try {
-            localStorage.setItem(ACCESS_KEY, 'signed-out');
-          } catch {
-            /* Remain signed out in memory. */
-          }
-        }
-      }
+      if (!next) settleWithoutSession();
     });
     void port
       .restore()
@@ -103,8 +106,8 @@ export function AuthProvider({
       .catch(() => {
         if (alive && !changed) {
           setLoading(false);
-          setMode('signed-out');
-          setIssue('No pudimos recuperar tu sesión. Reintenta o continúa sin cuenta.');
+          settleWithoutSession();
+          setIssue('No pudimos recuperar tu sesión. Reintenta o vuelve al onboarding.');
         }
       });
     return () => {

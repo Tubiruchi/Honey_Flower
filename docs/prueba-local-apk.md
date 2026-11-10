@@ -1,15 +1,16 @@
-# Prueba local y APK Android · 0.4.0
+# Prueba local y APK Android · 0.4.1
 
 Entrega del **10 de noviembre de 2026**. Identificador `com.honeyflower.app`,
-`versionName 0.4.0-local`, `versionCode 9`. Mantiene la firma de depuración de las APK anteriores
+`versionName 0.4.1-local`, `versionCode 10`. Mantiene la firma de depuración de las APK anteriores
 para actualizar conservando los datos. Requiere Android 7 o posterior y WebView actualizado.
 
 ## Funciones disponibles
 
-La prueba mantiene el modo local sin cuenta. **Ya tengo cuenta** abre el formulario de acceso y
-**Continuar sin cuenta** inicia o recupera el modo local. Registro, acceso, recuperación y retorno
-de correo están conectados al proyecto HoneyFlower de Supabase. Ver [integración de cuentas](integracion-supabase.md).
-Una instalación nueva comienza sin eventos ni plantas ganadas; las sesiones de cuenta son reales.
+Una instalación nueva comienza en onboarding. **Ya tengo cuenta** abre el acceso; una persona
+nueva configura sus hábitos, llega al resumen y después crea su cuenta o continúa sin cuenta.
+Al confirmar el correo en el mismo dispositivo, la configuración se aplica a la cuenta y se abre
+Inicio sin repetir pantallas. Registro, acceso, recuperación y retorno están conectados al proyecto
+HoneyFlower de Supabase. Ver [integración de cuentas](integracion-supabase.md).
 
 - **Inicio:** día de planta, calendario, agua, protector y estado derivado de los registros.
   Debajo de la planta permanece solo «Ver todos los registros», morado y subrayado.
@@ -64,7 +65,8 @@ El recorrido normal de agua continúa con su confirmación y guardado reales.
 
 ## Generar y descargar
 
-La APK 0.4.0 conserva el [lote completo de correcciones de UX](revision-ux-0.3.3.md).
+La APK 0.4.1 conserva el [lote completo de correcciones de UX](revision-ux-0.3.3.md) y aplica el
+[parche de recorrido onboarding–cuenta](patch-0.4.1-onboarding-cuenta.md).
 La [corrección de notificaciones](patch-0.3.3-notificaciones.md) sustituye la prueba de botones:
 en **Perfil → Notificaciones y horarios**, autoriza las notificaciones y **Permitir horarios
 exactos**. En **Horarios de hábitos**, guarda una hora futura cercana y sal de la app. El aviso
@@ -81,8 +83,8 @@ npm run apk:serve
 La compilación comprueba tipos, prepara recursos Android, ejecuta Gradle y verifica firma y SHA-256.
 Genera:
 
-- `artifacts/android/HoneyFlower-0.4.0-prueba.apk`
-- `artifacts/android/HoneyFlower-0.4.0-prueba.apk.sha256`
+- `artifacts/android/HoneyFlower-0.4.1-prueba.apk`
+- `artifacts/android/HoneyFlower-0.4.1-prueba.apk.sha256`
 
 Desde el celular, abrir la dirección **Misma red** que imprime el servidor. Ambos equipos deben
 estar en la misma Wi-Fi. El servidor comparte solo APK e icono, sin publicar el repositorio.
@@ -91,12 +93,13 @@ Conservar la app instalada al actualizar para mantener sus datos. La conexión l
 de la red y del firewall del equipo. Ctrl+C detiene el servidor de descarga.
 
 La firma es de depuración para pruebas. Se conserva el archivo anterior 0.2.0 como referencia;
-el servidor ofrece únicamente 0.4.0. Los binarios, claves y configuración local no se versionan.
+el servidor ofrece únicamente 0.4.1. Los binarios, claves y configuración local no se versionan.
 
 ## Recorrido prioritario en teléfono
 
-Instalar/actualizar → «Ya tengo cuenta» → probar acceso, registro, confirmación y recuperación →
-«Continuar sin cuenta» → agua → historial → editar/deshacer → protector en
+Instalar/actualizar → onboarding → configurar hábitos → crear cuenta → confirmar correo → comprobar
+que abre Inicio con la configuración elegida. Revisar también «Ya tengo cuenta», recuperación y
+«Continuar sin cuenta» desde el resumen → agua → historial → editar/deshacer → protector en
 horario → Análisis → Perfil → prueba temporal de cámara → preferencias → cerrar y reabrir.
 Verificar que los cambios persisten y que el acceso temporal no altera los registros.
 
@@ -107,4 +110,4 @@ Ver [entrega y evidencias de fase 8](fase-3-bloque-8-apk.md).
 La [corrección 0.3.1](patch-0.3.1-camara.md) sustituye la cámara externa de 0.3.0 por captura integrada.
 La [corrección 0.3.3](patch-0.3.3-navegacion.md) elimina la franja de fondo alrededor del menú.
 
-La [correcci�n 0.3.3](patch-0.3.3-inicio.md) simplifica fechas, subt�tulo y racha de Inicio.
+La [corrección 0.3.3](patch-0.3.3-inicio.md) simplifica fechas, subtítulo y racha de Inicio.

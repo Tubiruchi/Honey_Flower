@@ -98,10 +98,11 @@ limpieza de temporales. Ver [flujo de agua implementado](fase-3-bloque-4-agua.md
   y la sincronización no están activos. Definir DTO, identificadores, autoridad de cada dato,
   resolución de conflictos y migración de la copia local antes de cambiar estas operaciones.
   `packages/contracts` contiene vocabulario de presentación, no contratos de servidor terminados.
-- **Cuenta y sesión:** 0.4.0 implementa acceso, registro y recuperación en `/cuenta/*`, con
-  adaptador Supabase preparado y conexión aún desactivada. «Ya tengo cuenta» abre acceso;
-  «Continuar sin cuenta» conserva la prueba local. Las cuentas tienen almacenamiento separado
-  por ID y no importan datos del invitado. Ver [configuración y pendientes](integracion-supabase.md).
+- **Cuenta y sesión:** 0.4.1 conecta acceso, registro y recuperación en `/cuenta/*` con Supabase.
+  Las personas nuevas completan onboarding antes del alta; la confirmación consume una entrega
+  local de preferencias y abre Inicio sin repetirlo. «Ya tengo cuenta» abre acceso y «Continuar
+  sin cuenta» permanece en el resumen. Las cuentas tienen almacenamiento separado por ID y no
+  importan datos del invitado. Ver [configuración y pendientes](integracion-supabase.md).
 - **Mensajes remotos/RAG:** hoy los mensajes usan reglas locales. Mantener el tono y la salida
   local si el servicio falla; una respuesta remota no debe registrar hábitos ni modificar métricas.
   No hay claves, servidor ni endpoint configurados para esta capacidad.
