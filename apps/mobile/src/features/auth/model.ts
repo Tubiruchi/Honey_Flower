@@ -12,7 +12,7 @@ export interface AuthPort {
   resetPassword: (email: string) => Promise<void>;
   resendConfirmation: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
-  exchangeCode: (code: string) => Promise<AccountUser>;
+  exchangeCode: (code: string, flowId?: string) => Promise<AccountUser>;
   signOut: () => Promise<void>;
 }
 export const CONNECTION_PENDING =
@@ -66,11 +66,13 @@ export function parseAuthCallback(value: string, webOrigin: string) {
     const web = url.origin === webOrigin && url.pathname === '/cuenta/callback';
     if (!native && !web) return null;
     if (url.searchParams.has('error') || url.searchParams.has('error_code'))
-      return { code: '', recovery: false };
+      return { code: '', recovery: false, flowId: '' };
     const code = url.searchParams.get('code') ?? '';
+    const flowId = url.searchParams.get('sb_flow_id') ?? '';
     return {
       code: code.length <= 2048 ? code : '',
       recovery: url.searchParams.get('flow') === 'recovery',
+      flowId: /^[a-zA-Z0-9_-]{8,64}$/.test(flowId) ? flowId : '',
     };
   } catch {
     return null;

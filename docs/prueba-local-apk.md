@@ -1,7 +1,7 @@
-# Prueba local y APK Android · 0.4.1
+# Prueba local y APK Android · 0.4.2
 
 Entrega del **10 de noviembre de 2026**. Identificador `com.honeyflower.app`,
-`versionName 0.4.1-local`, `versionCode 10`. Mantiene la firma de depuración de las APK anteriores
+`versionName 0.4.2-local`, `versionCode 11`. Mantiene la firma de depuración de las APK anteriores
 para actualizar conservando los datos. Requiere Android 7 o posterior y WebView actualizado.
 
 ## Funciones disponibles
@@ -65,8 +65,9 @@ El recorrido normal de agua continúa con su confirmación y guardado reales.
 
 ## Generar y descargar
 
-La APK 0.4.1 conserva el [lote completo de correcciones de UX](revision-ux-0.3.3.md) y aplica el
-[parche de recorrido onboarding–cuenta](patch-0.4.1-onboarding-cuenta.md).
+La APK 0.4.2 conserva el [lote completo de correcciones de UX](revision-ux-0.3.3.md), aplica el
+[parche de recorrido onboarding–cuenta](patch-0.4.1-onboarding-cuenta.md) y corrige el
+[retorno PKCE de recuperación](patch-0.4.2-recuperacion-cuenta.md).
 La [corrección de notificaciones](patch-0.3.3-notificaciones.md) sustituye la prueba de botones:
 en **Perfil → Notificaciones y horarios**, autoriza las notificaciones y **Permitir horarios
 exactos**. En **Horarios de hábitos**, guarda una hora futura cercana y sal de la app. El aviso
@@ -83,8 +84,8 @@ npm run apk:serve
 La compilación comprueba tipos, prepara recursos Android, ejecuta Gradle y verifica firma y SHA-256.
 Genera:
 
-- `artifacts/android/HoneyFlower-0.4.1-prueba.apk`
-- `artifacts/android/HoneyFlower-0.4.1-prueba.apk.sha256`
+- `artifacts/android/HoneyFlower-0.4.2-prueba.apk`
+- `artifacts/android/HoneyFlower-0.4.2-prueba.apk.sha256`
 
 Desde el celular, abrir la dirección **Misma red** que imprime el servidor. Ambos equipos deben
 estar en la misma Wi-Fi. El servidor comparte solo APK e icono, sin publicar el repositorio.
@@ -93,7 +94,7 @@ Conservar la app instalada al actualizar para mantener sus datos. La conexión l
 de la red y del firewall del equipo. Ctrl+C detiene el servidor de descarga.
 
 La firma es de depuración para pruebas. Se conserva el archivo anterior 0.2.0 como referencia;
-el servidor ofrece únicamente 0.4.1. Los binarios, claves y configuración local no se versionan.
+el servidor ofrece únicamente 0.4.2. Los binarios, claves y configuración local no se versionan.
 
 ## Recorrido prioritario en teléfono
 

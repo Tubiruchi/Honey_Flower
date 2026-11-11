@@ -44,7 +44,7 @@ Abrir [HoneyFlower](http://localhost:5173). Incluye Inicio, Análisis y Perfil c
 edición, estadísticas y preferencias que se conservan en el dispositivo.
 
 La primera entrada abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de ocho
-pantallas implementado desde Figma. En **0.4.1**, **Ya tengo cuenta** abre el inicio de sesión;
+pantallas implementado desde Figma. En **0.4.2**, **Ya tengo cuenta** abre el inicio de sesión;
 las personas nuevas configuran primero sus hábitos y se registran al terminar. La confirmación
 de correo aplica esa configuración a la cuenta una sola vez y abre Inicio, sin repetir el
 onboarding. **Continuar sin cuenta** está disponible en el resumen. Registro y recuperación están

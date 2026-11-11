@@ -117,9 +117,9 @@ function AccountDemo({
       updatePassword: async () => {
         onAction('password-updated');
       },
-      exchangeCode: (code) => {
+      exchangeCode: (code, flowId) => {
         callback ??= Promise.resolve().then(() => {
-          onAction('exchange');
+          onAction(flowId ? `exchange:${flowId}` : 'exchange');
           if (code === 'expired') throw { code: 'flow_state_expired' };
           emit(a, true);
           return a;
@@ -298,7 +298,9 @@ export const ExpiredCallback: Story = {
 };
 export const ResetPassword: Story = {
   name: 'Recuperación · guardar nueva contraseña y volver al acceso',
-  args: { route: '/cuenta/callback?code=valid&flow=recovery' },
+  args: {
+    route: '/cuenta/callback?code=valid&flow=recovery&sb_flow_id=recovery_flow_1234',
+  },
   play: async ({ canvas, userEvent, args }) => {
     await userEvent.type(await canvas.findByLabelText('Nueva contraseña'), 'a-new-password');
     await userEvent.type(canvas.getByLabelText('Confirmar contraseña'), 'a-new-password');
@@ -307,6 +309,7 @@ export const ResetPassword: Story = {
       await canvas.findByText('Contraseña actualizada. Ya puedes iniciar sesión.'),
     ).toBeVisible();
     await expect(args.onAction).toHaveBeenCalledWith('password-updated');
+    await expect(args.onAction).toHaveBeenCalledWith('exchange:recovery_flow_1234');
   },
 };
 export const ConfirmedAccountKeepsSetup: Story = {

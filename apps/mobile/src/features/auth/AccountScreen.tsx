@@ -420,7 +420,7 @@ function AccountCallback() {
       });
     } else
       void auth.port
-        .exchangeCode(callback.code)
+        .exchangeCode(callback.code, callback.flowId || undefined)
         .then(() => {
           if (alive)
             void navigate(callback.recovery ? '/cuenta/nueva-clave' : '/', { replace: true });

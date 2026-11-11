@@ -84,15 +84,19 @@ export function createSupabaseAuth(config?: { url?: string; key?: string }): Aut
       const { error } = await client.auth.updateUser({ password });
       if (error) throw error;
     },
-    exchangeCode(code) {
-      if (exchange?.code === code) return exchange.task;
+    exchangeCode(code, flowId) {
+      const exchangeKey = `${code}:${flowId ?? ''}`;
+      if (exchange?.code === exchangeKey) return exchange.task;
       const task = (async () => {
-        const { data, error } = await client.auth.exchangeCodeForSession(code);
+        const { data, error } = await client.auth.exchangeCodeForSession(
+          code,
+          flowId ? { flowId } : undefined,
+        );
         if (error) throw error;
         if (!data.session) throw new Error('No session');
         return userView(data.session.user);
       })();
-      exchange = { code, task };
+      exchange = { code: exchangeKey, task };
       return task;
     },
     async signOut() {

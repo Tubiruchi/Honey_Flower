@@ -40,12 +40,16 @@ test('correo validado, contraseñas sin recorte y límite compatible con caracte
 test('enlaces PKCE aceptan solo los destinos de la app y descartan tokens implícitos', () => {
   const origin = 'https://honeyflower.example';
   assert.deepEqual(
-    parseAuthCallback('honeyflower://auth/callback?code=valid&flow=recovery', origin),
-    { code: 'valid', recovery: true },
+    parseAuthCallback(
+      'honeyflower://auth/callback?code=valid&flow=recovery&sb_flow_id=flow_12345678',
+      origin,
+    ),
+    { code: 'valid', recovery: true, flowId: 'flow_12345678' },
   );
   assert.deepEqual(parseAuthCallback(origin + '/cuenta/callback?code=valid', origin), {
     code: 'valid',
     recovery: false,
+    flowId: '',
   });
   assert.equal(parseAuthCallback('https://other.example/cuenta/callback?code=valid', origin), null);
   assert.equal(parseAuthCallback('honeyflower://other/callback?code=valid', origin), null);
@@ -53,6 +57,11 @@ test('enlaces PKCE aceptan solo los destinos de la app y descartan tokens implí
   assert.equal(parseAuthCallback('honeyflower://auth/callback#access_token=bad', origin).code, '');
   assert.equal(
     parseAuthCallback(origin + '/cuenta/callback?code=valid&error=expired', origin).code,
+    '',
+  );
+  assert.equal(
+    parseAuthCallback('honeyflower://auth/callback?code=valid&sb_flow_id=../../otro', origin)
+      .flowId,
     '',
   );
 });

@@ -124,6 +124,7 @@ export function AuthProvider({
       const query = new URLSearchParams({
         code: callback.code,
         ...(callback.recovery ? { flow: 'recovery' } : {}),
+        ...(callback.flowId ? { sb_flow_id: callback.flowId } : {}),
       });
       void navigate(`/cuenta/callback?${query}`, { replace: true });
     };

@@ -1,4 +1,4 @@
-# Cuentas y conexión a Supabase · 0.4.1
+# Cuentas y conexión a Supabase · 0.4.2
 
 Estado al 10 de noviembre de 2026: **autenticación conectada y comprobada** con el proyecto
 `HoneyFlower` (`jkrlnelqsafkztsvnbrr`) de la conexión Noemi. El proyecto de evaluación no se usó.
@@ -64,6 +64,8 @@ arranque por enlace, y solo acepta los destinos conocidos. El código se interca
 con `exchangeCodeForSession`; no se aceptan tokens de un flujo implícito desde un fragmento.
 El enlace PKCE debe abrirse en el dispositivo y almacenamiento desde los que se solicitó.
 Los enlaces erróneos se limpian de la barra de dirección y permiten solicitar otro.
+Desde 0.4.2 el retorno conserva `sb_flow_id` para seleccionar el verificador exacto aun cuando
+haya más de una confirmación o recuperación pendiente.
 
 El SDK guarda la sesión en `honeyflower.auth.v1`; no guardamos la contraseña en borradores,
 preferencias ni registros. No usar metadatos de nombre como autorización. Revisar almacenamiento
