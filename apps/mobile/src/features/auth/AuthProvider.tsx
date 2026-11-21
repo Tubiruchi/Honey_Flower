@@ -3,15 +3,18 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { createSupabaseAuth } from './supabase';
+import { createSupabaseServices } from './supabase';
 import { parseAuthCallback, unconfiguredAuth } from './model';
 import type { AccountUser, AuthPort } from './model';
+import { unconfiguredSync } from '../../shared/data/sync/model';
+import type { SyncRemotePort } from '../../shared/data/sync/model';
 import { deviceReminders } from '../../shared/native/reminders';
 import { createOnboardingDraft } from '../onboarding/model';
 import { clearAccountReminders } from '../reminders/coordinator';
 
 interface AccountContext {
   port: AuthPort;
+  sync: SyncRemotePort;
   user: AccountUser | null;
   loading: boolean;
   issue: string;
@@ -23,6 +26,7 @@ interface AccountContext {
 }
 const Context = createContext<AccountContext>({
   port: unconfiguredAuth,
+  sync: unconfiguredSync,
   user: null,
   loading: false,
   issue: '',
@@ -37,14 +41,21 @@ const ACCESS_KEY = 'honeyflower.access.v1';
 export function AuthProvider({
   children,
   port: supplied,
+  sync: suppliedSync,
   persist = true,
 }: {
   children: ReactNode;
   port?: AuthPort;
+  sync?: SyncRemotePort;
   persist?: boolean;
 }) {
   const navigate = useNavigate();
-  const [port] = useState(() => supplied ?? createSupabaseAuth());
+  const [services] = useState(() =>
+    supplied
+      ? { auth: supplied, sync: suppliedSync ?? unconfiguredSync }
+      : createSupabaseServices(),
+  );
+  const port = services.auth;
   const [user, setUser] = useState<AccountUser | null>(null);
   const [loading, setLoading] = useState(port.configured);
   const [issue, setIssue] = useState('');
@@ -143,6 +154,7 @@ export function AuthProvider({
     <Context.Provider
       value={{
         port,
+        sync: services.sync,
         user,
         loading,
         issue,

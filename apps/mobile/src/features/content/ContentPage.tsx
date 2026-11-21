@@ -21,11 +21,11 @@ export function contentOrigin(value: unknown, hasProfile: boolean) {
 const privacy = [
   [
     'En este dispositivo',
-    'La prueba local conserva registros y preferencias en este dispositivo, sin sincronización con una cuenta. Desinstalar o borrar sus datos elimina esta copia local.',
+    'La app conserva una copia local de registros y preferencias. Sin cuenta, permanecen únicamente en este dispositivo. Desinstalar o borrar sus datos elimina esa copia.',
   ],
   [
     'Versión con cuenta',
-    'El producto objetivo contempla guardar y sincronizar registros y preferencias al iniciar sesión. Esa capacidad no está activa en la prueba local.',
+    'Al iniciar sesión, los cambios se guardan primero en el dispositivo y se envían al espacio protegido de la cuenta. El servidor valida cada operación antes de aplicarla; la descarga hacia otros dispositivos y la resolución asistida de conflictos todavía están en desarrollo.',
   ],
   [
     'Imágenes de agua',
@@ -120,8 +120,10 @@ export function PrivacyDetails() {
       ))}
       <InfoCard title="Acceso a cuentas">
         <p>
-          Al activar las cuentas, Supabase gestionará el correo, la contraseña y la sesión. Los
-          hábitos y las fotos todavía no se sincronizan con un servidor.
+          Supabase gestiona el correo, la contraseña y la sesión. También recibe las operaciones de
+          hábitos de cada cuenta, las valida y conserva sus resultados canónicos. Las fotografías
+          temporales no forman parte de esas operaciones. La sincronización descendente entre
+          dispositivos aún no está disponible.
         </p>
       </InfoCard>
       <p className="hf-type-caption hf-secondary">

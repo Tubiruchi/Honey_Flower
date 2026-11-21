@@ -331,11 +331,22 @@ export const RestoredSession: Story = {
     await expect(canvas.getByRole('heading', { name: 'Ana' })).toBeVisible();
   },
 };
+async function closeSession(
+  canvas: ReturnType<typeof within>,
+  userEvent: { click: (element: Element) => Promise<unknown> },
+) {
+  await userEvent.click(await canvas.findByRole('button', { name: 'Cerrar sesión' }));
+  const warning = within(
+    await canvas.findByRole('dialog', { name: '¿Cerrar sesión con cambios pendientes?' }),
+  );
+  await expect(warning.getByText(/la copia local no se borra/i)).toBeVisible();
+  await userEvent.click(warning.getByRole('button', { name: 'Cerrar sesión de todos modos' }));
+}
 export const SignOutFailure: Story = {
   name: 'Fallo al cerrar sesión conserva la cuenta visible',
   args: { route: '/perfil', scenario: 'signout-error' },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(await canvas.findByRole('button', { name: 'Cerrar sesión' }));
+    await closeSession(canvas, userEvent);
     await expect(await canvas.findByText(/No pudimos cerrar la sesión/)).toBeVisible();
     await expect(canvas.getByText('ana@example.com')).toBeVisible();
   },
@@ -344,14 +355,14 @@ export const SeparateAccounts: Story = {
   name: 'Cambiar de cuenta conserva datos separados de Ana y Beto',
   args: { route: '/perfil', scenario: 'restored' },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(await canvas.findByRole('button', { name: 'Cerrar sesión' }));
+    await closeSession(canvas, userEvent);
     await expect(await canvas.findByRole('form', { name: 'Iniciar sesión' })).toBeVisible();
     await credentials(canvas, userEvent, 'beto@example.com');
     await userEvent.click(canvas.getByRole('button', { name: 'Iniciar sesión' }));
     await expect(await canvas.findByRole('heading', { name: 'Hola, Beto' })).toBeVisible();
     await expect(canvas.getByText('0 mL', { exact: true })).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Perfil' }));
-    await userEvent.click(canvas.getByRole('button', { name: 'Cerrar sesión' }));
+    await closeSession(canvas, userEvent);
     await expect(await canvas.findByRole('form', { name: 'Iniciar sesión' })).toBeVisible();
     await credentials(canvas, userEvent);
     await userEvent.click(canvas.getByRole('button', { name: 'Iniciar sesión' }));

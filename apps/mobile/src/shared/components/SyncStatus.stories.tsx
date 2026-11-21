@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Representación de estados. El adaptador de red y la outbox aún no están implementados.',
+          'Estado real de la outbox local y su confirmación con Supabase. Los cambios permanecen en SQLite hasta recibir respuesta.',
       },
     },
   },

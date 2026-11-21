@@ -7,7 +7,8 @@ Storybook: componentes reales, tokens compartidos y pruebas reproducibles.
 
 **Gestor del Proyecto: Pedro Ortegón** (GitHub: [`Tubiruchi`](https://github.com/Tubiruchi)). Coordina el plan por fases, el seguimiento de tareas y fechas, el registro de acuerdos y bloqueos, la revisión de evidencias y la preparación de la entrega. El proyecto se planifica del 19 de octubre al 4 de diciembre de 2026.
 
-Consulta el [plan de gestión del proyecto](docs/gestion-del-proyecto.md) para ver las fases, responsabilidades y el mecanismo de coordinación. La frecuencia de reuniones indicada allí es una propuesta pendiente de confirmación del equipo.
+El plan detallado, las responsabilidades y el mecanismo de coordinación se conservan fuera del
+repositorio en `../Docs/implementacion-app/gestion-del-proyecto.md`.
 
 ## Plan de trabajo y ClickUp
 
@@ -49,8 +50,11 @@ las personas nuevas configuran primero sus hábitos y se registran al terminar. 
 de correo aplica esa configuración a la cuenta una sola vez y abre Inicio, sin repetir el
 onboarding. **Continuar sin cuenta** está disponible en el resumen. Registro y recuperación están
 conectados al proyecto HoneyFlower de Supabase. Sin configuración válida no se crean sesiones
-ficticias. Detalles: [cuentas y conexión](docs/integracion-supabase.md) y
-[prueba local y APK](docs/prueba-local-apk.md).
+ficticias. Los detalles de cuentas, conexión y APK están en la documentación externa.
+
+En **0.4.3**, Análisis permite recorrer al menos los últimos doce meses, incluso durante el
+primer mes de uso. Vivas y Marchitas comparten el jardín ilustrado y las plantas marchitas se
+muestran completas, sin la tarjeta ni los indicadores auxiliares retirados.
 
 ## Estructura
 
@@ -73,11 +77,12 @@ packages/
   design-tokens/                Registro JSON y CSS generado
   domain/                       Espacio reservado para las reglas del MVP
 scripts/                        Generación y verificación de tokens
-docs/                           Guías de arquitectura y Storybook
+supabase/migrations/            Esquema versionado para sincronización remota
 ```
 
-Los documentos de producto y diseño originales permanecen en `../Docs`, fuera de este
-repositorio. La instantánea de tokens necesaria para trabajar sí está versionada aquí.
+Toda la documentación ampliada permanece fuera de este repositorio en `../Docs`. Los documentos
+que antes estaban en `docs/` se conservan en `../Docs/implementacion-app`; la instantánea de tokens
+necesaria para compilar sí está versionada aquí.
 
 ## Verificación
 
@@ -111,7 +116,7 @@ npm run apk:serve
 
 Se requiere Android Studio, Java 21 y SDK 36. La APK firmada y su SHA-256 se generan en
 `artifacts/android`; el servidor imprime un enlace para descargarla desde el celular en la misma
-red Wi-Fi. El identificador es `com.honeyflower.app`. Ver [compilación y alcance](docs/prueba-local-apk.md).
+red Wi-Fi. El identificador es `com.honeyflower.app`.
 
 ## Alcance actual
 
@@ -119,36 +124,59 @@ red Wi-Fi. El identificador es `com.honeyflower.app`. Ver [compilación y alcanc
   sus cinco componentes independientes, el catálogo de 26 iconos y ocho composiciones de dominio.
 - 234 tokens con sus 137 alias, 14 estilos tipográficos, tres sombras y Plus Jakarta Sans local.
 - Historias con variantes, estados e interacciones; app de demostración usando los mismos componentes.
-- Inicio, Análisis, Perfil y Registros funcionales sin servidor, 136 pruebas de lógica local y APK Android 0.3.3 descargable.
+- Inicio, Análisis, Perfil y Registros funcionales, 194 pruebas de lógica local y APK Android 0.4.3 descargable.
 - Primera fase de integración: guardado confirmado, migración de datos, reintentos y deshacer seguro.
-  Detalles y comprobaciones: [persistencia común](docs/fase-3-bloque-1-persistencia.md).
-- Segunda fase de integración: [Registros y navegación](docs/fase-3-bloque-2-registros.md), con filtros,
+- Segunda fase de integración: Registros y navegación, con filtros,
   consulta histórica, edición, eliminación confirmada y deshacer sobre datos locales.
-- Tercera fase de integración: [Inicio y estados de la planta](docs/fase-3-bloque-3-inicio.md), con
+- Tercera fase de integración: Inicio y estados de la planta, con
   cuerpo/rostro coherentes, calendario operativo, métricas compartidas y registros rápidos reales.
-- Cuarta fase de integración: [agua con fotografía](docs/fase-3-bloque-4-agua.md), cámara real,
+- Cuarta fase de integración: agua con fotografía, cámara real,
   confirmación integrada, cantidad editable, reintento estable y recuperación del intento en Android.
-- Quinta fase de integración: [protector por horarios](docs/fase-3-bloque-5-protector.md), ventanas
+- Quinta fase de integración: protector por horarios, ventanas
   de 60 minutos, contexto a mitad, confirmación personal, cita única y agenda versionada por día.
-- Séptima fase de integración: [Perfil, preferencias y avisos](docs/fase-3-bloque-7-perfil.md),
+- Séptima fase de integración: Perfil, preferencias y avisos,
   contenido público, ajustes confirmados, guardado durable Android y notificaciones locales reales.
-- Octava fase de integración: [APK 0.3.0 y revisión integrada](docs/fase-3-bloque-8-apk.md),
+- Octava fase de integración: APK y revisión integrada,
   actualización conservando datos y cámara temporal desde Perfil sin guardar registros.
+- Base remota de sincronización: nueve tablas versionadas en Supabase para perfiles,
+  preferencias, ciclos, metas, agendas, registros, operaciones, revisiones y dispositivos; todas
+  protegidas con RLS y sin almacenar fotografías.
+- Almacenamiento SQLite Android: una base aislada por cuenta, migraciones transaccionales versionadas,
+  llaves foráneas y modo WAL. Las fases 2 y 3 importan perfil, preferencias, ciclos, metas, horarios,
+  registros y operaciones, y convierten SQLite en la fuente principal del repositorio. El almacenamiento
+  anterior permanece como espejo de recuperación y conserva las claves temporales y de notificaciones.
+- Sincronización fase 4: cada cambio de una cuenta entra atómicamente en una outbox SQLite, se reintenta
+  sin duplicados y se entrega como operación pendiente a Supabase. La app consulta su confirmación,
+  conserva los cambios durante cortes de red y muestra el estado real en Perfil. Invitados y fotografías
+  temporales quedan fuera de la sincronización.
+- Sincronización fase 5: un procesador privado de PostgreSQL valida cada operación, aplica en una sola
+  transacción perfiles, preferencias, ciclos, metas, agendas y registros, avanza la revisión del servidor
+  y responde `applied`, `rejected` o `conflict`. La APK no obtiene permisos directos de escritura sobre
+  las tablas canónicas y las fotografías continúan fuera del contrato remoto.
+- Sincronización fase 6: una lectura autenticada y protegida por RLS descarga la proyección canónica
+  cuando cambia el cursor. SQLite la instala atómicamente solo si no apareció otro cambio local,
+  registra el avance de cada instalación y reconcilia rechazos conservando su auditoría. Un segundo
+  dispositivo puede recuperar perfil, preferencias, ciclos, metas, horarios y registros confirmados.
+- Sincronización fase 7: los ajustes por conflicto dejan un aviso persistente y conducen a revisar
+  Perfil o Registros; reconocer el aviso no elimina el recibo de auditoría. Cerrar sesión con cambios
+  pendientes exige una decisión explícita y conserva la base aislada para reintentar con la misma cuenta.
 - Comprobaciones de CI preparadas para GitHub Actions, con catálogo descargable como artefacto.
 
-Autenticación, backend, SQLite, sincronización, YOLO y RAG siguen pendientes.
+La autenticación por correo, SQLite y la sincronización bidireccional con Supabase ya están conectadas.
+Las fases 6 y 7 recuperan en otro dispositivo la proyección confirmada, restauran el estado canónico tras
+un rechazo sin pisar cambios pendientes y hacen visible cualquier ajuste para que la persona lo revise.
+Todavía faltan políticas de producto para conflictos que no admitan reconciliación automática, el backend
+de dominio, YOLO y RAG. SQLite sigue siendo la fuente inmediata de uso de la APK y Supabase conserva la
+proyección verificada de cada cuenta.
 Storybook presenta resultados nativos con puertos aislados; Android utiliza cámara y avisos locales reales.
-La [APK 0.3.2](docs/patch-0.3.2-navegacion.md) presenta la navegación flotante sin franja de fondo.
-Conserva la cámara integrada y la foto temporal de [0.3.1](docs/patch-0.3.1-camara.md);
+La navegación flotante no tiene franja de fondo y conserva la cámara integrada con foto temporal;
 la aceptación en teléfono y comprobación física de linterna siguen pendientes.
 Las ilustraciones originales y sus rostros ya se comparten con la biblioteca de Figma.
 Las pruebas Android se realizan por separado: pasar Axe no sustituye TalkBack, teclado real o revisión visual.
 
-Guías: [Storybook](docs/storybook.md), [onboarding](docs/onboarding.md), [arquitectura frontend](docs/arquitectura-frontend.md).
-
-Para quien conecte reconocimiento y servicios: [guía de conexiones futuras](docs/conexiones-futuras.md),
-con contratos existentes y lista de retirada de la prueba temporal de cámara en Perfil.
+Las guías de Storybook, onboarding, arquitectura y conexiones futuras están en
+`../Docs/implementacion-app`, junto con el historial de fases y parches.
 
 La fase de Análisis integra el patio limpio de Figma y el jardín mensual desde ciclos cerrados,
-con una planta por semana, archivo de Marchitas y progreso real por ciclo. La instalación nueva
-permanece vacía. Ver [entrega del bloque 6](docs/fase-3-bloque-6-analisis.md).
+con una planta por semana, Vivas/Marchitas sobre el mismo jardín y progreso real por ciclo. La
+instalación nueva permanece vacía.

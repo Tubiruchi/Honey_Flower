@@ -17,8 +17,10 @@ export function AnalysisScreen() {
   const { state: snapshot, now } = useLocal();
   const state = snapshot!;
   const bounds = monthBounds(state, now);
+  // Keep a useful archive even during the first month, while preserving older real history.
+  const firstBrowsableMonth = Math.min(bounds.first, bounds.last - 11);
   const [selectedMonth, setMonth] = useState(bounds.last);
-  const month = Math.max(bounds.first, Math.min(selectedMonth, bounds.last));
+  const month = Math.max(firstBrowsableMonth, Math.min(selectedMonth, bounds.last));
   const [collection, setCollection] = useState<'alive' | 'withered'>('alive');
   const [selectedCycle, setCycle] = useState<number | null>(null);
   const active = Math.min(Math.floor(currentDay(state, now) / 7), state.cycleStarts.length - 1);
@@ -31,7 +33,7 @@ export function AnalysisScreen() {
   const name = useId();
   const panel = useRef<HTMLDivElement>(null);
   const move = (direction: -1 | 1) =>
-    setMonth(Math.max(bounds.first, Math.min(month + direction, bounds.last)));
+    setMonth(Math.max(firstBrowsableMonth, Math.min(month + direction, bounds.last)));
   const focusProgress = () => {
     requestAnimationFrame(() => {
       panel.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
@@ -70,36 +72,19 @@ export function AnalysisScreen() {
           <MonthNavigator
             month={label}
             count={`${plants.length} ${plants.length === 1 ? 'planta' : 'plantas'} ${collection === 'alive' ? (plants.length === 1 ? 'ganada' : 'ganadas') : plants.length === 1 ? 'marchita' : 'marchitas'} este mes`}
-            previousDisabled={month <= bounds.first}
+            previousDisabled={month <= firstBrowsableMonth}
             nextDisabled={month >= bounds.last}
             onPrevious={() => move(-1)}
             onNext={() => move(1)}
           />
         </div>
-        {collection === 'alive' ? (
-          <GardenScene plants={plants} month={label} onOpen={openProgress} onMove={move} />
-        ) : (
-          <section className="analysis-archive">
-            <h2 className="hf-type-heading-md">Archivo de plantas marchitas</h2>
-            <p className="hf-type-body-sm hf-secondary">
-              Cada ciclo conserva su historia. Puedes consultar su progreso y empezar de nuevo con
-              tu planta actual.
-            </p>
-          </section>
-        )}
-        <div className="analysis-month-dots" aria-hidden="true">
-          {Array.from({ length: Math.min(7, bounds.last - bounds.first + 1) }, (_, i) => {
-            const firstDot = Math.max(bounds.first, Math.min(month - 3, bounds.last - 6));
-            return <span key={i} data-active={firstDot + i === month} />;
-          })}
-        </div>
-        <p className="analysis-month-help hf-type-caption">
-          {collection === 'alive' && bounds.first !== bounds.last
-            ? 'Desliza para cambiar de mes o usa las flechas.'
-            : bounds.first === bounds.last
-              ? 'Tu primer mes de jardín.'
-              : 'Usa las flechas para cambiar de mes.'}
-        </p>
+        <GardenScene
+          plants={plants}
+          collection={collection}
+          month={label}
+          onOpen={openProgress}
+          onMove={move}
+        />
         {plants.length > 0 && (
           <GardenCollectionList
             plants={plants}

@@ -23,7 +23,7 @@ export function SyncStatus({ state, pendingCount = 0, onRetry }: SyncStatusProps
         <Icon size={20} aria-hidden="true" />
         <span>
           {label}
-          {state !== 'synced' && pendingCount > 0 ? ` · ${pendingCount} registros pendientes` : ''}
+          {state !== 'synced' && pendingCount > 0 ? ` · ${pendingCount} cambios pendientes` : ''}
         </span>
       </div>
       {state === 'error' && onRetry && (

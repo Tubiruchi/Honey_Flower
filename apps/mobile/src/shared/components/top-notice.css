@@ -30,6 +30,15 @@
   line-height: 20px;
   overflow-wrap: anywhere;
 }
+.top-notice__body > .hf-button {
+  width: auto;
+  margin-top: 4px;
+}
+.top-notice__body > .hf-button .hf-button__surface {
+  min-height: 36px;
+  padding-inline: 0;
+  justify-content: flex-start;
+}
 .top-notice > .hf-icon-button {
   flex: 0 0 44px;
 }

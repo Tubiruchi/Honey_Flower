@@ -29,6 +29,8 @@ import {
   completePendingAccountSetup,
   readPendingAccountSetup,
 } from '../features/auth/pendingSetup';
+import { SqliteFoundation } from '../shared/data/sqlite/SqliteFoundation';
+import { SyncProvider } from '../features/sync/SyncProvider';
 
 export function App() {
   const [router] = useState(() =>
@@ -71,6 +73,7 @@ function ScopedLocal({
   scope: string;
   storageForScope?: (scope: string) => LocalStoragePort;
 }) {
+  const auth = useAuth();
   const [storage] = useState(() =>
     storageForScope
       ? storageForScope(scope)
@@ -79,9 +82,26 @@ function ScopedLocal({
         : deviceLocalStorage(scope === 'guest' ? undefined : scope),
   );
   return (
-    <LocalProvider storage={storage}>
-      <AppRoutes />
-    </LocalProvider>
+    <SqliteFoundation
+      scope={scope}
+      storage={storage}
+      errorFallback={
+        <main className="account-loading">
+          <Feedback variant="error">
+            No pudimos abrir tus datos guardados. No hicimos ningún cambio para protegerlos.
+            <Button onClick={() => window.location.reload()}>Reintentar</Button>
+          </Feedback>
+        </main>
+      }
+    >
+      {(localStorage) => (
+        <LocalProvider storage={localStorage}>
+          <SyncProvider accountId={auth.user?.id ?? null} remote={auth.sync}>
+            <AppRoutes />
+          </SyncProvider>
+        </LocalProvider>
+      )}
+    </SqliteFoundation>
   );
 }
 export function AppRoutes({

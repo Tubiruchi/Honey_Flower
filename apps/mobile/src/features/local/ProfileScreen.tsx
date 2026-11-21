@@ -8,6 +8,7 @@ import {
   ProfileStat,
   SettingsLink,
   Stepper,
+  SyncStatus,
   ToneSelector,
 } from '../../shared/components';
 import type { OnboardingDraft } from '../onboarding/model';
@@ -25,12 +26,15 @@ import { TopNotice } from '../../shared/components/TopNotice';
 import { CAMERA_PREVIEW_PATH, TEMPORARY_CAMERA_PREVIEW_ENABLED } from '../water/temporaryPreview';
 import { useAuth } from '../auth/AuthProvider';
 import { APP_VERSION } from '../../shared/appVersion';
+import { useSyncStatus } from '../sync/SyncProvider';
 
 type Editor = 'name' | 'goals' | 'schedule' | 'tone' | 'privacy' | null;
 export function ProfileScreen() {
   const local = useLocal();
   const auth = useAuth();
+  const sync = useSyncStatus();
   const [signingOut, setSigningOut] = useState(false);
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
   const state = local.state!;
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,6 +75,20 @@ export function ProfileScreen() {
     schedule: 'Horarios de hábitos',
     tone: 'Tono de mi planta',
     privacy: 'Tus datos en este dispositivo',
+  };
+  const finishSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    setError('');
+    try {
+      await auth.signOut();
+      void navigate('/cuenta/entrar', { replace: true });
+    } catch {
+      setError('No pudimos cerrar la sesión. Revisa tu conexión y vuelve a intentarlo.');
+    } finally {
+      setSigningOut(false);
+      setConfirmingSignOut(false);
+    }
   };
   return (
     <div className="local-screen profile-screen">
@@ -137,28 +155,34 @@ export function ProfileScreen() {
         {auth.user ? (
           <>
             <p className="hf-type-body-sm hf-secondary">{auth.user.email}</p>
+            {sync.available && (
+              <SyncStatus
+                state={sync.state}
+                pendingCount={sync.pendingCount}
+                onRetry={sync.state === 'error' ? sync.retry : undefined}
+              />
+            )}
             <p className="hf-type-caption hf-secondary">
-              Los hábitos de tu cuenta se guardan por ahora en este celular. La sincronización está
-              pendiente.
+              {sync.available
+                ? sync.state === 'synced'
+                  ? 'No hay cambios locales pendientes de envío.'
+                  : sync.state === 'offline'
+                    ? 'Tus cambios siguen guardados en este celular y se enviarán al recuperar la conexión.'
+                    : sync.state === 'error'
+                      ? 'Tus cambios siguen guardados en este celular. Puedes reintentar la sincronización.'
+                      : 'Tus cambios están guardados en este celular y esperan confirmación del servidor.'
+                : 'Los hábitos de tu cuenta están guardados en este celular.'}
             </p>
             <Button
               variant="secondary"
               disabled={local.busy}
               loading={signingOut}
-              onClick={async () => {
-                if (signingOut) return;
-                setSigningOut(true);
-                setError('');
-                try {
-                  await auth.signOut();
-                  void navigate('/cuenta/entrar', { replace: true });
-                } catch {
-                  setError(
-                    'No pudimos cerrar la sesión. Revisa tu conexión y vuelve a intentarlo.',
-                  );
-                } finally {
-                  setSigningOut(false);
+              onClick={() => {
+                if (!sync.available || sync.state !== 'synced') {
+                  setConfirmingSignOut(true);
+                  return;
                 }
+                void finishSignOut();
               }}
             >
               Cerrar sesión
@@ -175,7 +199,7 @@ export function ProfileScreen() {
             onClick={() => navigate('/cuenta/entrar')}
           />
         )}
-        {/* TEMPORARY: remove with the accepted integrations; see docs/conexiones-futuras.md. */}
+        {/* TEMPORARY: remove with the accepted integrations; see ../Docs/implementacion-app/conexiones-futuras.md. */}
         {TEMPORARY_CAMERA_PREVIEW_ENABLED && (
           <SettingsLink
             id="profile-camera-preview"
@@ -228,21 +252,56 @@ export function ProfileScreen() {
       )}
       <p className="hf-type-caption hf-secondary">
         HoneyFlower · {APP_VERSION}.{' '}
-        {auth.user ? 'Hábitos guardados en este dispositivo.' : 'Puedes usar la app sin cuenta.'}
+        {auth.user
+          ? 'Hábitos guardados localmente con sincronización por operaciones.'
+          : 'Puedes usar la app sin cuenta.'}
       </p>
       <TopNotice message={message} noticeId={noticeId} onDismiss={() => setMessage('')} />
+      {confirmingSignOut && (
+        <Modal
+          title="¿Cerrar sesión con cambios pendientes?"
+          onClose={() => setConfirmingSignOut(false)}
+          busy={signingOut}
+        >
+          <div className="hf-stack">
+            <p>
+              {sync.pendingCount > 0
+                ? `${sync.pendingCount} ${sync.pendingCount === 1 ? 'cambio sigue' : 'cambios siguen'} guardado${sync.pendingCount === 1 ? '' : 's'} en este celular, pero todavía no ${sync.pendingCount === 1 ? 'se confirmó' : 'se confirmaron'} en tu cuenta.`
+                : 'No pudimos comprobar que todos tus cambios estén confirmados en tu cuenta.'}
+            </p>
+            <p>
+              Si sales ahora, la copia local no se borra. HoneyFlower volverá a intentar la
+              sincronización cuando inicies sesión otra vez con esta misma cuenta.
+            </p>
+            <Button
+              variant="secondary"
+              disabled={signingOut}
+              onClick={() => {
+                setConfirmingSignOut(false);
+                sync.retry();
+              }}
+            >
+              Volver y sincronizar
+            </Button>
+            <Button loading={signingOut} onClick={() => void finishSignOut()}>
+              Cerrar sesión de todos modos
+            </Button>
+          </div>
+        </Modal>
+      )}
       {editor && (
         <Modal title={titles[editor]} onClose={() => setEditor(null)} busy={local.busy}>
           {editor === 'privacy' ? (
             <div className="hf-stack">
               <p>
                 Tu nombre, metas, horarios y {state.events.length} registros se conservan en el
-                almacenamiento de esta app. No se envían a un servidor.
+                almacenamiento de esta app.
               </p>
               <p>
-                Las fotos de agua son temporales y no se conservan con los registros. No hay
-                identificación automática ni cuenta en esta versión. Desinstalar o borrar los datos
-                de la app elimina esta copia local.
+                Al iniciar sesión, la app puede enviar operaciones de cambios a tu espacio protegido
+                en Supabase para sincronizarlas. Las fotos de agua son temporales: no se conservan
+                con los registros ni se envían. Desinstalar o borrar los datos elimina la copia
+                local.
               </p>
               <Button onClick={() => setEditor(null)}>Entendido</Button>
             </div>

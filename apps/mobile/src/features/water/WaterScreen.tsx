@@ -112,7 +112,7 @@ export function WaterScreen({ preview = false }: { preview?: boolean }) {
     () =>
       new WaterController({
         // TEMPORARY preview is memory-only: never consume a real attempt or commit to the repository.
-        // Remove with temporaryPreview.ts; see docs/conexiones-futuras.md.
+        // Remove with temporaryPreview.ts; see ../Docs/implementacion-app/conexiones-futuras.md.
         store: new WaterAttemptStore(preview ? memoryStorage() : local.storage),
         camera: services.camera,
         analyzer: services.analyzer,

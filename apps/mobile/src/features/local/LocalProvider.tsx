@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -44,6 +45,7 @@ interface LocalContextValue {
   update: (draft: OnboardingDraft, expectedRevision?: number) => Promise<OperationResult>;
   retry: () => Promise<void>;
   discard: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 const LocalContext = createContext<LocalContextValue | null>(null);
 export function LocalProvider({
@@ -83,6 +85,7 @@ export function LocalProvider({
     repository.getSnapshot,
     repository.getSnapshot,
   );
+  const refresh = useCallback(() => repository.refresh(), [repository]);
   const waiters = useRef(new Map<string, (result: OperationResult) => void>());
   const flights = useRef(new Map<string, Promise<OperationResult>>());
   const recentRecord = useRef<{ key: string; result: OperationResult; until: number } | null>(null);
@@ -224,6 +227,7 @@ export function LocalProvider({
         update: (draft, expectedRevision) => run({ type: 'preferences', draft, expectedRevision }),
         retry,
         discard,
+        refresh,
       }}
     >
       {children}

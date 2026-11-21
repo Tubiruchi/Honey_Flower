@@ -6,9 +6,10 @@ import './top-notice.css';
 
 interface Props {
   message: string;
-  variant?: 'success' | 'error';
+  variant?: 'success' | 'warning' | 'error';
   noticeId?: number;
   onDismiss?: () => void;
+  autoDismiss?: boolean;
   children?: ReactNode;
 }
 export function TopNotice(props: Props) {
@@ -16,7 +17,13 @@ export function TopNotice(props: Props) {
     <NoticeCard key={`${props.noticeId ?? ''}:${props.variant}:${props.message}`} {...props} />
   ) : null;
 }
-function NoticeCard({ message, variant = 'success', onDismiss, children }: Props) {
+function NoticeCard({
+  message,
+  variant = 'success',
+  onDismiss,
+  autoDismiss = true,
+  children,
+}: Props) {
   const [hidden, setHidden] = useState(false);
   const [paused, setPaused] = useState(false);
   const dismiss = useRef(onDismiss);
@@ -24,7 +31,7 @@ function NoticeCard({ message, variant = 'success', onDismiss, children }: Props
     dismiss.current = onDismiss;
   }, [onDismiss]);
   useEffect(() => {
-    if (paused || hidden) return;
+    if (!autoDismiss || paused || hidden) return;
     const timer = window.setTimeout(
       () => {
         setHidden(true);
@@ -33,12 +40,12 @@ function NoticeCard({ message, variant = 'success', onDismiss, children }: Props
       variant === 'error' ? 8000 : 6000,
     );
     return () => window.clearTimeout(timer);
-  }, [paused, hidden, variant]);
+  }, [autoDismiss, paused, hidden, variant]);
   if (hidden) return null;
   return (
     <div
       className="top-notice"
-      role={variant === 'error' ? 'alert' : 'status'}
+      role={variant === 'success' ? 'status' : 'alert'}
       onPointerEnter={() => setPaused(true)}
       onPointerLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -46,7 +53,7 @@ function NoticeCard({ message, variant = 'success', onDismiss, children }: Props
         if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
       }}
     >
-      <Icon name={variant === 'error' ? 'info' : 'check'} inheritColor />
+      <Icon name={variant === 'success' ? 'check' : 'info'} inheritColor />
       <div className="top-notice__body">
         <p>{message}</p>
         {children}

@@ -15,11 +15,13 @@ export const GARDEN_SLOTS = [
 
 export function GardenScene({
   plants,
+  collection = 'alive',
   month,
   onOpen,
   onMove,
 }: {
   plants: readonly GardenPlant[];
+  collection?: 'alive' | 'withered';
   month: string;
   onOpen: (index: number) => void;
   onMove: (direction: -1 | 1) => void;
@@ -31,7 +33,7 @@ export function GardenScene({
       className="hf-garden-scene analysis-scene"
       role="group"
       onDragStart={(event) => event.preventDefault()}
-      aria-label={`Jardín de ${month}: ${plants.length} ${plants.length === 1 ? 'planta viva' : 'plantas vivas'}`}
+      aria-label={`Jardín de ${month}: ${plants.length} ${plants.length === 1 ? (collection === 'alive' ? 'planta viva' : 'planta marchita') : collection === 'alive' ? 'plantas vivas' : 'plantas marchitas'}`}
       onPointerDown={(event) => {
         if (event.isPrimary) {
           suppressClick.current = false;
@@ -55,7 +57,7 @@ export function GardenScene({
     >
       <GardenBackdrop decorative />
       {plants
-        .filter((plant) => plant.survived && plant.slot < GARDEN_SLOTS.length)
+        .filter((plant) => plant.slot < GARDEN_SLOTS.length)
         .map((plant) => {
           const slot = GARDEN_SLOTS[plant.slot]!;
           const position: CSSProperties = {
@@ -83,13 +85,17 @@ export function GardenScene({
                 style={position}
                 data-cycle-id={plant.id}
                 data-slot={plant.slot}
-                aria-label={`Ver progreso de ${plant.species === 'sprout' ? 'Brote' : 'Cactus'}, ciclo ${plant.index + 1}`}
+                aria-label={`Ver progreso de ${plant.species === 'sprout' ? 'Brote' : 'Cactus'}${plant.survived ? '' : ' marchita'}, ciclo ${plant.index + 1}`}
                 onClick={() => {
                   if (!suppressClick.current) onOpen(plant.index);
                   suppressClick.current = false;
                 }}
               >
-                <PlantCharacter species={plant.species} health="healthy" decorative />
+                <PlantCharacter
+                  species={plant.species}
+                  health={plant.survived ? 'healthy' : 'withered'}
+                  decorative
+                />
               </button>
             </div>
           );

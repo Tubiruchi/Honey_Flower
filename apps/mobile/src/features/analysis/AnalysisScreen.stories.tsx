@@ -90,8 +90,12 @@ export const Empty: Story = {
   args: { count: 0 },
   play: async (context) => {
     await checkCount(0)!(context);
-    await expect(context.canvas.getByRole('button', { name: 'Mes anterior' })).toBeDisabled();
+    await expect(context.canvas.getByRole('button', { name: 'Mes anterior' })).toBeEnabled();
     await expect(context.canvas.getByRole('button', { name: 'Mes siguiente' })).toBeDisabled();
+    await context.userEvent.click(context.canvas.getByRole('button', { name: 'Mes anterior' }));
+    await expect(context.canvas.getByText('Agosto de 2026')).toBeVisible();
+    await expect(context.canvas.getByRole('button', { name: 'Mes siguiente' })).toBeEnabled();
+    await expect(context.canvas.queryByText('Tu primer mes de jardín.')).not.toBeInTheDocument();
     await expect(
       context.canvas.queryByRole('button', { name: 'Ver último ciclo cerrado' }),
     ).not.toBeInTheDocument();
@@ -134,10 +138,13 @@ export const IndependentSelections: Story = {
     await waitFor(() => expect(canvas.getByLabelText('Progreso del ciclo 1')).toHaveFocus());
     await userEvent.click(canvas.getByRole('button', { name: 'Mes anterior' }));
     await expect(canvas.getByText('Agosto de 2026')).toBeVisible();
+    for (let index = 0; index < 10; index++)
+      await userEvent.click(canvas.getByRole('button', { name: 'Mes anterior' }));
+    await expect(canvas.getByText('Octubre de 2025')).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Mes anterior' })).toBeDisabled();
     await expect(canvas.getByLabelText('Progreso del ciclo 1')).toBeInTheDocument();
-    await expect(canvas.getByText('Agosto de 2026')).toBeVisible();
-    await userEvent.click(canvas.getByRole('button', { name: 'Mes siguiente' }));
+    for (let index = 0; index < 11; index++)
+      await userEvent.click(canvas.getByRole('button', { name: 'Mes siguiente' }));
     await expect(canvas.getByRole('button', { name: 'Mes siguiente' })).toBeDisabled();
     await expect(
       canvas.getByLabelText('Progreso del ciclo 1').querySelector('.hf-cycle-summary'),
@@ -151,21 +158,28 @@ export const IndependentSelections: Story = {
   },
 };
 export const Archive: Story = {
-  name: 'Marchitas fuera del patio · ciclo correcto',
+  name: 'Marchitas en el jardín · ciclo correcto',
   args: { archived: true },
   play: async ({ canvas, userEvent }) => {
     await canvas.findByRole('group', { name: scene(3) });
     await userEvent.click(canvas.getByRole('radio', { name: 'Marchitas' }));
-    await expect(canvas.queryByRole('group', { name: /Jardín de/ })).not.toBeInTheDocument();
+    const garden = canvas.getByRole('group', { name: scene(1) });
+    const withered = within(garden).getByRole('button', {
+      name: 'Ver progreso de Cactus marchita, ciclo 2',
+    });
+    await expect(withered.querySelector('.hf-character--withered')).toBeInTheDocument();
+    await expect(canvas.queryByText('Archivo de plantas marchitas')).not.toBeInTheDocument();
     const list = within(canvas.getByRole('region', { name: 'Plantas archivadas' }));
     await userEvent.click(list.getByRole('button', { name: /Cactus · Ciclo 2/ }));
     await waitFor(() => expect(canvas.getByLabelText('Progreso del ciclo 2')).toHaveFocus());
     await expect(canvas.getByText('0.0 %', { exact: true })).toBeVisible();
     await expect(canvas.getByRole('radio', { name: 'Marchitas' })).toBeChecked();
     await userEvent.click(canvas.getByRole('radio', { name: 'Vivas' }));
-    const garden = canvas.getByRole('group', { name: scene(3) });
+    const livingGarden = canvas.getByRole('group', { name: scene(3) });
     await expect(
-      [...garden.querySelectorAll('[data-slot]')].map((node) => node.getAttribute('data-slot')),
+      [...livingGarden.querySelectorAll('[data-slot]')].map((node) =>
+        node.getAttribute('data-slot'),
+      ),
     ).toEqual(['0', '2', '3']);
   },
 };

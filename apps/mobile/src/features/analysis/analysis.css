@@ -33,13 +33,7 @@
   height: auto;
   pointer-events: none;
 }
-.analysis-month-help {
-  min-height: 16px;
-  text-align: center;
-  color: var(--hf-color-text-secondary);
-}
-.analysis-empty,
-.analysis-archive {
+.analysis-empty {
   display: grid;
   gap: 8px;
   padding: 16px;
@@ -65,20 +59,4 @@
   display: grid;
   gap: 16px;
   margin-top: 24px;
-}
-.analysis-month-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-.analysis-month-dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--hf-color-text-muted);
-  opacity: 0.5;
-}
-.analysis-month-dots [data-active='true'] {
-  background: var(--hf-color-action-primary);
-  opacity: 1;
 }
