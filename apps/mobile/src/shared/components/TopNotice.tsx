@@ -1,5 +1,6 @@
+import { IonToast } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from './Icon';
 import { IconButton } from './IconButton';
 import './top-notice.css';
@@ -13,9 +14,44 @@ interface Props {
   children?: ReactNode;
 }
 export function TopNotice(props: Props) {
-  return props.message ? (
-    <NoticeCard key={`${props.noticeId ?? ''}:${props.variant}:${props.message}`} {...props} />
-  ) : null;
+  if (!props.message) return null;
+  const key = `${props.noticeId ?? ''}:${props.variant}:${props.message}`;
+  return !props.children && props.variant !== 'error' ? (
+    <TransientToast key={key} {...props} />
+  ) : (
+    <NoticeCard key={key} {...props} />
+  );
+}
+function TransientToast({ message, variant = 'success', onDismiss, autoDismiss = true }: Props) {
+  const [open, setOpen] = useState(true);
+  const dismiss = useRef(onDismiss);
+  useEffect(() => {
+    dismiss.current = onDismiss;
+  }, [onDismiss]);
+  if (!open) return null;
+  return (
+    <IonToast
+      isOpen={open}
+      animated={false}
+      message={message}
+      position="top"
+      swipeGesture="vertical"
+      duration={autoDismiss ? (variant === 'warning' ? 8000 : 6000) : 0}
+      cssClass={`hf-toast hf-toast--${variant}`}
+      style={
+        {
+          '--background': 'var(--hf-color-surface-raised, #48345f)',
+          '--color': 'var(--hf-color-text-primary, #ffffff)',
+          '--button-color': 'var(--hf-color-text-link, #be97f4)',
+        } as CSSProperties
+      }
+      buttons={[{ text: 'Cerrar', role: 'cancel' }]}
+      onDidDismiss={() => {
+        setOpen(false);
+        dismiss.current?.();
+      }}
+    />
+  );
 }
 function NoticeCard({
   message,

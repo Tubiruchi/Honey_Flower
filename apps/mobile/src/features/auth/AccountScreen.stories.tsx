@@ -13,6 +13,18 @@ import { ONBOARDING_STORAGE_KEY } from '../onboarding/model';
 import { createSnapshot, LOCAL_SNAPSHOT_KEY } from '../../shared/data/localSnapshot';
 import { PENDING_ACCOUNT_SETUP_KEY, savePendingAccountSetup } from './pendingSetup';
 
+type ToastElement = HTMLElement & { message: string };
+
+async function findToast(root: HTMLElement, message: string) {
+  let toast: ToastElement | null = null;
+  await waitFor(() => {
+    toast = root.ownerDocument.querySelector<ToastElement>('ion-toast.hf-toast');
+    expect(toast).toBeInTheDocument();
+    expect(toast?.message).toBe(message);
+  });
+  return toast!;
+}
+
 const completedDraft = () => ({
   ...createOnboardingDraft('America/Cancun'),
   preferredName: 'Ana',
@@ -301,13 +313,11 @@ export const ResetPassword: Story = {
   args: {
     route: '/cuenta/callback?code=valid&flow=recovery&sb_flow_id=recovery_flow_1234',
   },
-  play: async ({ canvas, userEvent, args }) => {
+  play: async ({ canvas, canvasElement, userEvent, args }) => {
     await userEvent.type(await canvas.findByLabelText('Nueva contraseña'), 'a-new-password');
     await userEvent.type(canvas.getByLabelText('Confirmar contraseña'), 'a-new-password');
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar contraseña' }));
-    await expect(
-      await canvas.findByText('Contraseña actualizada. Ya puedes iniciar sesión.'),
-    ).toBeVisible();
+    await findToast(canvasElement, 'Contraseña actualizada. Ya puedes iniciar sesión.');
     await expect(args.onAction).toHaveBeenCalledWith('password-updated');
     await expect(args.onAction).toHaveBeenCalledWith('exchange:recovery_flow_1234');
   },

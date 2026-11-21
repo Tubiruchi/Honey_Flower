@@ -42,3 +42,57 @@
 .top-notice > .hf-icon-button {
   flex: 0 0 44px;
 }
+
+ion-toast {
+  --background: var(--hf-color-surface-raised, #48345f);
+  --color: var(--hf-color-text-primary, #ffffff);
+  --button-color: var(--hf-color-text-link, #be97f4);
+}
+
+ion-toast::part(message) {
+  color: var(--hf-color-text-primary, #ffffff);
+}
+
+ion-toast.hf-toast {
+  --width: min(448px, calc(100% - 32px));
+  --max-width: calc(100% - 32px);
+  --background: var(--hf-color-surface-raised);
+  --color: var(--hf-color-text-primary);
+  --button-color: var(--hf-color-text-link);
+  --border-color: var(--hf-color-border-control);
+  --border-radius: 20px;
+  --border-style: solid;
+  --border-width: 1px;
+  --box-shadow: var(--hf-shadow-floating);
+  --white-space: normal;
+  color: var(--hf-color-text-primary);
+}
+
+ion-toast.hf-toast--success {
+  --border-color: var(--hf-color-feedback-success);
+}
+
+ion-toast.hf-toast--warning {
+  --border-color: var(--hf-color-feedback-warning);
+}
+
+ion-toast.hf-toast::part(message) {
+  color: var(--hf-color-text-primary);
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+ion-toast.hf-toast::part(button) {
+  color: var(--hf-color-text-link);
+  font-family: var(--hf-typography-base-family-sans), sans-serif;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+ion-toast.hf-toast::part(wrapper) {
+  border: 1px solid var(--hf-color-border-control);
+  background: var(--hf-color-surface-raised);
+  color: var(--hf-color-text-primary);
+}

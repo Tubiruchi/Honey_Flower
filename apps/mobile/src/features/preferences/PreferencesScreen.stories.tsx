@@ -10,6 +10,18 @@ import { memoryStorage } from '../../shared/data/localRepository';
 import type { ReminderDevice, NoticePermission } from '../../shared/native/reminders';
 import type { Reminder } from '../reminders/model';
 
+type ToastElement = HTMLElement & { message: string; presented: boolean };
+
+async function findToast(root: HTMLElement, message: string) {
+  let toast: ToastElement | null = null;
+  await waitFor(() => {
+    toast = root.ownerDocument.querySelector<ToastElement>('ion-toast.hf-toast');
+    expect(toast).toBeInTheDocument();
+    expect(toast?.message).toBe(message);
+  });
+  return toast!;
+}
+
 function ProfileRoutes({
   route,
   device,
@@ -219,13 +231,13 @@ export const Both: Story = {
 export const OffKeepsSignals: Story = {
   name: 'Apagar y reabrir conserva las dos elecciones',
   args: { route: settings, sound: true, flash: true },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(await canvas.findByRole('switch', { name: 'Recibir recordatorios' }));
     await expect(
       canvas.queryByRole('switch', { name: 'Sonido reforzado' }),
     ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar preferencias' }));
-    await expect(await canvas.findByText('Preferencias guardadas')).toBeVisible();
+    await findToast(canvasElement, 'Preferencias guardadas');
     await userEvent.click(canvas.getByRole('button', { name: 'Volver' }));
     await userEvent.click(canvas.getByRole('button', { name: /Notificaciones y horarios/ }));
     await expect(canvas.getByRole('switch', { name: 'Recibir recordatorios' })).not.toBeChecked();
@@ -247,11 +259,11 @@ export const Cancel: Story = {
 export const Calm: Story = {
   name: 'Calma · guardar franja que cruza medianoche',
   args: { route: `${settings}/calma` },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     const input = await canvas.findByLabelText('Desde, franja 1');
     fireEvent.change(input, { target: { value: '21:00' } });
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar horas de calma' }));
-    await expect(await canvas.findByText('Preferencias guardadas')).toBeVisible();
+    await findToast(canvasElement, 'Preferencias guardadas');
     await userEvent.click(await canvas.findByRole('button', { name: /Horas de calma/ }));
     await expect(canvas.getByLabelText('Desde, franja 1')).toHaveValue('21:00');
   },
@@ -270,46 +282,38 @@ export const InvalidCalm: Story = {
 export const Schedule: Story = {
   name: 'Horarios · guardar y consultar valores reales',
   args: { route: `${settings}/horarios` },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     fireEvent.change(await canvas.findByLabelText('Horario de protector 1'), {
       target: { value: '06:30' },
     });
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar cambios' }));
-    await expect(
-      await canvas.findByText('Horarios guardados. Las próximas citas ya están actualizadas.'),
-    ).toBeVisible();
+    await findToast(canvasElement, 'Horarios guardados. Las próximas citas ya están actualizadas.');
     await userEvent.click(await canvas.findByRole('button', { name: /Horarios de hábitos/ }));
     await expect(canvas.getByLabelText('Horario de protector 1')).toHaveValue('06:30');
   },
 };
 export const NoticeExpires: Story = {
   name: 'Perfil · aviso superior se retira automáticamente',
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(await canvas.findByRole('button', { name: /Editar perfil/ }));
     const dialog = within(canvas.getByRole('dialog'));
     await userEvent.click(dialog.getByRole('button', { name: 'Guardar cambios' }));
-    const message = await canvas.findByText('Cambios guardados en este dispositivo.');
-    const notice = message.closest('.top-notice')!;
+    const notice = await findToast(canvasElement, 'Cambios guardados en este dispositivo.');
+    await waitFor(() => expect(notice.presented).toBe(true));
     await expect(notice.getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
     await expect(notice.getBoundingClientRect().top).toBeLessThan(48);
-    await waitFor(
-      () =>
-        expect(
-          canvas.queryByText('Cambios guardados en este dispositivo.'),
-        ).not.toBeInTheDocument(),
-      { timeout: 8500 },
-    );
+    await waitFor(() => expect(notice.presented).toBe(false), { timeout: 8500 });
   },
 };
 export const Maximum: Story = {
   name: 'Máximo compartido · admite más de seis',
   args: { route: `${settings}/limite` },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     const input = await canvas.findByRole('textbox', { name: 'Máximo diario' });
     await userEvent.clear(input);
     await userEvent.type(input, '12');
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar máximo' }));
-    await expect(await canvas.findByText('Preferencias guardadas')).toBeVisible();
+    await findToast(canvasElement, 'Preferencias guardadas');
     await expect(await canvas.findByRole('button', { name: /Hasta 12 avisos/ })).toBeVisible();
   },
 };
@@ -389,13 +393,13 @@ export const WebCapabilities: Story = {
 export const WriteRecovery: Story = {
   name: 'Fallo de guardado y reintento sin perder selección',
   args: { route: settings, scenario: 'write-error' },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(await canvas.findByRole('switch', { name: 'Sonido reforzado' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Guardar preferencias' }));
     await expect(await canvas.findByText('Guardado sin confirmar')).toBeVisible();
     await expect(canvas.getByRole('switch', { name: 'Sonido reforzado' })).toBeChecked();
     await userEvent.click(canvas.getByRole('button', { name: 'Reintentar guardado' }));
-    await expect(await canvas.findByText('Preferencias guardadas')).toBeVisible();
+    await findToast(canvasElement, 'Preferencias guardadas');
   },
 };
 export const AgendaRecovery: Story = {

@@ -1,0 +1,32 @@
+.hf-native-spinner {
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+  --color: currentColor;
+}
+
+.hf-async__icon > .hf-native-spinner {
+  width: 32px;
+  height: 32px;
+}
+
+.hf-content-skeleton {
+  display: grid;
+  gap: var(--hf-spacing-base-8);
+  width: min(100%, 320px);
+  margin-top: var(--hf-spacing-base-4);
+}
+
+.hf-content-skeleton__line {
+  height: 12px;
+  margin: 0;
+  --background: var(--hf-color-surface-raised);
+  --background-rgb: 83, 66, 105;
+  --border-radius: var(--hf-radius-base-full);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hf-content-skeleton__line {
+    --background-rgb: 83, 66, 105;
+  }
+}

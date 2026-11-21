@@ -9,6 +9,8 @@
   --ion-toolbar-background: var(--hf-color-background-canvas);
   --ion-toolbar-color: var(--hf-color-text-primary);
   --ion-color-primary: var(--hf-color-action-primary);
+  --ion-color-step-50: var(--hf-color-surface-raised);
+  --ion-color-step-850: var(--hf-color-text-primary);
 }
 
 * {

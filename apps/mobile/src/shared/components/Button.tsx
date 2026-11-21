@@ -1,5 +1,6 @@
+import { IonSpinner } from '@ionic/react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { Icon } from './Icon';
+import './async-feedback.css';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'text' | 'sunscreen';
@@ -34,7 +35,11 @@ export function Button({
       }}
     >
       <span className="hf-button__surface">
-        {loading ? <Icon name="spinner" inheritColor className="hf-spinner" /> : icon}
+        {loading ? (
+          <IonSpinner name="crescent" className="hf-native-spinner" aria-hidden="true" />
+        ) : (
+          icon
+        )}
         <span>{loading ? 'Cargando…' : children}</span>
       </span>
     </button>
