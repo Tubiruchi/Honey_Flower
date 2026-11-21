@@ -24,6 +24,7 @@
     "@capacitor/core": "8.4.3",
     "@capacitor/filesystem": "8.1.5",
     "@capacitor/local-notifications": "8.3.1",
+    "@capacitor/network": "8.0.1",
     "@fontsource/plus-jakarta-sans": "5.3.0",
     "@honeyflower/contracts": "0.1.0",
     "@honeyflower/design-tokens": "0.1.0",

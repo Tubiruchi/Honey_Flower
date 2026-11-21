@@ -1,7 +1,15 @@
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import type { SyncState } from '@honeyflower/contracts';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocal } from '../local/LocalProvider';
@@ -12,7 +20,10 @@ import {
   unreadReconciliationNotice,
 } from '../../shared/data/sync/outbox.ts';
 import type { ReconciliationNotice } from '../../shared/data/sync/outbox.ts';
+import { resolveSyncState } from '../../shared/data/sync/status.ts';
 import { useSqliteFoundation } from '../../shared/data/sqlite/SqliteFoundation.tsx';
+import { createDeviceConnectivity, watchConnectivity } from '../../shared/native/connectivity.ts';
+import type { ConnectivityPort } from '../../shared/native/connectivity.ts';
 import { APP_VERSION } from '../../shared/appVersion.ts';
 import { Button } from '../../shared/components/Button.tsx';
 import { TopNotice } from '../../shared/components/TopNotice.tsx';
@@ -38,16 +49,23 @@ export const useSyncStatus = () => useContext(Context);
 export function SyncProvider({
   accountId,
   children,
+  connectivity,
   remote,
 }: {
   accountId: string | null;
   children: ReactNode;
+  connectivity?: ConnectivityPort;
   remote: SyncRemotePort;
 }) {
   const navigate = useNavigate();
   const sqlite = useSqliteFoundation();
   const local = useLocal();
   const refreshLocal = local.refresh;
+  const activeConnectivity = useMemo(
+    () => connectivity ?? createDeviceConnectivity(),
+    [connectivity],
+  );
+  const online = useRef<boolean | null>(null);
   const engine = useMemo(
     () =>
       accountId && sqlite.connection && remote.configured
@@ -69,24 +87,21 @@ export function SyncProvider({
   const [reconciliation, setReconciliation] = useState<ReconciliationNotice | null>(null);
 
   const run = useCallback(
-    (force = false) => {
+    (force = false, connected = online.current ?? false) => {
       if (!engine || !sqlite.connection) return;
       const connection = sqlite.connection;
-      const online = navigator.onLine !== false;
-      const task = force ? engine.retry(online) : engine.run(online);
+      const task = force ? engine.retry(connected) : engine.run(connected);
       void task
         .then(async ({ summary, networkError, pulled }) => {
           if (pulled) await refreshLocal();
           const notice = await unreadReconciliationNotice(connection);
           setReconciliation(notice);
-          const state: SyncState =
-            summary.failedCount > 0 || networkError
-              ? 'error'
-              : summary.pendingCount > 0
-                ? online
-                  ? 'pending'
-                  : 'offline'
-                : 'synced';
+          const state = resolveSyncState({
+            connected,
+            failedCount: summary.failedCount,
+            pendingCount: summary.pendingCount,
+            networkError,
+          });
           setView({
             state,
             pendingCount: summary.pendingCount,
@@ -96,6 +111,19 @@ export function SyncProvider({
         .catch(() => setView((current) => ({ ...current, state: 'error' })));
     },
     [engine, refreshLocal, sqlite.connection],
+  );
+
+  const runWithCurrentConnectivity = useCallback(
+    (force = false) => {
+      void activeConnectivity
+        .getStatus()
+        .then((connected) => {
+          online.current = connected;
+          run(force, connected);
+        })
+        .catch(() => run(force, online.current ?? false));
+    },
+    [activeConnectivity, run],
   );
 
   const dismissReconciliation = useCallback(() => {
@@ -121,35 +149,38 @@ export function SyncProvider({
 
   useEffect(() => {
     if (!engine) return;
-    run();
-    const online = () => run();
+    const stopConnectivity = watchConnectivity(activeConnectivity, (snapshot) => {
+      online.current = snapshot.connected;
+      if (snapshot.initial || snapshot.recovered || !snapshot.connected) {
+        run(false, snapshot.connected);
+      }
+    });
     const visibility = () => {
-      if (document.visibilityState === 'visible') run();
+      if (document.visibilityState === 'visible') runWithCurrentConnectivity();
     };
-    window.addEventListener('online', online);
     document.addEventListener('visibilitychange', visibility);
     const native = NativeApp.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) run();
+      if (isActive) runWithCurrentConnectivity();
     });
     const interval = window.setInterval(() => {
-      if (document.visibilityState === 'visible') run();
+      if (document.visibilityState === 'visible') runWithCurrentConnectivity();
     }, 30_000);
     return () => {
-      window.removeEventListener('online', online);
       document.removeEventListener('visibilitychange', visibility);
       window.clearInterval(interval);
+      void stopConnectivity();
       void native.then((listener) => listener.remove());
     };
-  }, [engine, run]);
+  }, [activeConnectivity, engine, run, runWithCurrentConnectivity]);
 
   useEffect(() => {
-    if (engine && local.state) run();
+    if (engine && local.state && online.current !== null) run(false, online.current);
   }, [engine, local.state, run]);
 
   const value: SyncView = {
     available: Boolean(engine),
     ...view,
-    retry: () => run(true),
+    retry: () => runWithCurrentConnectivity(true),
   };
   const adjusted = reconciliation?.count ?? 0;
   const reviewCopy =
