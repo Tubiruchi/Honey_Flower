@@ -1,0 +1,588 @@
+{
+  "info": {
+    "_postman_id": "7d8d3ff6-fc23-4fc2-aee5-bbedf38fa0ee",
+    "name": "HoneyFlower · Avance 3",
+    "description": "Colección de evaluación para Supabase Auth y Data API. Ejecutar en orden: seguridad, inicio de sesión, CRUD temporal de sync_devices y consultas de sincronización. Usa exclusivamente la clave pública y el JWT del usuario; no requiere credenciales privadas. El CRUD trabaja sobre una instalación temporal propiedad de la cuenta y termina eliminándola.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('device_id')) {",
+          "  pm.collectionVariables.set('device_id', pm.variables.replaceIn('{{$guid}}'));",
+          "}",
+          "pm.collectionVariables.set('request_time', new Date().toISOString());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "supabase_url",
+      "value": "https://jkrlnelqsafkztsvnbrr.supabase.co",
+      "type": "string"
+    },
+    {
+      "key": "publishable_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "device_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "device_created_at",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "request_time",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "app_version",
+      "value": "postman-avance3",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 · Seguridad",
+      "description": "Comprueba que la clave pública por sí sola no puede leer datos de usuario.",
+      "item": [
+        {
+          "name": "GET · Rechazar lectura sin sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{publishable_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/rest/v1/sync_devices?select=user_id&limit=1",
+            "description": "La tabla está protegida con RLS y no concede SELECT al rol anónimo. Una respuesta 401 o 403 confirma que la clave pública no sustituye la sesión del usuario."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('RLS rechaza la lectura anónima', function () {",
+                  "  pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('La respuesta no contiene filas privadas', function () {",
+                  "  const body = pm.response.text().trim();",
+                  "  pm.expect(body).not.to.match(/^\\s*\\[\\s*\\{/);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 · Autenticación",
+      "description": "Obtiene un JWT real de una cuenta de prueba confirmada y verifica la identidad activa.",
+      "item": [
+        {
+          "name": "POST · Iniciar sesión con correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{supabase_url}}/auth/v1/token?grant_type=password",
+            "description": "Antes de ejecutar, asignar publishable_key, test_email y test_password en las variables de la colección. La prueba guarda access_token, refresh_token y user_id solo durante la sesión de Postman."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La autenticación responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.test('La sesión contiene un JWT y un usuario', function () {",
+                  "    pm.expect(data.token_type).to.eql('bearer');",
+                  "    pm.expect(data.access_token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(data.refresh_token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(data.user && data.user.id).to.be.a('string').and.not.empty;",
+                  "  });",
+                  "  pm.collectionVariables.set('access_token', data.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET · Consultar usuario actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/auth/v1/user",
+            "description": "Confirma que el token guardado pertenece al mismo UUID que usarán las políticas RLS."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La sesión sigue activa', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const user = pm.response.json();",
+                  "  pm.test('El UUID coincide con la variable de sesión', function () {",
+                  "    pm.expect(user.id).to.eql(pm.collectionVariables.get('user_id'));",
+                  "    pm.expect(user.email).to.eql(pm.collectionVariables.get('test_email'));",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 · CRUD REST de instalación temporal",
+      "description": "Ejercita GET, POST, PUT y DELETE sobre sync_devices. RLS limita cada fila a auth.uid(); el DELETE final evita dejar datos de evaluación.",
+      "item": [
+        {
+          "name": "POST · Crear instalación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"platform\": \"web\",\n  \"app_version\": \"{{app_version}}\",\n  \"last_pulled_revision\": 0,\n  \"last_pushed_at\": null,\n  \"last_seen_at\": \"{{request_time}}\",\n  \"updated_at\": \"{{request_time}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{supabase_url}}/rest/v1/sync_devices?select=user_id,device_id,platform,app_version,last_pulled_revision,last_pushed_at,last_seen_at,created_at,updated_at",
+            "description": "Crea una instalación de prueba con UUID generado por Postman. user_id debe ser el UUID obtenido al iniciar sesión."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La instalación se crea', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('La fila pertenece al usuario y dispositivo de la prueba', function () {",
+                  "    pm.expect(rows).to.be.an('array').with.lengthOf(1);",
+                  "    pm.expect(rows[0].user_id).to.eql(pm.collectionVariables.get('user_id'));",
+                  "    pm.expect(rows[0].device_id).to.eql(pm.collectionVariables.get('device_id'));",
+                  "  });",
+                  "  pm.collectionVariables.set('device_created_at', rows[0].created_at);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET · Leer instalación",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/rest/v1/sync_devices?user_id=eq.{{user_id}}&device_id=eq.{{device_id}}&select=user_id,device_id,platform,app_version,last_pulled_revision,last_seen_at,created_at,updated_at",
+            "description": "Lee únicamente la instalación creada. La misma petición con el UUID de otra cuenta queda vacía por RLS."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La lectura responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('La lectura devuelve exactamente la instalación propia', function () {",
+                  "    pm.expect(rows).to.be.an('array').with.lengthOf(1);",
+                  "    pm.expect(rows[0].device_id).to.eql(pm.collectionVariables.get('device_id'));",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT · Actualizar instalación",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"platform\": \"web\",\n  \"app_version\": \"{{app_version}}-put\",\n  \"last_pulled_revision\": 1,\n  \"last_pushed_at\": null,\n  \"last_seen_at\": \"{{request_time}}\",\n  \"created_at\": \"{{device_created_at}}\",\n  \"updated_at\": \"{{request_time}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{supabase_url}}/rest/v1/sync_devices?user_id=eq.{{user_id}}&device_id=eq.{{device_id}}&select=user_id,device_id,platform,app_version,last_pulled_revision,last_pushed_at,last_seen_at,created_at,updated_at",
+            "description": "PostgREST usa PUT como upsert de una sola fila: filtra todas las columnas de la llave primaria y envía todas las columnas de la tabla."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('El PUT actualiza la fila', function () {",
+                  "  pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('La revisión y versión quedan actualizadas', function () {",
+                  "    pm.expect(rows).to.be.an('array').with.lengthOf(1);",
+                  "    pm.expect(rows[0].last_pulled_revision).to.eql(1);",
+                  "    pm.expect(rows[0].app_version).to.eql(pm.collectionVariables.get('app_version') + '-put');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE · Eliminar instalación",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/rest/v1/sync_devices?user_id=eq.{{user_id}}&device_id=eq.{{device_id}}&select=user_id,device_id",
+            "description": "Elimina exclusivamente la instalación temporal creada por esta ejecución. No toca el perfil, registros ni otras instalaciones."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La eliminación responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('Se elimina exactamente la instalación temporal', function () {",
+                  "    pm.expect(rows).to.be.an('array').with.lengthOf(1);",
+                  "    pm.expect(rows[0].device_id).to.eql(pm.collectionVariables.get('device_id'));",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET · Confirmar limpieza",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/rest/v1/sync_devices?user_id=eq.{{user_id}}&device_id=eq.{{device_id}}&select=user_id,device_id",
+            "description": "Comprueba que el DELETE dejó cero filas y limpia las variables temporales para la siguiente ejecución."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La comprobación responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('La instalación temporal ya no existe', function () {",
+                  "    pm.expect(rows).to.be.an('array').that.is.empty;",
+                  "  });",
+                  "  pm.collectionVariables.unset('device_id');",
+                  "  pm.collectionVariables.unset('device_created_at');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 · Sincronización de la aplicación",
+      "description": "Consultas seguras que corresponden al servicio modular usado por Ionic. No fabrican registros de hábitos.",
+      "item": [
+        {
+          "name": "GET · Consultar operaciones propias",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{supabase_url}}/rest/v1/sync_operations?user_id=eq.{{user_id}}&select=user_id,operation_id,operation_type,status,applied_server_revision,processed_at,failure_code&order=server_received_at.desc&limit=20",
+            "description": "Lista hasta 20 recibos de la cuenta. La tabla es append-only para clientes: la APK puede leer e insertar pendientes, pero no reescribir resultados del servidor."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La consulta de operaciones responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const rows = pm.response.json();",
+                  "  pm.test('Solo aparecen operaciones de la sesión', function () {",
+                  "    pm.expect(rows).to.be.an('array');",
+                  "    rows.forEach((row) => pm.expect(row.user_id).to.eql(pm.collectionVariables.get('user_id')));",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST · Descargar snapshot canónico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{publishable_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"p_since_revision\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{supabase_url}}/rest/v1/rpc/pull_sync_snapshot",
+            "description": "Invoca la función SECURITY INVOKER usada para reconstruir SQLite. La función deriva la cuenta de auth.uid() y no acepta un user_id elegido por el cliente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La descarga responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const snapshot = pm.response.json();",
+                  "  pm.test('El contrato remoto está versionado', function () {",
+                  "    pm.expect(snapshot.version).to.eql(1);",
+                  "    pm.expect(snapshot.server_revision).to.be.a('number');",
+                  "    pm.expect(snapshot.unchanged).to.be.a('boolean');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
