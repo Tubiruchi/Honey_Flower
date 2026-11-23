@@ -1,182 +1,337 @@
 # HoneyFlower
 
-Base del proyecto Ionic React para el jardín de hábitos. La prioridad de esta entrega es
-Storybook: componentes reales, tokens compartidos y pruebas reproducibles.
+[![CI](https://github.com/Tubiruchi/Honey_Flower/actions/workflows/ci.yml/badge.svg)](https://github.com/Tubiruchi/Honey_Flower/actions/workflows/ci.yml)
 
-## Gestión del proyecto
+Aplicación móvil híbrida y offline-first para construir hábitos de hidratación y uso de protector
+solar. HoneyFlower convierte la constancia semanal en un jardín: cada ciclo completado puede sumar
+una planta viva, mientras que los ciclos no alcanzados permanecen disponibles en el historial de
+plantas marchitas.
 
-**Gestor del Proyecto: Pedro Ortegón** (GitHub: [`Tubiruchi`](https://github.com/Tubiruchi)). Coordina el plan por fases, el seguimiento de tareas y fechas, el registro de acuerdos y bloqueos, la revisión de evidencias y la preparación de la entrega. El proyecto se planifica del 19 de octubre al 4 de diciembre de 2026.
+La aplicación funciona localmente sin conexión y sincroniza los cambios de cuentas autenticadas con
+Supabase cuando la red vuelve a estar disponible. La versión actual de la aplicación es **0.4.3** y el
+paquete Android usa el identificador `com.honeyflower.app`.
 
-El plan detallado, las responsabilidades y el mecanismo de coordinación se conservan fuera del
-repositorio en `../Docs/implementacion-app/gestion-del-proyecto.md`.
+## Funcionalidad
 
-## Plan de trabajo y ClickUp
+- Onboarding para configurar nombre, especie inicial, metas, horarios, notificaciones y zona horaria.
+- Registro, confirmación de correo, inicio de sesión, recuperación de contraseña y cierre de sesión.
+- Registro de agua mediante cantidades rápidas, cantidad personalizada y captura temporal con cámara.
+- Registro de protector solar por citas, con ventanas de 60 minutos y una sola confirmación por cita.
+- Historial diario con filtros, edición, eliminación y deshacer sobre operaciones confirmadas.
+- Inicio con progreso de agua, protector, racha, calendario operativo y estado actual de la planta.
+- Análisis por mes con jardines de plantas vivas y marchitas, además del progreso del ciclo.
+- Perfil con estadísticas, metas, horarios, preferencias de notificación y estado de sincronización.
+- Notificaciones locales programadas en Android y simulación controlada en el entorno web.
+- Uso como invitado con datos exclusivamente locales o como cuenta con sincronización remota.
 
-El equipo organiza el trabajo en ClickUp con tareas por fase y rol, responsables, fechas, estimaciones de referencia, criterios de aceptación y subtareas. Las dependencias muestran el orden entre entregables; los estados se actualizan con base en evidencia. El tablero detallado se comparte dentro del equipo.
+## Arquitectura
 
-| Fase | Fechas       | Enfoque                                    |
-| ---- | ------------ | ------------------------------------------ |
-| 1    | 19–23 oct    | Diseño Figma y primera entrega de avances  |
-| 2    | 26–30 oct    | Revisión del prototipo y alcance inmediato |
-| 3    | 2–6 nov      | Flujos principales y estados               |
-| 4    | 9–13 nov     | Jardín, progreso y revisión intermedia     |
-| 5    | 16–20 nov    | Integraciones o simulaciones delimitadas   |
-| 6    | 23–27 nov    | Integración del recorrido y correcciones   |
-| 7    | 30 nov–4 dic | Preparación, validación, demo y cierre     |
+HoneyFlower usa una arquitectura offline-first. La interfaz nunca depende de una respuesta remota para
+confirmar una acción local: primero escribe en el almacenamiento del dispositivo y después entrega la
+operación pendiente al servidor.
 
-La dedicación planeada es de aproximadamente dos horas por persona a la semana. Las estimaciones no son horas registradas. El tablero y sus fechas deben reflejar el avance comprobable del repositorio.
-
-## Empezar
-
-Requisitos: Node **24.13.0** (ver `.nvmrc`) y npm **11**. Ejecutar dentro de `Honey_Flower`:
-
-```sh
-npm ci
-npm run storybook
+```mermaid
+flowchart LR
+    UI[Ionic React] --> DOMAIN[Reglas y casos de uso]
+    DOMAIN --> REPO[Repositorio local]
+    REPO --> SQLITE[(SQLite en Android)]
+    REPO --> WEB[(Almacenamiento web)]
+    SQLITE --> OUTBOX[Outbox de sincronización]
+    NETWORK[Capacitor Network] --> ENGINE[Motor de sincronización]
+    OUTBOX --> ENGINE
+    ENGINE --> API[Supabase Data API]
+    API --> DB[(PostgreSQL + RLS)]
+    DB --> SNAPSHOT[Snapshot canónico]
+    SNAPSHOT --> ENGINE
+    ENGINE --> SQLITE
+    UI --> NATIVE[Cámara y notificaciones Capacitor]
 ```
 
-Abrir [Storybook](http://localhost:6006). Para la app local:
+### Persistencia local
+
+- Android usa `@capacitor-community/sqlite` con una base independiente para invitado y para cada UUID
+  autenticado.
+- Las migraciones locales son transaccionales, activan llaves foráneas y utilizan WAL.
+- Cada mutación de una cuenta se confirma junto con su entrada de outbox en la misma transacción.
+- El navegador utiliza un adaptador de almacenamiento web para desarrollo, Storybook y pruebas.
+- Los intentos temporales, recibos y preferencias se validan antes de sustituir datos confirmados.
+
+### Sincronización remota
+
+- `@capacitor/network` detecta desconexiones y reintenta al recuperar conectividad.
+- Las operaciones mantienen un `operation_id` estable para permitir reintentos idempotentes.
+- Supabase Auth proporciona la sesión y el JWT usado por Row Level Security.
+- La Data API recibe operaciones pendientes; PostgreSQL valida y actualiza la proyección canónica.
+- La descarga por cursor reconstruye SQLite únicamente cuando no apareció otra escritura local.
+- Rechazos y conflictos conservan un recibo de auditoría y generan una revisión visible en la app.
+- Invitados, rutas locales y archivos de cámara no se sincronizan.
+
+## Tecnologías
+
+| Área                 | Tecnologías                                                                |
+| -------------------- | -------------------------------------------------------------------------- |
+| Aplicación           | React 19, Ionic React 9, React Router 7, TypeScript 5                      |
+| Compilación          | Vite 8, npm workspaces                                                     |
+| Android              | Capacitor 8, Java 21, Android SDK 36                                       |
+| Persistencia         | SQLite nativo, almacenamiento web y repositorios transaccionales           |
+| Backend              | Supabase Auth, Data API, PostgreSQL, funciones SQL y Row Level Security    |
+| Diseño               | Storybook 10, tokens compartidos, Plus Jakarta Sans y recursos desde Figma |
+| Pruebas              | Node Test Runner, Vitest Browser, Playwright y Storybook Accessibility     |
+| Integración continua | GitHub Actions                                                             |
+
+## Requisitos
+
+### Desarrollo web
+
+- Git.
+- Node.js **24.13.0**; la versión está fijada en `.nvmrc`.
+- npm **11**.
+- Chromium para ejecutar las pruebas de Storybook.
+
+### Desarrollo Android
+
+- Android Studio con Java 21, o un JDK 21 compatible.
+- Android SDK 36 y Android Build Tools.
+- Windows PowerShell para el script automatizado de construcción de la APK.
+
+La aplicación declara `minSdkVersion 24`, equivalente a Android 7.0 o posterior.
+
+## Instalación
+
+```sh
+git clone https://github.com/Tubiruchi/Honey_Flower.git
+cd Honey_Flower
+npm ci
+```
+
+Crear la configuración local a partir del ejemplo:
+
+```powershell
+Copy-Item apps/mobile/.env.example apps/mobile/.env.local
+```
+
+En macOS o Linux:
+
+```sh
+cp apps/mobile/.env.example apps/mobile/.env.local
+```
+
+El archivo `.env.local` está ignorado por Git.
+
+## Variables de entorno
+
+La conexión de cuentas y sincronización requiere dos variables en `apps/mobile/.env.local`:
+
+```dotenv
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_<clave-publica>
+```
+
+| Variable                        | Uso                                                  |
+| ------------------------------- | ---------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | URL pública del proyecto Supabase.                   |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Clave pública para Auth y Data API desde el cliente. |
+
+Solo debe utilizarse una clave `sb_publishable_...`. Las claves secretas, `service_role`, contraseñas
+de base de datos y cadenas de conexión no pertenecen al cliente ni al repositorio.
+
+Sin estas variables, la aplicación puede ejecutarse en modo local, pero el registro, el inicio de
+sesión y la sincronización remota permanecen deshabilitados.
+
+### Redirecciones de autenticación
+
+El proyecto Supabase debe permitir los destinos utilizados por la aplicación:
+
+```text
+http://127.0.0.1:5173/cuenta/callback
+http://127.0.0.1:5173/cuenta/callback?flow=recovery
+honeyflower://auth/callback
+honeyflower://auth/callback?flow=recovery
+```
+
+Si se desarrolla con `localhost` en lugar de `127.0.0.1`, ese origen debe registrarse por separado.
+Los enlaces de confirmación y recuperación usan PKCE y deben abrirse en el mismo dispositivo donde se
+inició la solicitud.
+
+## Ejecución local
+
+Iniciar la aplicación web:
 
 ```sh
 npm run dev
 ```
 
-Abrir [HoneyFlower](http://localhost:5173). Incluye Inicio, Análisis y Perfil con registros,
-edición, estadísticas y preferencias que se conservan en el dispositivo.
+La aplicación queda disponible en <http://127.0.0.1:5173>.
 
-La primera entrada abre el [onboarding](http://localhost:5173/onboarding/bienvenida) de ocho
-pantallas implementado desde Figma. En **0.4.2**, **Ya tengo cuenta** abre el inicio de sesión;
-las personas nuevas configuran primero sus hábitos y se registran al terminar. La confirmación
-de correo aplica esa configuración a la cuenta una sola vez y abre Inicio, sin repetir el
-onboarding. **Continuar sin cuenta** está disponible en el resumen. Registro y recuperación están
-conectados al proyecto HoneyFlower de Supabase. Sin configuración válida no se crean sesiones
-ficticias. Los detalles de cuentas, conexión y APK están en la documentación externa.
+Iniciar el catálogo de componentes:
 
-En **0.4.3**, Análisis permite recorrer al menos los últimos doce meses, incluso durante el
-primer mes de uso. Vivas y Marchitas comparten el jardín ilustrado y las plantas marchitas se
-muestran completas, sin la tarjeta ni los indicadores auxiliares retirados.
-
-## Estructura
-
-```text
-apps/
-  mobile/
-    .storybook/                 Configuración, tema, viewports y accesibilidad
-    src/
-      app/                      Entrada, shell Ionic y navegación
-      features/                 Composición de funcionalidades
-      shared/components/        Componentes y *.stories.tsx junto a su implementación
-      shared/styles/            Estilos comunes para app y Storybook
-      shared/data/              Repositorio local, migración, operaciones y reloj
-      shared/native/            Reservado para adaptadores Capacitor
-      stories/                  Bienvenida, fundamentos, composiciones y fixtures
-    public/licenses/            Licencia de la fuente distribuida
-  api/                          Espacio reservado para NestJS
-packages/
-  contracts/                    Tipos de presentación compartidos
-  design-tokens/                Registro JSON y CSS generado
-  domain/                       Espacio reservado para las reglas del MVP
-scripts/                        Generación y verificación de tokens
-supabase/migrations/            Esquema versionado para sincronización remota
+```sh
+npm run storybook
 ```
 
-Toda la documentación ampliada permanece fuera de este repositorio en `../Docs`. Los documentos
-que antes estaban en `docs/` se conservan en `../Docs/implementacion-app`; la instantánea de tokens
-necesaria para compilar sí está versionada aquí.
+Storybook queda disponible en <http://127.0.0.1:6006>.
 
-## Verificación
+Para revisar una compilación de producción:
 
-Instalar el navegador de pruebas una vez:
+```sh
+npm run build
+npm run preview
+```
+
+## Supabase
+
+El esquema remoto está versionado en `supabase/migrations` y debe aplicarse en orden cronológico:
+
+1. `create_sync_foundation`: crea perfiles, preferencias, ciclos, metas, horarios, registros,
+   operaciones, checkpoints y dispositivos.
+2. `process_sync_operations`: valida la outbox y actualiza la proyección canónica en una transacción.
+3. `pull_sync_snapshot`: expone una lectura autenticada y limitada por RLS para reconstruir SQLite.
+
+Las tablas públicas tienen RLS habilitado. Las proyecciones canónicas son de solo lectura para la app;
+el cliente puede insertar operaciones pendientes y administrar únicamente el cursor de sus propias
+instalaciones. El procesador remoto no puede invocarse directamente desde el rol autenticado.
+
+Las pruebas SQL de sincronización están en `supabase/tests/process_sync_operations.sql` y se ejecutan
+dentro de una transacción con `ROLLBACK`, por lo que no conservan fixtures.
+
+## Colección Postman
+
+La colección exportada está en:
+
+```text
+postman/HoneyFlower-Avance3.postman_collection.json
+```
+
+Incluye autenticación, validación de RLS, operaciones `GET`, `POST`, `PUT` y `DELETE` sobre una
+instalación temporal, consulta de recibos y descarga del snapshot canónico. La última petición elimina
+la instalación creada durante la prueba.
+
+Después de importarla en Postman, completar estas variables de la colección:
+
+- `publishable_key`
+- `test_email`
+- `test_password`
+
+El URL de Supabase puede sustituirse mediante `supabase_url`. Los tokens y el UUID del usuario se
+obtienen en tiempo de ejecución y no están incluidos en el archivo.
+
+Validar la estructura de la colección sin realizar peticiones externas:
+
+```sh
+npm run test:postman
+```
+
+## Pruebas y calidad
+
+Instalar Chromium una vez antes de ejecutar las pruebas visuales:
 
 ```sh
 npm exec --workspace @honeyflower/mobile -- playwright install chromium
 ```
 
-Después:
+| Comando                   | Verificación                                                      |
+| ------------------------- | ----------------------------------------------------------------- |
+| `npm run check`           | Tokens, ESLint, TypeScript y formato.                             |
+| `npm run test:onboarding` | Reglas y navegación del onboarding.                               |
+| `npm run test:local`      | Dominio, SQLite, cámara, avisos, repositorios y sincronización.   |
+| `npm run test:postman`    | Estructura, métodos y protección de credenciales de la colección. |
+| `npm run test-storybook`  | Historias, interacciones y accesibilidad en Chromium.             |
+| `npm test`                | Suite completa de pruebas.                                        |
+| `npm run build`           | Compilación de producción de la aplicación.                       |
+| `npm run build-storybook` | Catálogo estático de Storybook.                                   |
 
-```sh
-npm run check
-npm run test-storybook
-npm run build
-npm run build-storybook
-```
-
-`check` comprueba tokens, ESLint, TypeScript y formato. Las pruebas ejecutan las historias en
-Chromium, sus interacciones y los controles automáticos de accesibilidad. El catálogo estático
-se genera en `apps/mobile/storybook-static`; la app en `apps/mobile/dist`.
+Los resultados generados se escriben en `apps/mobile/dist` y `apps/mobile/storybook-static`; ambos
+directorios están ignorados por Git.
 
 ## Android
 
-El proyecto Android está preparado y versionado. Para generar la APK de prueba en Windows:
+Sincronizar los recursos web y plugins con el proyecto nativo:
+
+```sh
+npm run android:sync
+```
+
+Abrir el proyecto en Android Studio:
+
+```sh
+npm run android:open
+```
+
+En Windows, generar una APK de prueba desde la raíz del repositorio:
 
 ```sh
 npm run apk:build
+```
+
+El script compila la aplicación web, sincroniza Capacitor, ejecuta Gradle, verifica la firma de depuración
+y crea el APK junto con su SHA-256 en `artifacts/android`.
+
+Para compartir temporalmente la APK con un teléfono en la misma red local:
+
+```sh
 npm run apk:serve
 ```
 
-Se requiere Android Studio, Java 21 y SDK 36. La APK firmada y su SHA-256 se generan en
-`artifacts/android`; el servidor imprime un enlace para descargarla desde el celular en la misma
-red Wi-Fi. El identificador es `com.honeyflower.app`.
+El servidor imprime la dirección local de descarga y solo expone la APK y su icono. Esta construcción es
+para pruebas; no sustituye una compilación de publicación firmada para una tienda.
 
-## Alcance actual
+## Estructura del repositorio
 
-- 36 componentes compartidos y ocho pantallas de onboarding: las 22 familias de Figma,
-  sus cinco componentes independientes, el catálogo de 26 iconos y ocho composiciones de dominio.
-- 234 tokens con sus 137 alias, 14 estilos tipográficos, tres sombras y Plus Jakarta Sans local.
-- Historias con variantes, estados e interacciones; app de demostración usando los mismos componentes.
-- Inicio, Análisis, Perfil y Registros funcionales, 194 pruebas de lógica local y APK Android 0.4.3 descargable.
-- Primera fase de integración: guardado confirmado, migración de datos, reintentos y deshacer seguro.
-- Segunda fase de integración: Registros y navegación, con filtros,
-  consulta histórica, edición, eliminación confirmada y deshacer sobre datos locales.
-- Tercera fase de integración: Inicio y estados de la planta, con
-  cuerpo/rostro coherentes, calendario operativo, métricas compartidas y registros rápidos reales.
-- Cuarta fase de integración: agua con fotografía, cámara real,
-  confirmación integrada, cantidad editable, reintento estable y recuperación del intento en Android.
-- Quinta fase de integración: protector por horarios, ventanas
-  de 60 minutos, contexto a mitad, confirmación personal, cita única y agenda versionada por día.
-- Séptima fase de integración: Perfil, preferencias y avisos,
-  contenido público, ajustes confirmados, guardado durable Android y notificaciones locales reales.
-- Octava fase de integración: APK y revisión integrada,
-  actualización conservando datos y cámara temporal desde Perfil sin guardar registros.
-- Base remota de sincronización: nueve tablas versionadas en Supabase para perfiles,
-  preferencias, ciclos, metas, agendas, registros, operaciones, revisiones y dispositivos; todas
-  protegidas con RLS y sin almacenar fotografías.
-- Almacenamiento SQLite Android: una base aislada por cuenta, migraciones transaccionales versionadas,
-  llaves foráneas y modo WAL. Las fases 2 y 3 importan perfil, preferencias, ciclos, metas, horarios,
-  registros y operaciones, y convierten SQLite en la fuente principal del repositorio. El almacenamiento
-  anterior permanece como espejo de recuperación y conserva las claves temporales y de notificaciones.
-- Sincronización fase 4: cada cambio de una cuenta entra atómicamente en una outbox SQLite, se reintenta
-  sin duplicados y se entrega como operación pendiente a Supabase. La app consulta su confirmación,
-  conserva los cambios durante cortes de red y muestra el estado real en Perfil. Invitados y fotografías
-  temporales quedan fuera de la sincronización.
-- Sincronización fase 5: un procesador privado de PostgreSQL valida cada operación, aplica en una sola
-  transacción perfiles, preferencias, ciclos, metas, agendas y registros, avanza la revisión del servidor
-  y responde `applied`, `rejected` o `conflict`. La APK no obtiene permisos directos de escritura sobre
-  las tablas canónicas y las fotografías continúan fuera del contrato remoto.
-- Sincronización fase 6: una lectura autenticada y protegida por RLS descarga la proyección canónica
-  cuando cambia el cursor. SQLite la instala atómicamente solo si no apareció otro cambio local,
-  registra el avance de cada instalación y reconcilia rechazos conservando su auditoría. Un segundo
-  dispositivo puede recuperar perfil, preferencias, ciclos, metas, horarios y registros confirmados.
-- Sincronización fase 7: los ajustes por conflicto dejan un aviso persistente y conducen a revisar
-  Perfil o Registros; reconocer el aviso no elimina el recibo de auditoría. Cerrar sesión con cambios
-  pendientes exige una decisión explícita y conserva la base aislada para reintentar con la misma cuenta.
-- Comprobaciones de CI preparadas para GitHub Actions, con catálogo descargable como artefacto.
+```text
+.
+├── .github/workflows/       Integración continua
+├── apps/mobile/
+│   ├── android/             Proyecto nativo Capacitor
+│   ├── src/
+│   │   ├── app/             Arranque, rutas y proveedores globales
+│   │   ├── assets/          Recursos visuales versionados
+│   │   ├── features/        Funcionalidades organizadas por dominio
+│   │   ├── shared/
+│   │   │   ├── components/  Componentes reutilizables y sus historias
+│   │   │   ├── data/        Repositorios, SQLite y sincronización
+│   │   │   ├── native/      Adaptadores de cámara, red y notificaciones
+│   │   │   └── styles/      Estilos compartidos
+│   │   └── stories/         Documentación y composiciones de Storybook
+│   └── tests/               Pruebas de dominio e integración local
+├── packages/
+│   ├── contracts/           Contratos TypeScript compartidos
+│   └── design-tokens/       Tokens fuente y CSS generado
+├── postman/                 Colección REST exportada
+├── scripts/                 Construcción, validación y utilidades
+└── supabase/
+    ├── migrations/          Esquema PostgreSQL versionado
+    └── tests/               Pruebas transaccionales del backend
+```
 
-La autenticación por correo, SQLite y la sincronización bidireccional con Supabase ya están conectadas.
-Las fases 6 y 7 recuperan en otro dispositivo la proyección confirmada, restauran el estado canónico tras
-un rechazo sin pisar cambios pendientes y hacen visible cualquier ajuste para que la persona lo revise.
-Todavía faltan políticas de producto para conflictos que no admitan reconciliación automática, el backend
-de dominio, YOLO y RAG. SQLite sigue siendo la fuente inmediata de uso de la APK y Supabase conserva la
-proyección verificada de cada cuenta.
-Storybook presenta resultados nativos con puertos aislados; Android utiliza cámara y avisos locales reales.
-La navegación flotante no tiene franja de fondo y conserva la cámara integrada con foto temporal;
-la aceptación en teléfono y comprobación física de linterna siguen pendientes.
-Las ilustraciones originales y sus rostros ya se comparten con la biblioteca de Figma.
-Las pruebas Android se realizan por separado: pasar Axe no sustituye TalkBack, teclado real o revisión visual.
+## Seguridad y privacidad
 
-Las guías de Storybook, onboarding, arquitectura y conexiones futuras están en
-`../Docs/implementacion-app`, junto con el historial de fases y parches.
+- La autorización remota depende del JWT de Supabase Auth y políticas RLS basadas en `auth.uid()`.
+- Las claves privadas y credenciales de base de datos nunca se incluyen en el bundle móvil.
+- Las tablas canónicas no aceptan escrituras directas del cliente.
+- Las operaciones remotas son idempotentes y se validan antes de modificar la proyección del usuario.
+- Cada cuenta mantiene una base SQLite aislada; cerrar sesión no mezcla datos con otra cuenta.
+- Las fotografías de cámara son temporales y no se envían a Supabase.
+- Los mensajes públicos de error evitan exponer respuestas técnicas, tokens o credenciales.
 
-La fase de Análisis integra el patio limpio de Figma y el jardín mensual desde ciclos cerrados,
-con una planta por semana, Vivas/Marchitas sobre el mismo jardín y progreso real por ciclo. La
-instalación nueva permanece vacía.
+## Integración continua
+
+GitHub Actions ejecuta en cada pull request y en cada cambio de `main`:
+
+1. Instalación reproducible mediante `npm ci`.
+2. Validación de código, tokens, tipos y formato.
+3. Suite completa de pruebas con Chromium.
+4. Compilación de la aplicación y Storybook.
+5. Publicación temporal del catálogo estático como artefacto del workflow.
+
+## Limitaciones actuales
+
+- La captura de agua permite cámara, vista previa y confirmación manual, pero todavía no integra un
+  modelo de reconocimiento automático.
+- La APK generada por el script es una construcción de depuración destinada a pruebas internas.
+- La sincronización entre múltiples dispositivos requiere validación adicional en teléfonos físicos.
+- Las revisiones con TalkBack, señal de linterna y comportamiento específico de fabricantes Android se
+  realizan por separado de las pruebas automatizadas del navegador.
+
+## Responsable
+
+Proyecto mantenido por [Pedro Ortegón (`Tubiruchi`)](https://github.com/Tubiruchi).
