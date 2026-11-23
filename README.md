@@ -8,7 +8,8 @@ una planta viva, mientras que los ciclos no alcanzados permanecen disponibles en
 plantas marchitas.
 
 La aplicación funciona localmente sin conexión y sincroniza los cambios de cuentas autenticadas con
-Supabase cuando la red vuelve a estar disponible. La versión actual de la aplicación es **0.4.3** y el
+Supabase cuando la red vuelve a estar disponible. La versión actual de la aplicación es
+**0.8.0-avance3** y el
 paquete Android usa el identificador `com.honeyflower.app`.
 
 ## Funcionalidad

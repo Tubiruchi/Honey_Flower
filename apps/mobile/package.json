@@ -1,6 +1,6 @@
 {
   "name": "@honeyflower/mobile",
-  "version": "0.1.0",
+  "version": "0.8.0-avance3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,8 +26,8 @@
     "@capacitor/local-notifications": "8.3.1",
     "@capacitor/network": "8.0.1",
     "@fontsource/plus-jakarta-sans": "5.3.0",
-    "@honeyflower/contracts": "0.1.0",
-    "@honeyflower/design-tokens": "0.1.0",
+    "@honeyflower/contracts": "0.8.0-avance3",
+    "@honeyflower/design-tokens": "0.8.0-avance3",
     "@ionic/react": "9.0.8",
     "@supabase/supabase-js": "2.119.0",
     "lucide-react": "1.59.0",
